@@ -16,6 +16,9 @@ permalink: /
     <dt>Lecture Time</dt>
     <dd>MWF 2:00PM-2:50PM</dd>
   </div>
+</dl>
+
+<dl class="meta-grid">
   <div>
     <dt>Lab Room</dt>
     <dd>14-257</dd>
@@ -24,7 +27,6 @@ permalink: /
     <dt>Lab Time</dt>
     <dd>MWF 3:00PM-3:50PM</dd>
   </div>
-  
 </dl>
 
 <dl class="meta-grid">
