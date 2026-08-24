@@ -18,24 +18,13 @@ permalink: /resources/
   {% endfor %}
 </ul>
 
-## Course notes
+## Slides
 
-{% if resources.readings.size > 0 %}
-<ol class="resource-list course-notes">
-  {% for reading in resources.readings %}
+<ul class="resource-list">
+  {% for document in resources.slides %}
     <li>
-      <strong>{{ reading.title }}</strong>
-      {% if reading.topic %}<span class="resource-meta">{{ reading.topic }}</span>{% endif %}
-      <span class="resource-links">
-        {% for material in reading.materials %}
-          <a href="{{ material.url | relative_url }}">{{ material.label }}</a>{% unless forloop.last %}<span aria-hidden="true"> · </span>{% endunless %}
-        {% endfor %}
-      </span>
+      {% if document.file %}<a href="{{ document.file | relative_url }}">{{ document.title }}</a>{% else %}{{ document.title }}{% endif %}
+      {% if document.status %}<span class="status">{{ document.status }}</span>{% endif %}
     </li>
   {% endfor %}
-</ol>
-{% else %}
-
-Course notes and/or slides will appear here as they are published.
-
-{% endif %}
+</ul>

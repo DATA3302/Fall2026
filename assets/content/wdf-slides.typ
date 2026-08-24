@@ -40,7 +40,17 @@
   },
 )
 
-#let small(body, size: 0.62em, fill: muted-ink) = {
+// `small` is for real, readable secondary content (notes, asides, list text)
+// that should still be legible from the back of a room -- not fine print.
+#let small(body, size: 0.8em, fill: muted-ink) = {
+  set text(font: body-font, size: size, fill: fill)
+  body
+}
+
+// `cite` is for true attribution/citation lines only (source credits). It is
+// allowed to be smaller than other text since it is not meant to be read
+// from a distance, just present for the record.
+#let cite(body, size: 0.55em, fill: muted-ink) = {
   set text(font: body-font, size: size, fill: fill)
   body
 }
@@ -114,17 +124,22 @@
         set list(indent: 1.1em, body-indent: 0.55em, spacing: 0.62em)
         set enum(indent: 1.1em, body-indent: 0.55em, spacing: 0.62em)
 
-        // Markdown emphasis: *strong* is green medium; _emphasis_ is ochre italic.
-        show strong: set text(
+        // Markdown emphasis: *strong* is green medium italic; _emphasis_ is ochre italic.
+        // Using `it => text(...)` (rather than `show X: set text(...)`) is required here:
+        // Typst's built-in strong/emph rendering toggles style based on the *current*
+        // context, so a `set` rule that turns on italic gets immediately toggled back off.
+        show strong: it => text(
           font: body-font-family,
           weight: "medium",
-          style: "normal",
+          style: "italic",
           fill: primary-color,
+          it.body,
         )
-        show emph: set text(
+        show emph: it => text(
           font: body-font-family,
           style: "italic",
           fill: secondary-color,
+          it.body,
         )
         show raw: set text(font: code-font-family, size: 0.78em)
         show link: set text(font: body-font-family, fill: primary-color)
@@ -171,14 +186,14 @@
       #v(1.25em)
       #line(length: 26%, stroke: (paint: accent, thickness: 1.5pt))
       #v(0.8em)
-      #label(size: 0.68em, resolved-author)
+      #label(size: 0.85em, resolved-author)
       #if resolved-institution != none [
         #linebreak()
-        #small(size: 0.52em, resolved-institution)
+        #small(size: 0.72em, resolved-institution)
       ]
       #if attribution != none [
         #v(2.1em)
-        #small(size: 0.38em, attribution)
+        #cite(size: 0.55em, attribution)
       ]
     ],
   )
@@ -206,7 +221,7 @@
 #let source-note(body) = place(
   bottom + left,
   dy: -0.2em,
-  small(size: 0.36em, body),
+  cite(size: 0.5em, body),
 )
 
 #let note-block(body, title: none, accent: accent-green) = block(
@@ -215,7 +230,7 @@
   stroke: (left: (paint: accent, thickness: 2.5pt)),
   fill: accent.lighten(92%),
   [
-    #if title != none [#label(size: 0.72em, fill: accent, title) #v(0.3em)]
+    #if title != none [#label(size: 0.85em, fill: accent, title) #v(0.3em)]
     #body
   ],
 )
@@ -262,17 +277,17 @@
 
   align(center, framed-image)
   if caption != none {
-    v(0.35em)
-    align(center, subtitle(size: 0.58em, caption))
+    v(0.45em)
+    align(center, subtitle(size: 0.85em, caption))
   }
   if source != none {
-    v(0.18em)
-    align(center, small(size: 0.38em, source))
+    v(0.22em)
+    align(center, cite(size: 0.55em, source))
   }
 }
 
 #let big-number(value, description, accent: accent-green) = align(center)[
   #display-title(size: 2.5em, fill: accent, value)
   #linebreak()
-  #subtitle(size: 0.62em, description)
+  #subtitle(size: 0.85em, description)
 ]
