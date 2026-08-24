@@ -1,0 +1,31 @@
+title: "DATA 3302 — Data Visualization"
+short_title: "DATA 3302"
+description: "Course website for Cal Poly DATA 3302: Data Visualization."
+course_number: DATA 3302
+institution: California Polytechnic State University, San Luis Obispo
+url: "https://apwright.github.io"
+baseurl: "/DATA3302-Fall2026"
+lang: en
+logo: /assets/images/logo.png
+favicon: /assets/images/logo.png
+theme_color: "#154f3b"
+
+markdown: kramdown
+permalink: pretty
+
+exclude:
+  - .bundle
+  - Gemfile
+  - Gemfile.lock
+  - README.md
+  - assets/files/README.md
+  - vendor
+
+sass:
+  style: compressed
+
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default

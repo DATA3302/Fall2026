@@ -1,0 +1,20 @@
+code: DATA 3302
+title: Data Visualization
+term: Fall 2026
+institution: Cal Poly San Luis Obispo
+department: Statistics
+instructor:
+  name: Dr. Austin P. Wright
+  email: awrigh20@calpoly.edu
+  office: 14-222
+office_hours:
+  - Monday 11-12 and Monday, Tuesday, Wednesday, 1–2 PM in 14-222
+  - By appointment
+links:
+  appointment: https://calendly.com/awrigh20-calpoly/30min
+  gradescope: https://www.gradescope.com/courses/1266327
+syllabus:
+  label: Course syllabus
+  pdf: /assets/content/00-Syllabus.pdf
+course_start: 2026-08-24
+course_end: 2026-12-14

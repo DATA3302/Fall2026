@@ -1,0 +1,26 @@
+assignments:
+  - title: "Assignment 1: Visualization in the World"
+    status: Coming soon
+    due:
+    url:
+    description: Find and critically examine the visualizations all around you.
+  - title: "Assignment 2: Explanatory Visualization"
+    status: Coming soon
+    due:
+    url:
+    description: Design a persuasive explanatory static visualization.
+  - title: "Assignment 3: Deceptive Visualization"
+    status: Coming soon
+    due:
+    url:
+    description: Explore how design choices can distort data and mislead audiences.
+  - title: "Assignment 4: Interactive Explorations"
+    status: Coming soon
+    due:
+    url:
+    description: Build an interactive visualization that supports exploration of data.
+  - title: "Assignment 5: Data Storytelling"
+    status: Coming soon
+    due:
+    url:
+    description: Use the design skills you have developed in the class so far to tell a compelling narrative.
