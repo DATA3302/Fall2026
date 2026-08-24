@@ -2,6 +2,7 @@
 #import "@preview/fletcher:0.5.8" as fletcher: diagram, edge, node, shapes
 #import "wdf-slides.typ": *
 
+
 #show: wdf-theme.with(
   config-info(
     title: [Welcome!],
@@ -11,7 +12,6 @@
     institution: [Cal Poly San Luis Obispo · Fall 2026],
   ),
 )
-
 
 #title-slide(
   attribution: [Slides adapted from Ayaan Kazerouni, Jon Froehlich, and Polo Chau.],
@@ -91,6 +91,7 @@
   )
 ]
 
+
 #slide[
   #align(center)[#display-title(size: 1.3em)[Health and medicine]]
   #v(0.6em)
@@ -126,7 +127,7 @@
 
 #slide[
   #image-plate(
-    "01-Intro-Assests/flatten_the_curve.png",
+    "01-Intro-Assests/flatten_the_curve.jpg",
     caption: [Our discourse is driven by the visual],
     source: [Adapted from the CDC.],
   )
@@ -277,17 +278,17 @@
 #slide[
   #image-plate(
     "01-Intro-Assests/cholera_data.png",
-    caption: [John Snow placed observations in geographic context to identify the Broad Street pump in the 1855 London cholera outbreak.],
-    source: [Source plate: Edward R. Tufte, Visual and Statistical Thinking.],
+    caption: [Using geographic context to identify the Broad Street pump in the 1855 London cholera outbreak.],
+    source: [Edward R. Tufte, Visual and Statistical Thinking.],
   )
 ]
 
 #slide[
-  #image-plate("01-Intro-Assests/nba_data.png", source: [Source plate: Kirk Goldsberry.])
+  #image-plate("01-Intro-Assests/nba_data.png", source: [Kirk Goldsberry.])
 ]
 
 #slide[
-  #image-plate("01-Intro-Assests/data_beads.png", source: [Source plate: Data Beads, Eszter Katona and Mihály Minkó, 2024.])
+  #image-plate("01-Intro-Assests/data_beads.png", source: [Data Beads, Eszter Katona and Mihály Minkó, 2024.])
 ]
 
 #slide()[
@@ -376,7 +377,7 @@
 #v(2fr)
 
 #focus-slide[
-  Nothing is set in stone—yet.
+  Nothing is set in stone ... yet.
 
   #v(0.6em)
   #small(size: 0.7em)[The schedule is tentative. Watch course announcements and email.]
