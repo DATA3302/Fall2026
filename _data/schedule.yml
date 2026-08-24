@@ -76,14 +76,14 @@
   start: 2026-11-16
   end: 2026-11-20
   dates: November 16, 18, 20
-  lecture: Visualization Research
-  lab: Paper Seminars
+  lecture: Storytelling and Narrative
+  lab: Scrollytelling
 - label: Fall Break
   start: 2026-11-23
   end: 2026-11-27
   dates: November 23, 25, 27
-  lecture: Storytelling and Narrative
-  lab: Scrollytelling
+  lecture:
+  lab:
 - label: Week 14
   start: 2026-11-30
   end: 2026-12-04

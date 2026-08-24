@@ -40,7 +40,7 @@ permalink: /
   </div>
   <div>
     <dt>Office hours</dt>
-    <dd>Monday, Tuesday, and Wednesday, 1–2 PM</dd>
+    <dd>Monday 11-12 and Monday, Tuesday, and Wednesday, 1–2</dd>
   </div>
 </dl>
 
