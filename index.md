@@ -9,6 +9,26 @@ permalink: /
 
 <dl class="meta-grid">
   <div>
+    <dt>Lecture Room</dt>
+    <dd>186-C200</dd>
+  </div>
+  <div>
+    <dt>Lecture Time</dt>
+    <dd>MWF 2:00PM-2:50PM</dd>
+  </div>
+  <div>
+    <dt>Lab Room</dt>
+    <dd>14-257</dd>
+  </div>
+  <div>
+    <dt>Lab Time</dt>
+    <dd>MWF 3:00PM-3:50PM</dd>
+  </div>
+  
+</dl>
+
+<dl class="meta-grid">
+  <div>
     <dt>Instructor</dt>
     <dd>Dr. Austin P. Wright</dd>
   </div>
