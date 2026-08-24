@@ -61,4 +61,5 @@ The schedule is tentative. Pay attention to course announcements and emails for 
 - [Syllabus]({{ '/assets/content/00-Syllabus.pdf' | relative_url }})
 - [Assignments]({{ '/assignments/' | relative_url }})
 - [Gradescope]({{ site.data.course.links.gradescope }})
+- [EdStem]({{ site.data.course.links.edstem }})
 - [Book an appointment]({{ site.data.course.links.appointment }})
