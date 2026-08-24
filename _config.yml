@@ -3,8 +3,8 @@ short_title: "DATA 3302"
 description: "Course website for Cal Poly DATA 3302: Data Visualization."
 course_number: DATA 3302
 institution: California Polytechnic State University, San Luis Obispo
-url: "https://apwright.github.io"
-baseurl: "/DATA3302-Fall2026"
+url: "https://data3302.github.io/"
+baseurl: "/Fall2026"
 lang: en
 logo: /assets/images/logo.png
 favicon: /assets/images/logo.png
