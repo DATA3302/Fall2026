@@ -28,3 +28,14 @@ permalink: /resources/
     </li>
   {% endfor %}
 </ul>
+
+
+## Notebooks
+
+<ul class="resource-list">
+  {% for document in resources.notebooks %}
+    <li>
+      {% if document.url %}<a href="{{ document.url}}">{{ document.title }}</a>{% else %}{{ document.title }}{% endif %}
+    </li>
+  {% endfor %}
+</ul>

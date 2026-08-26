@@ -8,3 +8,12 @@ slides:
   - title: Intro
     file: /assets/content/01-Intro.pdf
     status: PDF
+
+  - title: History
+    file: /assets/content/02-History.pdf
+    status: PDF
+
+
+notebooks:
+  - title: Intro to Observable
+    url: https://observablehq.com/@calpoly-data3302-fall2026/intro-observable

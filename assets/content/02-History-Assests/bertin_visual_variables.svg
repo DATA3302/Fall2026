@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 560" font-family="EB Garamond, Georgia, serif">
+  <rect x="0" y="0" width="900" height="560" fill="#fffff8"/>
+
+  <!-- Position -->
+  <g transform="translate(60,50)">
+    <text x="0" y="8" font-size="26" fill="#242421">Position</text>
+    <line x1="260" y1="-28" x2="260" y2="32" stroke="#d8d4c8" stroke-width="1.5"/>
+    <circle cx="360" cy="24" r="7" fill="#242421"/>
+    <circle cx="460" cy="4" r="7" fill="#242421"/>
+    <circle cx="560" cy="-20" r="7" fill="#242421"/>
+    <line x1="260" y1="32" x2="620" y2="32" stroke="#d8d4c8" stroke-width="1.5"/>
+  </g>
+
+  <!-- Size -->
+  <g transform="translate(60,130)">
+    <text x="0" y="8" font-size="26" fill="#242421">Size</text>
+    <circle cx="360" cy="0" r="8" fill="#242421"/>
+    <circle cx="460" cy="0" r="16" fill="#242421"/>
+    <circle cx="580" cy="0" r="26" fill="#242421"/>
+  </g>
+
+  <!-- Shape -->
+  <g transform="translate(60,210)">
+    <text x="0" y="8" font-size="26" fill="#242421">Shape</text>
+    <circle cx="360" cy="0" r="16" fill="none" stroke="#242421" stroke-width="4"/>
+    <rect x="444" y="-16" width="32" height="32" fill="none" stroke="#242421" stroke-width="4"/>
+    <polygon points="580,-18 598,16 562,16" fill="none" stroke="#242421" stroke-width="4"/>
+  </g>
+
+  <!-- Value -->
+  <g transform="translate(60,290)">
+    <text x="0" y="8" font-size="26" fill="#242421">Value</text>
+    <rect x="344" y="-16" width="32" height="32" fill="#d8d4c8"/>
+    <rect x="444" y="-16" width="32" height="32" fill="#77746d"/>
+    <rect x="544" y="-16" width="32" height="32" fill="#242421"/>
+  </g>
+
+  <!-- Color -->
+  <g transform="translate(60,370)">
+    <text x="0" y="8" font-size="26" fill="#242421">Color</text>
+    <circle cx="360" cy="0" r="16" fill="#176b4d"/>
+    <circle cx="460" cy="0" r="16" fill="#bd7b16"/>
+    <circle cx="560" cy="0" r="16" fill="#b52b20"/>
+  </g>
+
+  <!-- Orientation -->
+  <g transform="translate(60,450)">
+    <text x="0" y="8" font-size="26" fill="#242421">Orientation</text>
+    <line x1="336" y1="16" x2="384" y2="16" stroke="#242421" stroke-width="5"/>
+    <line x1="444" y1="16" x2="480" y2="-16" stroke="#242421" stroke-width="5"/>
+    <line x1="560" y1="16" x2="560" y2="-32" stroke="#242421" stroke-width="5"/>
+  </g>
+
+  <!-- Texture -->
+  <g transform="translate(60,530)">
+    <text x="0" y="-14" font-size="26" fill="#242421">Texture</text>
+    <g clip-path="url(#tex1)">
+      <rect x="344" y="-46" width="32" height="32" fill="none" stroke="#242421" stroke-width="1.5"/>
+      <path d="M344,-14 L376,-46 M344,-30 L360,-46" stroke="#242421" stroke-width="1.5"/>
+    </g>
+    <g>
+      <rect x="444" y="-46" width="32" height="32" fill="none" stroke="#242421" stroke-width="1.5"/>
+      <path d="M444,-14 L476,-46 M444,-22 L468,-46 M444,-30 L460,-46 M452,-14 L476,-38" stroke="#242421" stroke-width="1.5"/>
+    </g>
+    <g>
+      <rect x="544" y="-46" width="32" height="32" fill="none" stroke="#242421" stroke-width="1.5"/>
+      <path d="M544,-14 L576,-46 M544,-22 L568,-46 M544,-30 L560,-46 M544,-38 L552,-46 M552,-14 L576,-38 M560,-14 L576,-30" stroke="#242421" stroke-width="1.5"/>
+    </g>
+  </g>
+</svg>

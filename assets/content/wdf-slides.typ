@@ -248,9 +248,9 @@
   source: none,
   border: true,
   shadow: true,
-  border-stroke: (paint: muted-ink, thickness: 0.8pt),
+  border-stroke: (paint: muted-ink, thickness: 1pt),
   shadow-offset: 4pt,
-  shadow-color: ink.transparentize(86%),
+  shadow-color: ink.transparentize(85%),
 ) = {
   let image-content = if type(image-source) == str {
     if width != none {
