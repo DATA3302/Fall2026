@@ -17,3 +17,5 @@ slides:
 notebooks:
   - title: Intro to Observable
     url: https://observablehq.com/@calpoly-data3302-fall2026/intro-observable
+  - title: Learn just enough Javascript
+    url: https://observablehq.com/@observablehq/learn-javascript-introduction?collection=@observablehq/tutorial
