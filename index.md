@@ -44,13 +44,6 @@ permalink: /
   </div>
 </dl>
 
-## Announcements
-
-<div class="notice" data-course-start="{{ site.data.course.course_start | date: '%Y-%m-%d' }}" data-course-end="{{ site.data.course.course_end | date: '%Y-%m-%d' }}">
-  <strong id="course-status">Checking the course calendar…</strong>
-  <p><time id="today-date"></time></p>
-</div>
-
 ## Course schedule
 
 The schedule is tentative. Pay attention to course announcements and emails for updates.
