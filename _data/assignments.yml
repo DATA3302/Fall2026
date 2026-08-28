@@ -2,7 +2,7 @@ assignments:
   - title: "Assignment 1: Visualization in the World"
     status: Released
     due: September 11
-    url: /assets/content/assignments/01-Visualization-in-the-world.pdf
+    url: assets/content/assignments/01-Visualization-in-the-world.pdf
     description: Find and critically examine the visualizations all around you.
   - title: "Assignment 2: Explanatory Visualization"
     status: Coming soon
