@@ -30,10 +30,10 @@ permalink: /resources/
 </ul>
 
 
-## Notebooks
+## Lab Resources
 
 <ul class="resource-list">
-  {% for document in resources.notebooks %}
+  {% for document in resources.labs %}
     <li>
       {% if document.url %}<a href="{{ document.url}}">{{ document.title }}</a>{% else %}{{ document.title }}{% endif %}
     </li>
