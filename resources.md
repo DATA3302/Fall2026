@@ -35,7 +35,7 @@ permalink: /resources/
 <ul class="resource-list">
   {% for document in resources.labs %}
     <li>
-      {% if document.url %}<a href="{{ document.url}}">{{ document.title }}</a>{% else %}{{ document.title }}{% endif %}
+      {% if document.file %}<a href="{{ document.file | relative_url }}">{{ document.title }}</a>{% elsif document.url %}<a href="{{ document.url }}">{{ document.title }}</a>{% else %}{{ document.title }}{% endif %}
     </li>
   {% endfor %}
 </ul>

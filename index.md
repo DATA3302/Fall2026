@@ -80,7 +80,7 @@ The schedule is tentative. Pay attention to course announcements and emails for 
 
 ## Quick links
 
-- [Syllabus]({{ '/assets/content/syllabus-final-project/00-Syllabus.pdf' | relative_url }})
+- [Syllabus]({{ '/assets/content/syllabus/00-Syllabus.pdf' | relative_url }})
 - [Assignments]({{ '/assignments/' | relative_url }})
 - [Gradescope]({{ site.data.course.links.gradescope }})
 - [EdStem]({{ site.data.course.links.edstem }})
