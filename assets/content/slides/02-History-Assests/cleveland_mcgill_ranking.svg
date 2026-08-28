@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 520" font-family="EB Garamond, Georgia, serif">
+  <rect x="0" y="0" width="900" height="520" fill="#fffff8"/>
+
+  <text x="60" y="46" font-size="22" fill="#77746d" font-style="italic">More accurately judged</text>
+  <text x="840" y="46" font-size="22" fill="#77746d" font-style="italic" text-anchor="end">Less accurately judged</text>
+  <line x1="60" y1="60" x2="840" y2="60" stroke="#d8d4c8" stroke-width="1.5"/>
+
+  <!-- Position -->
+  <g transform="translate(60,100)">
+    <rect x="0" y="-20" width="720" height="40" fill="#176b4d"/>
+    <text x="16" y="8" font-size="24" fill="#fffff8">Position (common scale)</text>
+  </g>
+
+  <!-- Length -->
+  <g transform="translate(60,170)">
+    <rect x="0" y="-20" width="590" height="40" fill="#176b4d" opacity="0.85"/>
+    <text x="16" y="8" font-size="24" fill="#fffff8">Length</text>
+  </g>
+
+  <!-- Angle / Slope -->
+  <g transform="translate(60,240)">
+    <rect x="0" y="-20" width="430" height="40" fill="#bd7b16"/>
+    <text x="16" y="8" font-size="24" fill="#fffff8">Angle / slope</text>
+  </g>
+
+  <!-- Area -->
+  <g transform="translate(60,310)">
+    <rect x="0" y="-20" width="300" height="40" fill="#bd7b16" opacity="0.85"/>
+    <text x="16" y="8" font-size="24" fill="#fffff8">Area</text>
+  </g>
+
+  <!-- Volume -->
+  <g transform="translate(60,380)">
+    <rect x="0" y="-20" width="200" height="40" fill="#b52b20" opacity="0.9"/>
+    <text x="16" y="8" font-size="24" fill="#fffff8">Volume</text>
+  </g>
+
+  <!-- Color saturation -->
+  <g transform="translate(60,450)">
+    <rect x="0" y="-20" width="120" height="40" fill="#b52b20"/>
+    <text x="136" y="8" font-size="24" fill="#242421">Color saturation</text>
+  </g>
+</svg>

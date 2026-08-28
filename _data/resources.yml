@@ -1,21 +1,23 @@
 syllabus:
   - title: Fall 2026 syllabus
-    file: /assets/content/00-Syllabus.pdf
+    file: /assets/content/syllabus/00-Syllabus.pdf
     status: PDF
 
 
 slides:
   - title: Intro
-    file: /assets/content/01-Intro.pdf
+    file: /assets/content/slides/01-Intro.pdf
     status: PDF
 
   - title: History
-    file: /assets/content/02-History.pdf
+    file: /assets/content/slides/02-History.pdf
     status: PDF
 
 
-notebooks:
+labs:
   - title: Intro to Observable
     url: https://observablehq.com/@calpoly-data3302-fall2026/intro-observable
   - title: Learn just enough Javascript
     url: https://observablehq.com/@observablehq/learn-javascript-introduction?collection=@observablehq/tutorial
+  - title: Sketching Activity
+    url: /assets/content/lab-activities/01-Sketching-Activity.pdf
