@@ -42,6 +42,19 @@
   ]
 
 #slide()[
+  #v(1fr)
+  Dice with modern pip layout
+
+  Mohenjo-daro, c. 2600-1900 BCE
+
+  #v(2fr)
+  ][
+    #image-plate("/slides/02-History-Assests/dice.jpg")
+  ]
+
+
+
+#slide()[
     #image-plate("/slides/02-History-Assests/pythagorean_1.png")
   ][
     #image-plate("/slides/02-History-Assests/pythagorean_2.png",caption: [Visual Proof of the Pythagorean Theorem])

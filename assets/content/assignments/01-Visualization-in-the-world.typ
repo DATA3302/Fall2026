@@ -43,6 +43,7 @@ From your collection, *_select three visualizations to critique and analyze_*. F
     + How is the data represented? How do the various graphical marks and visual elements represent the data being shown? This should be directly annotated.
     + What are some strengths and weaknesses of the visualization? In what ways does it do a good job? How can it be improved?
     + What is the historical or cultural context from which this design comes from? Are there any important similarities between this visualization and other earlier visualizations that it is drawing from?
+    + What are the different *user tasks*#sidenote()[Based on Munzner's typology from lecture] that the visualization is designed to support?
 
 
 
@@ -78,6 +79,7 @@ For for deliverable you must submit to gradescope a PDF slideshow including
   + Your critiques for Part 2 which for each chosen visualization must include a slide each detailing (briefly and in summary):
     + The annotated visualization showing and describing the different visual elements and how they are mapped to from data
     + A description of the context and goals of the visualization, what it is trying to say and to whom?
+    + Identification of the different user tasks that the visualization is designed to support.
     + An analysis of what elements do a good or poor job in communicating the goal, and potentially what could be done differently.
   + A slide including your reflection on the assignment.
 

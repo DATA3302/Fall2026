@@ -55,8 +55,8 @@
   body
 }
 
-#let label(body, size: 0.72em, fill: ink) = {
-  set text(font: body-font, size: size, weight: "medium", fill: fill)
+#let label(body, size: 0.72em, fill: ink, style: "italic") = {
+  set text(font: body-font,style:style, size: size, weight: "medium", fill: fill)
   body
 }
 
@@ -230,8 +230,9 @@
   stroke: (left: (paint: accent, thickness: 2.5pt)),
   fill: accent.lighten(92%),
   [
-    #if title != none [#label(size: 0.85em, fill: accent, title) #v(0.3em)]
+    #if title != none [#label(size: 1.25em, fill: accent, title) #v(0.1em)]
     #body
+    #v(0.5em)
   ],
 )
 
