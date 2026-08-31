@@ -21,3 +21,5 @@ labs:
     url: https://observablehq.com/@observablehq/learn-javascript-introduction?collection=@observablehq/tutorial
   - title: Sketching Activity
     file: /assets/content/lab-activities/01-Sketching-Activity.pdf
+  - title: Data Wrangling in Javascript
+    url: https://observablehq.com/@calpoly-data3302-fall2026/data-wrangling-with-javascript

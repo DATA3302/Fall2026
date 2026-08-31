@@ -17,11 +17,7 @@
 #title-slide(attribution: [Slides based on Munzner, Visualization Analysis and Design, 2014])
 
 == Why?
-#focus-slide[Why involve *humans*?]
-
-#focus-slide[Why involve *computers*?]
-
-#focus-slide[Why involve *representations*?]
+#focus-slide[Why involve *direct representations*?]
 
 #slide()[
   #v(1fr)
@@ -51,10 +47,6 @@
     source: [Anscombe, "Graphs in Statistical Analysis," 1973],
   )
 ]
-
-#focus-slide[Why depend on *vision*?]
-
-#focus-slide[Why not on *summarize*?]
 
 #focus-slide[Why is this *difficult*?]
 
