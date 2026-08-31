@@ -13,6 +13,10 @@ slides:
     file: /assets/content/slides/02-History.pdf
     status: PDF
 
+  - title: Process
+    file: /assets/content/slides/03-Proccess.pdf
+    status: PDF
+
 
 labs:
   - title: Intro to Observable
