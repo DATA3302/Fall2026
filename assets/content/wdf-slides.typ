@@ -10,9 +10,17 @@
 #let accent-green = rgb("#176b4d")
 #let accent-ochre = rgb("#bd7b16")
 #let accent-red = rgb("#b52b20")
+#let accent-purple = rgb("#7a2f5c")
+#let accent-blue = rgb("#2a4f8c")
 
 #let body-font = "EB Garamond"
 #let code-font = "Fira Code"
+
+
+#import "@preview/touying:0.7.4": *
+#import "@preview/fletcher:0.5.8" as fletcher: diagram, edge, node, shapes
+#let diagram = touying-reducer.with(
+reduce: fletcher.diagram, cover: fletcher.hide)
 
 // Semantic type styles. These scope text settings so slide sources never need #text.
 #let display-title(body, size: 1.45em, fill: ink) = {

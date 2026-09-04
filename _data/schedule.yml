@@ -15,7 +15,7 @@
   end: 2026-09-11
   dates: September 9, 11
   lecture: Grammar of Graphics
-  lab: Observable Plot, Assignment 1 Presentations
+  lab: Introduction to D3, Assignment 1 Presentations
 - label: Week 4
   start: 2026-09-14
   end: 2026-09-18
@@ -40,7 +40,7 @@
   end: 2026-10-09
   dates: October 5, 7, 9
   lecture: Interaction
-  lab: Introduction to D3
+  lab: Interaction in D3
 - label: Week 8
   start: 2026-10-12
   end: 2026-10-16

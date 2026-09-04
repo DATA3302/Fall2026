@@ -27,3 +27,5 @@ labs:
     file: /assets/content/lab-activities/01-Sketching-Activity.pdf
   - title: Data Wrangling in Javascript
     url: https://observablehq.com/@calpoly-data3302-fall2026/data-wrangling-with-javascript
+  - title: SVG Basics
+    url: https://observablehq.com/@cal-poly-data-design-lab/svg-basics

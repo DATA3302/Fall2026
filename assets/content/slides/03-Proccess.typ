@@ -1,5 +1,4 @@
-#import "@preview/touying:0.7.4": *
-#import "@preview/fletcher:0.5.8" as fletcher: diagram, edge, node, shapes
+
 #import "../wdf-slides.typ": *
 
 
@@ -33,11 +32,19 @@
       [Mean of $y$], [7.50], [7.50], [7.50], [7.50],
       [Variance of $x$], [11.00], [11.00], [11.00], [11.00],
       [Variance of $y$], [4.13], [4.13], [4.12], [4.12],
-      [Correlation], [0.82], [0.82], [0.82], [0.82],[Regression Fit], [$y = 3 + 0.5 x$], [$y = 3 + 0. x$], [$y = 3 + 0.5 x$], [$y = 3 + 0.5 x$],
+      [Correlation], [0.82], [0.82], [0.82], [0.82],[Regression Fit], [$y = 3 + 0.5 x$], [$y = 3 + 0.5 x$], [$y = 3 + 0.5 x$], [$y = 3 + 0.5 x$],
     )
     #v(2fr)
 
   ]
+
+
+
+#focus-slide()[
+  #small[Take 60 seconds:]
+
+  All four datasets above share the same summary statistics. Sketch what you expect their scatterplots to look like.
+]
 
 
 #slide()[
@@ -52,35 +59,42 @@
 
 
 #let cycle-diagram() = align(center + horizon)[
-  #text(size: 1.75em)[
-    #fletcher.diagram(
-      node-stroke: 1.3pt,
-      node-inset: 11pt,
+  #text(size: 1.75em,fill:ink,style:"italic")[
+    #diagram(
+      node-stroke: 3pt+muted-ink,
+      node-inset: 20pt,
+      node-corner-radius: 15pt,
+      edge-corner-radius: 25pt,
+      edge-stroke: 3pt+muted-ink,
       label-sep: 0.55em,
       spacing: (30pt, 160pt),
-      node((-0.9, 0), [*World*], fill: accent-green.lighten(85%), stroke: accent-green, shape: shapes.rect, corner-radius: 5pt, name: <world>),
+
+      node((0, 0), [*World*], name: <world>),
+
+      node((0.75, 0.75), [_Data_], name: <data>),
+
+      node((2.5, 0.75), [_Design_],  name: <design>),
+
+      node((3.5, 0), [*Human*], name: <human>),
 
 
-      node((1, 0), [_Data_], fill: accent-ochre.lighten(80%), stroke: accent-ochre, shape: shapes.rect, corner-radius: 5pt, name: <data>),
+      edge(<world>,(0,0.75), <data>, "->"),
+      edge(<data>,<design>, "->",),
+      edge(<design>,(3.5,0.75), <human>, "->"),
+      pause,
+      node((0.02, -0.03), [#text(style:"italic",fill:accent-red)[World]], name: <interp>,stroke:accent-red),
+      edge(<human>, <world>, "->",stroke:accent-red,label-side: left,label:[#text(fill:accent-red)[Interpretation]]),
+      node((0.02, -0.3), [#text(weight:"semibold",style:"italic",fill:accent-red)[Mind the Gap!]],stroke:none),
+      // edge(<data>,(1.75,0), <viz>, "->",[#small[Measure]]),
+      // edge(<viz>, (1.75,1), <human>, "->",[#small[Measure]]),
+      // edge(<human>,(-0.9,1), (-0.9,0.5), "->",           [#small[Measure]]),
 
-      node((1.75, 0.5), [_Visualization_], fill: accent-ochre.lighten(80%), stroke: accent-ochre, shape: shapes.rect, corner-radius: 5pt, name: <viz>),
-
-      node((1, 1), [_Human_], fill: accent-ochre.lighten(80%), stroke: accent-ochre, shape: shapes.rect, corner-radius: 5pt, name: <human>),
-
-      node((-0.5, 0.5), [*Interpretation*], fill: accent-green.lighten(85%), stroke: accent-green, shape: shapes.rect, corner-radius: 5pt, name: <interp>),
-
-      edge(<world>, <data>, "->", label-sep: 0pt,[#text(style: "italic", fill: ink, size: 0.75em)[Measure]]),
-
-      edge(<data>,(1.75,0), <viz>, "->",corner-radius: 25pt,label-side:left, label-sep:0pt,[#text(style: "italic", fill: ink, size: 0.75em)[Encode]]),
-      edge(<viz>, (1.75,1), <human>, "->",label-side:left,label-sep:0pt,corner-radius: 25pt, [#text(style: "italic", fill: ink, size: 0.75em)[Perceive]]),
-      edge(<human>,(-0.9,1), (-0.9,0.5), "->",           corner-radius: 25pt,label-side:left, label-sep: 0pt,[#text(style: "italic", fill: ink, size: 0.75em)[Construct]]),
-
-      edge(
-        <world>, (-0.9,0.5), "-",
-        stroke: (paint: accent-red, thickness: 5pt),
-        label-side: right,
-        text(size:0.85em,fill: accent-red, weight: "medium",style:"italic", [Mind the Gap!]),
-      ),
+      // edge(
+      //   <world>, (-0.9,0.5), "-",
+      //   stroke: (paint: accent-red, thickness: 5pt),
+      //   label-side: right,
+      //   text(size:0.85em,fill: accent-red, weight: "medium",style:"italic", [Mind the Gap!]),
+      // ),
     )
   ]
 ]
@@ -88,6 +102,15 @@
   #cycle-diagram()
 ]
 
+#focus-slide()[
+  #small[Discuss]
+
+Can you think of an example of a chart or statistic that led someone to an erroneous interpretation of the world?
+#v(1fr)
+
+  Where in this loop did the gap open up?
+  #v(1fr)
+]
 
 
 
@@ -129,7 +152,7 @@
       #v(2fr)
       ][
         #v(1fr)
-        #note-block(title: [Dataset Mutabilty])[
+        #note-block(title: [Dataset Mutability])[
           + Fixed / Immutable
           + Reactive / Mutable
         ]
@@ -206,6 +229,18 @@
       )
     ]
 
+#focus-slide()[
+  #small[Determine the *Semantics* of each variable below as either a *Key* or *Value*, then add any relevant structural semantics (Spatial / Temporal / Field / Vector) if one applies:]
+  #v(1fr)
+  #text(size:0.5em)[#note-block(title: [Variables])[
+    + Student ID
+    + Exam Score
+    + Timestamp of Submission
+    + Zip Code
+  ]]
+  #v(2fr)
+
+]
 
 
 #focus-slide[
@@ -258,6 +293,7 @@
   #v(0.2em)
   #small[Implemented by SQL, pandas, polars, _arquero_, and similar table libraries.]
 ]
+
 
 #slide()[
   #display-title()[Select & Filter]
@@ -429,11 +465,12 @@
 
 
 
-#slide()[
-  #display-title()[Discussion]
+#focus-slide()[
+  #small()[Discussion]
   #v(0.2em)
   #small[Is this table tidy? What are its variables and its observations?]
   #v(0.5em)
+#text(size:25pt)[
   #align(center)[
     #table(
       columns: 6, stroke: none, inset: (x: 8pt, y: 6pt), align: center,
@@ -444,8 +481,10 @@
       [98°], [Give Me Just One Night], [2000-08-19], [51], [39], [34],
     )
   ]
+]
   #v(0.4em)
-  #align(center)[#small(size: 0.7em)[Weekly Billboard ranks, 2000 · _R for Data Science_, Hadley Wickham]]
+  #align(center)[#small(size: 12pt)[Weekly Billboard ranks, 2000 · _R for Data Science_, Hadley Wickham]]
+  #v(1fr)
 ]
 
 #focus-slide()[One person's _tidy_ is another person's *mess*]
@@ -462,6 +501,7 @@
 ]
 
 #focus-slide()[Visualization (In)Dependent Transformations]
+
 
 #slide()[
   #image-plate(
@@ -544,6 +584,28 @@
   ]
 ]
 
+// ── PROPOSED: Classify real scenarios as User Actions ───────────────────
+// Learning objective: transfer the Analyze/Search/Query taxonomy to
+// scenarios drawn from tools students already use, checking whether they
+// can classify *novel* cases rather than just recite the list back.
+// Est. time: 5 min
+
+#focus-slide()[
+  #v(-0.5em)
+  #small(size:25pt)[Discussion]
+  #v(1fr)
+  #small(size:25pt)[For each scenario, name the action (and sub-type) being performed:]
+  #v(1fr)
+  #text(size:20pt)[#note-block(title: [Scenarios])[
+    + Browsing the web for examples for Assignment 1
+    + A doctor looking for signs of cancer in an MRI scan
+    + Checking whether wildfire acreage this year exceeds last year's
+    + Checking if the error bars on a bar chart in a publication match the claims in the paper
+    + Screenshotting a chart from social media to put in a slide deck]
+  #v(2fr)
+  ]
+]
+
 #focus-slide()[
   User _Actions_ (verbs) vs User _Targets_ (nouns)
 ]
@@ -569,6 +631,22 @@
   ]
 ]
 
+
+#focus-slide()[
+  #v(-0.5em)
+  #small[Discussion]
+
+  #small(size:22pt)[Imagine you are looking at a scatterplot of height vs. weight for your class. Which *user target* does each question create?]
+
+  #text(size:26pt)[
+  #note-block(title: [Questions])[
+    + "Is there a relationship between height and weight?"
+    + "Who is the tallest person in the room?"
+    + "Are heights roughly bell-shaped, or skewed?"
+    + "Are there any distinct clusters?"
+  ]]
+]
+
 #slide()[
   #image-plate(
     "slides/03-Proccess-Assets/munzner-task-abstraction-overview.png",
@@ -578,7 +656,7 @@
 ]
 
 #focus-slide()[
-  *How* do designs support _user tasks_?
+  How do designs support _user tasks_?
 ]
 
 #slide()[
@@ -604,25 +682,6 @@
     "slides/03-Proccess-Assets/munzner-chained-tasks-2.png",
     width: 90%,
     source: [Munzner 2014, Figure 3.13],
-  )
-]
-
-== Nested Model
-
-#slide[
-  #cycle-diagram()
-]
-
-
-#focus-slide[_How do we know _ if we did a good job?]
-
-#focus-slide[The Nested Model]
-
-#slide()[
-  #image-plate(
-    "slides/03-Proccess-Assets/munzner-nested-model.png",
-    height: 90%,
-    source: [Munzner 2014, Figure 4.1],
   )
 ]
 
@@ -700,13 +759,6 @@
 
 #let tree-dot(color: ink, r: 3.5pt) = circle(radius: r, fill: color, stroke: none)
 
-// Ideation tree: a hand-authored uneven tree, revealed across 5 stages.
-//   stage 1 — depth 1 only, each node labeled as a candidate solution
-//   stage 2 — expanded unevenly to depths 2-4; some branches reach the edge, some don't
-//   stage 3 — same tree, with the "broaden -> narrow" cutoff line at the rightmost edge
-//   stage 4 — 3 edge nodes keep growing past the line: a little, a medium amount, and
-//             a long chain (~4 more levels) that ends in two final leaves
-//   stage 5 — one of those two final leaves is picked out as the winning idea
 #let it-nodes = (
   (n: "i1", p: (2.6cm, -0.8cm)),
   (n: "i2", p: (2.6cm, -3.6cm)),
@@ -891,11 +943,11 @@
 ]
 
 
-== Design Process
+== Sketching
 #focus-slide[How do we _actually make_ good designs?]
 
 #focus-slide[
-  The Design Process
+  Sketching and the Design Process
 
   #small()[Based on slides from Tal Wolman]
 ]
@@ -919,6 +971,24 @@
   #sol-legend
   #v(1fr)
 ]
+
+// ── PROPOSED: Predict-your-count (solution space) ───────────────────────
+// Learning objective: make "you can't tell which is good from a
+// distance" (stated two slides earlier) experiential rather than
+// asserted — students commit to a number before the classification is
+// revealed, then compare against reality, which is a cheap and effective
+// calibration exercise.
+// Est. time: 2 min
+/*
+#focus-slide()[
+  #small[Predict]
+
+  Of the 22 marks on the previous slide, how many would you guess are
+  *good* solutions? #linebreak()
+  Write your number down before the next slide.
+]
+*/
+// ─────────────────────────────────────────────────────────────────────
 
 #slide()[
   #display-title()[Space of Possible Solutions]
@@ -963,6 +1033,23 @@
   #v(0.4em)
   #ideation-tree(stage: 3)
 ]
+
+// ── PROPOSED: Decide which branch to keep (ideation tree pivot) ────────
+// Learning objective: force an explicit prioritization judgment at the
+// broaden→narrow pivot line — mirroring the real design skill of
+// choosing which ideas to keep developing — before the deck reveals
+// which branch it actually chose in stage 4/5.
+// Est. time: 3-4 min
+/*
+#focus-slide()[
+  #small[Decide]
+
+  The line marks the pivot from *broadening* to *narrowing*. #linebreak()
+  If you could only keep developing *one* branch, which would you pick —
+  and why?
+]
+*/
+// ─────────────────────────────────────────────────────────────────────
 
 #slide()[
   #display-title()[Ideation as a Tree]
@@ -1023,7 +1110,429 @@
 ]
 
 #slide()[
-  #display-title()[Sketching is a Conversation with the Self]
-  #v(0.6em)
+  #align(center)[#display-title()[Sketching is a *Conversation with the Self*]]
+
   #sketch-loop()
+]
+
+// ── PROPOSED: Timed paired sketching activity (deck capstone) ──────────
+// Learning objective: directly practice "sketching is a conversation
+// with the self" via a hands-on, kinesthetic exercise instead of ending
+// the deck on a diagram — the clearest opportunity for a genuinely
+// active close, and a natural bridge into the next lecture's sketching
+// techniques.
+// Est. time: 8-10 min (2×3 min sketching + 2-4 min pair share-out)
+/*
+#focus-slide()[
+  #small[Activity — 8 minutes]
+
+  On paper, sketch *two* different chart types for a dataset of your
+  choice (3 min each). #linebreak()
+  Then trade with a neighbor: what did *their* sketch make you notice
+  that yours didn't?
+]
+*/
+// ─────────────────────────────────────────────────────────────────────
+
+
+
+== Evaluation
+
+#focus-slide()[
+  Did we build the visualization right?
+]
+
+#focus-slide()[
+  Did we build the visualization right? #linebreak()
+  Did we build the _right visualization_?
+]
+
+
+#slide()[
+  #align(center + horizon)[#display-title()[The Nested Model]]][
+#align(center + horizon)[
+  #text(size: 1.25em,fill:paper,style:"italic")[
+    #diagram(
+      node-stroke: 3pt+paper,
+      edge-stroke: 3pt+paper,
+      node-inset: 15pt,
+      node-corner-radius:5pt,
+      edge-corner-radius:25pt,
+      label-sep: 0.55em,
+      spacing: (20pt, 20pt),
+
+      node((0, 0),[Domain Characterization],stroke:none, name: <domain-label>),
+      node(enclose: (<domain-label>,<abstraction-plate>),name: <domain-plate>,fill:accent-ochre),
+
+      node((0, 1.0),[Abstraction Design], stroke:none, name: <abstraction-label>),
+      node(enclose: (<abstraction-label>,<encoding-plate>), name: <abstraction-plate>, fill: accent-green),
+
+      node((0, 2.0),[Encoding Design], stroke:none, name: <encoding-label>),
+      node(enclose: (<encoding-label>,<algo-plate>),  name: <encoding-plate>,fill:accent-blue),
+
+      node((0,3.0),[Algorithm Design], stroke:none, name: <algo-label>),
+      node(enclose: (<algo-label>,(0,4.0)), name: <algo-plate>,fill:accent-purple),
+    )
+  ]
+]
+]
+
+
+
+
+#let nm-body(body) = text(fill: paper, style: "italic", size: 0.8em, body)
+
+#let nested-model(
+  domain-body: none,
+  abstraction-body: none,
+  encoding-body: none,
+  encoding-after: none,
+  abstraction-after: none,
+  domain-after: none,
+  algorithm-body: none,
+  algorithm-after: none,
+  implementation: false,
+  algorithm-collapsed: false,
+  encoding-collapsed: false,
+  cascade: none, // none | "down" | "up"
+  red-arrow: none, // none | "encoding" | "abstraction"
+  compact: false,
+) = {
+  let vgap = if compact { 14pt } else { 16pt }
+  let pad = if compact { 9pt } else { 11pt }
+  // Running vertical slot index, top to bottom.
+  let yi = 0
+  let y-domain = yi; yi += 1
+  let y-domain-b = yi; if domain-body != none { yi += 1 }
+  let y-abs = yi; yi += 1
+  let y-abs-b = yi; if abstraction-body != none { yi += 1 }
+  let y-enc = yi; if not encoding-collapsed { yi += 1 }
+  let y-enc-b = yi; if (not encoding-collapsed) and (encoding-body != none) { yi += 1 }
+  let y-algo = yi; yi += 1
+  let y-algo-b = yi; if (not algorithm-collapsed) and (algorithm-body != none) { yi += 1 }
+  let y-impl = yi; if (not algorithm-collapsed) and implementation { yi += 1 }
+  let y-algo-a = yi; if (not algorithm-collapsed) and (algorithm-after != none) { yi += 1 }
+  let y-enc-a = yi; if encoding-after != none { yi += 1 }
+  let y-abs-a = yi; if abstraction-after != none { yi += 1 }
+  let y-dom-a = yi; if domain-after != none { yi += 1 }
+
+  let E = ()
+
+  // Domain plate (outermost).
+  E.push(node((0, y-domain), [Domain Characterization], stroke: none, width: 17em, name: <l-domain>))
+  let dom-inner = (<l-domain>, <p-abs>)
+  if domain-body != none {
+    E.push(node((0, y-domain-b), nm-body(domain-body), stroke: none, name: <b-domain>))
+    dom-inner.push(<b-domain>)
+  }
+  if domain-after != none { dom-inner.push(<b-dom-a>) }
+  E.push(node(enclose: dom-inner, fill: accent-ochre, stroke: 3pt + paper, corner-radius: 5pt, inset: 12pt, name: <p-domain>))
+
+  // Abstraction plate.
+  E.push(node((0, y-abs), [Abstraction Design], stroke: none, width: 17em, name: <l-abs>))
+  let abs-inner = (<l-abs>, <p-enc>)
+  if abstraction-body != none {
+    E.push(node((0, y-abs-b), nm-body(abstraction-body), stroke: none, name: <b-abs>))
+    abs-inner.push(<b-abs>)
+  }
+  if abstraction-after != none { abs-inner.push(<b-abs-a>) }
+  E.push(node(enclose: abs-inner, fill: accent-green, stroke: 3pt + paper, corner-radius: 5pt, inset: 12pt, name: <p-abs>))
+
+  // Encoding plate.
+  if encoding-collapsed {
+    E.push(node(enclose: (<p-algo>,), fill: accent-blue, stroke: 3pt + paper, corner-radius: 5pt, inset: 14pt, name: <p-enc>))
+  } else {
+    E.push(node((0, y-enc), [Encoding Design], stroke: none, width: 17em, name: <l-enc>))
+    let enc-inner = (<l-enc>, <p-algo>)
+    if encoding-body != none {
+      E.push(node((0, y-enc-b), nm-body(encoding-body), stroke: none, name: <b-enc>))
+      enc-inner.push(<b-enc>)
+    }
+    if encoding-after != none { enc-inner.push(<b-enc-a>) }
+    E.push(node(enclose: enc-inner, fill: accent-blue, stroke: 3pt + paper, corner-radius: 5pt, inset: 12pt, name: <p-enc>))
+  }
+
+  // Algorithm plate (innermost).
+  if algorithm-collapsed {
+    E.push(node(
+      (0, y-algo),
+      if algorithm-body != none { nm-body(algorithm-body) } else { none },
+      fill: accent-purple, stroke: 3pt + paper, corner-radius: 5pt, width: 17em, inset: 9pt, name: <p-algo>,
+    ))
+  } else {
+    E.push(node((0, y-algo), [Algorithm Design], stroke: none, width: 17em, name: <l-algo>))
+    let algo-inner = (<l-algo>,)
+    if algorithm-body != none {
+      E.push(node((0, y-algo-b), nm-body(algorithm-body), stroke: none, name: <b-algo>))
+      algo-inner.push(<b-algo>)
+    }
+    if implementation {
+      E.push(node((0, y-impl), text(fill: paper, style: "normal")[Implementation], fill: muted-ink, stroke: 3pt + paper, corner-radius: 5pt, width: 15em, inset: 8pt, name: <l-impl>))
+      algo-inner.push(<l-impl>)
+    }
+    if algorithm-after != none {
+      E.push(node((0, y-algo-a), nm-body(algorithm-after), stroke: none, name: <b-algo-a>))
+      algo-inner.push(<b-algo-a>)
+    }
+    E.push(node(enclose: algo-inner, fill: accent-purple, stroke: 3pt + paper, corner-radius: 5pt, inset: 10pt, name: <p-algo>))
+  }
+
+  // Trailing copy that lives inside an outer plate, below the nested plates.
+  if encoding-after != none { E.push(node((0, y-enc-a), nm-body(encoding-after), stroke: none, name: <b-enc-a>)) }
+  if abstraction-after != none { E.push(node((0, y-abs-a), nm-body(abstraction-after), stroke: none, name: <b-abs-a>)) }
+  if domain-after != none { E.push(node((0, y-dom-a), nm-body(domain-after), stroke: none, name: <b-dom-a>)) }
+
+  // Cascade / validation arrows, stepped down the right-hand edge.
+  if cascade == "down" {
+    E.push(edge((5.2, y-domain + 0.15), (5.2, y-abs + 0.15), "->", stroke: 2.5pt + ink, layer: 1))
+    E.push(edge((5.7, y-abs + 0.15), (5.7, y-enc + 0.15), "->", stroke: 2.5pt + ink, layer: 1))
+    E.push(edge((6.2, y-enc + 0.15), (6.2, y-algo + 0.15), "->", stroke: 2.5pt + ink, layer: 1))
+  }
+  if cascade == "up" {
+    E.push(edge((5.2, y-algo), (5.2, y-enc + 0.15), "->", stroke: 2.5pt + ink, layer: 1))
+    E.push(edge((5.7, y-enc), (5.7, y-abs + 0.15), "->", stroke: 2.5pt + ink, layer: 1))
+    E.push(edge((6.2, y-abs), (6.2, y-domain + 0.15), "->", stroke: 2.5pt + ink, layer: 1))
+  }
+  if red-arrow == "encoding" {
+    E.push(edge((5.2, y-algo), (5.2, y-enc - 0.35), "->", stroke: 4pt + accent-red, layer: 1))
+  }
+  if red-arrow == "abstraction" {
+    E.push(edge((5.2, y-algo), (5.2, y-abs - 0.35), "->", stroke: 4pt + accent-red, layer: 1))
+  }
+
+  align(center + horizon)[
+    #text(size: 1.15em, fill: paper, style: "italic")[
+      #diagram(
+        node-stroke: 3pt + paper,
+        edge-stroke: 3pt + paper,
+        node-inset: pad,
+        node-corner-radius: 5pt,
+        edge-corner-radius: 18pt,
+        label-sep: 0.55em,
+        spacing: (18pt, vgap),
+        ..E,
+      )
+    ]
+  ]
+}
+
+
+#slide()[
+  #nested-model(domain-body: [
+    Who are the target users? #linebreak()
+    What are their needs? #linebreak()
+    Observe and interview
+  ])
+]
+
+#slide()[
+  #nested-model(abstraction-body: [
+    Data abstraction: what is being shown? #linebreak()
+    Task abstraction: why are they looking at it?
+  ])
+]
+
+#slide()[
+  #nested-model(encoding-body: [
+    Idioms: how is it shown? #linebreak()
+    How is it displayed? #linebreak()
+    How is it manipulated and interacted with?
+  ])
+]
+
+#slide()[
+  #nested-model(algorithm-body: [
+    How is it computed efficiently? #linebreak()
+    How is it computed accurately?
+  ])
+]
+
+#slide()[
+  #nested-model(
+    algorithm-body: [
+      How is it computed efficiently? #linebreak()
+      How is it computed accurately?
+    ],
+    implementation: true,
+    compact: true,
+  )
+]
+
+#slide()[
+  #align(center + top)[#display-title(size: 1.5em)[Different Ways to Get it Wrong]]
+  #nested-model()
+]
+
+#slide()[
+  #align(center + top)[#display-title(size: 1.5em)[Different Ways to Get it Wrong]]
+  #nested-model(domain-body: [Solving the wrong problem])
+]
+
+#slide()[
+  #align(center + top)[#display-title(size: 1.5em)[Different Ways to Get it Wrong]]
+  #nested-model(abstraction-body: [Abstractions don't address the problem])
+]
+
+#slide()[
+  #align(center + top)[#display-title(size: 1.5em)[Different Ways to Get it Wrong]]
+  #nested-model(encoding-body: [Ineffective communication])
+]
+
+#slide()[
+  #align(center + top)[#display-title(size: 1.5em)[Different Ways to Get it Wrong]]
+  #nested-model(algorithm-body: [Slow or erroneous computation])
+]
+
+
+#slide()[
+  #grid(
+    columns: (3.4fr, 1fr),
+    align: horizon,
+    column-gutter: 0.5em,
+    nested-model(
+      compact: true,
+      algorithm-body: [Analyze computational complexity],
+      implementation: true,
+      algorithm-after: [Measure system performance],
+    ),
+    align(left)[#display-title(size: 1.1em)[CS]],
+  )
+]
+
+#slide()[
+  #grid(
+    columns: (3.4fr, 1fr),
+    align: horizon,
+    column-gutter: 0.5em,
+    nested-model(
+      compact: true,
+      encoding-body: [Justify design choices],
+      algorithm-collapsed: true,
+      encoding-after: [
+        Analyze results qualitatively #linebreak()
+        Measure human responses in lab #linebreak()
+        General usability tests
+      ],
+    ),
+    align(left)[#stack(
+        dir: ttb,
+        spacing: 0.5em,
+        display-title(size: 1.1em)[Design],
+        display-title(size: 1.1em, fill: muted-ink)[CS],
+        display-title(size: 1.1em)[Psych],
+        display-title(size: 1.1em)[HCI],
+      )],
+  )
+]
+
+#slide()[
+  #grid(
+    columns: (3.4fr, 1fr),
+    align: horizon,
+    column-gutter: 0.5em,
+    nested-model(
+      compact: true,
+      domain-body: [Observe target users with existing tools],
+      encoding-collapsed: true,
+      algorithm-collapsed: true,
+      abstraction-after: [
+        Observe use of tool in context #linebreak()
+        Target users' usability tests
+      ],
+      domain-after: [Measure adoption and impact],
+    ),
+    align(left)[#stack(
+        dir: ttb,
+        spacing: 0.5em,
+        display-title(size: 1.1em)[Social Sciences],
+        display-title(size: 1.1em, fill: muted-ink)[Design],
+        display-title(size: 1.1em, fill: muted-ink)[CS],
+        display-title(size: 1.1em, fill: muted-ink)[Psych],
+        display-title(size: 1.1em, fill: muted-ink)[HCI],
+        display-title(size: 1.1em)[Social Sciences],
+      )],
+  )
+]
+
+
+// ── Prototyping gets early feedback across levels ────────────────────────────
+
+#slide()[
+  #grid(
+    columns: (1fr, 2.4fr),
+    align: horizon,
+    column-gutter: 1.5em,
+    display-title(size: 1.5em)[Abstract the design tasks],
+    nested-model(
+      algorithm-collapsed: true,
+      algorithm-body: [#v(1em)#text(weight:"medium",style:"normal",size:30pt)[Paper prototype]#v(1em)],
+      encoding-after: [Early feedback on encoding],
+      abstraction-after: [Early feedback on abstraction],
+    ),
+  )
+]
+
+#slide()[
+#cycle-diagram()
+]
+
+
+
+
+
+#slide()[
+#align(center + horizon)[
+  #text(size: 1.25em,fill:ink,style:"italic")[
+    #diagram(
+      node-stroke: 1.3pt,
+      edge-stroke: 2pt,
+      node-inset: 11pt,
+      edge-corner-radius:25pt,
+      label-sep: 0.55em,
+      spacing: (30pt, 160pt),
+
+
+
+      node((0, 0), [Conceptual Model], corner-radius: 10pt, name: <concept>),
+
+      pause,
+
+      node((0, 0.5), [Data Model], corner-radius: 10pt, name: <data>),
+      edge(<concept>,<data>,"=>"),
+      pause,
+      node((0, 1), [User Actions and Tasks], corner-radius: 10pt, name: <users>),
+      edge(<data>,<users>,"=>"),
+      // edge(<concept>,(<users>),"=>",shift:-0.45),
+
+      pause,
+      node((-1, 0.5), [Domain], corner-radius: 10pt, name: <domain>),
+      edge(<domain>,<data>,"-->"),
+      edge(<domain>,(-1,1),<users>,"-->"),
+      edge(<domain>,(-1,0),<concept>,"-->"),
+
+      pause,
+
+
+
+      node((1, 0.5), [Design], corner-radius: 10pt, name: <design>),
+      edge(<data>,<design>,"=>"),
+      edge(<users>,(1,1),<design>,"-->"),
+      edge(<design.north-east>,<design.north-west>,"=>",bend:-115deg),
+
+      pause,
+      node((4, 0.5), [Evalutation], corner-radius: 10pt, name: <eval>),
+      edge(<design>,<eval>,"=>"),
+
+
+      pause,
+      edge(<eval>,(4,1.4),(0,1.4),<users>,"-->",stroke: accent-red),
+      edge(<eval>,(4,-0.4),(0,-0.4),<concept>,"-->",stroke: accent-red),
+      edge(<eval>,(4,-0.4),(1.5,-0.4),<data.north-east>,"-->",stroke: accent-red),
+      edge(<eval>,(4,1),(2,1),<design.south-east>,"-->",stroke: accent-red),
+      edge(<eval>,(4,-0.5),(-1.6,-0.5),<domain.north-west>,"-->",stroke: accent-red),
+
+
+    )
+  ]
+]
 ]
