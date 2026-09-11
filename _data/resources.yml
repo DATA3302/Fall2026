@@ -17,6 +17,9 @@ slides:
     file: /assets/content/slides/03-Proccess.pdf
     status: PDF
 
+  - title: Grammar of Graphics
+    file: /assets/content/slides/04-Grammar-of-Graphics.pdf
+    status: PDF
 
 labs:
   - title: Intro to Observable
