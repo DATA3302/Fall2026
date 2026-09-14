@@ -5,10 +5,10 @@ assignments:
     url: /assets/content/assignments/01-Visualization-in-the-world.pdf
     description: Find and critically examine the visualizations all around you.
   - title: "Assignment 2: Explanatory Visualization"
-    status: Coming soon
+    status: Released
     due:
-    url:
-    description: Design a persuasive explanatory static visualization.
+    url: /assets/content/assignments/02-Explanatory-Visualization.pdf
+    description: Go through the design process of sketching, implementation, and refinement to design an effective explanatory static visualization.
   - title: "Assignment 3: Deceptive Visualization"
     status: Coming soon
     due:
