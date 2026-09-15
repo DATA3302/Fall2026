@@ -1,0 +1,736 @@
+@font-face {
+  font-family: "EB Garamond";
+  src: url("../fonts/eb-garamond/regular.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "EB Garamond";
+  src: url("../fonts/eb-garamond/italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "EB Garamond";
+  src: url("../fonts/eb-garamond/semibold.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "EB Garamond";
+  src: url("../fonts/eb-garamond/semibold-italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 600;
+  font-display: swap;
+}
+
+:root {
+  --slide-background: #fbfaf3;
+  --slide-ink: #282722;
+  --slide-muted: #817d72;
+  --slide-rule: #d8d5ca;
+  --slide-accent: #176b52;
+  --slide-green: #2c9b43;
+  --slide-gold: #c7a900;
+  --slide-blue: #345a94;
+  --slide-magenta: #823363;
+  --slide-orange: #c47c16;
+  --slide-box-green: #f2f8f2;
+  --slide-box-gold: #fbfaf0;
+  --slide-box-blue: #f2f5fa;
+  --slide-box-magenta: #faf3f7;
+  --slide-box-orange: #fbf5eb;
+  --slide-serif: "EB Garamond", Garamond, Georgia, serif;
+}
+
+html,
+body,
+.reveal-viewport,
+.reveal {
+  background: var(--slide-background) !important;
+}
+
+.reveal {
+  color: var(--slide-ink);
+  font-family: var(--slide-serif);
+  font-size: 32px;
+  font-weight: 400;
+}
+
+.reveal .slides > section {
+  box-sizing: border-box;
+  height: 100%;
+  padding: 28px 38px 22px;
+  color: var(--slide-ink);
+  text-align: left;
+}
+
+.slide-frame {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 0.55rem;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.slide-frame,
+.slide-frame *:not(.fragment) {
+  transition: none;
+}
+
+.reveal :is(h1, h2, h3, h4, h5, h6),
+.slide-header > :is(h1, h2, h3, h4, h5, h6) {
+  color: var(--slide-ink);
+  font-family: var(--slide-serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.018em;
+  line-height: 1.05;
+  text-align: left;
+  text-transform: none;
+  text-shadow: none;
+}
+
+.slide-header > :is(h1, h2, h3, h4, h5, h6) {
+  margin: 0;
+  padding: 0 0 0.15em;
+  border-bottom: 2px solid var(--slide-muted);
+}
+
+.slide-header h3 { font-size: 1.45em; color: var(--slide-muted); }
+.slide-header h4 { font-size: 1.2em; }
+
+/* The auto-animate id lives on this inner span (see deck-builder.js) so a title can match
+   across heading levels. Auto-Animate moves it with a CSS transform, which browsers ignore
+   on `display: inline` elements — this is what made matched headings snap instead of glide. */
+.slide-header [data-id] { display: inline-block; }
+
+/* Explicit grid rows, not source order: a slide with no heading never appends a .slide-header,
+   which would otherwise leave .slide-content to auto-place into the first (auto-sized) row
+   instead of the flexible middle one — content would then be sized to fit itself rather than
+   stretch to fill the slide, silently defeating anything (like [vcenter]) that centers within
+   it. Same class of bug as the footer/folio grid-column fix above. */
+.slide-header { grid-row: 1; }
+.slide-footer { grid-row: 3; }
+
+.slide-content {
+  grid-row: 2;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.reveal .slide-content p,
+.reveal .slide-column p {
+  margin: 0 0 0.58em;
+  color: var(--slide-ink);
+  font-size: 0.9em;
+  line-height: 1.3;
+  text-align: left;
+}
+
+.reveal .slide-content :is(ul, ol) {
+  margin: 0.25em 0 0.65em 1.05em;
+  font-size: 0.9em;
+  line-height: 1.28;
+}
+
+.reveal .slide-content li { margin: 0.18em 0; }
+.reveal .slide-content :is(ul, ol) :is(ul, ol) { margin: 0.15em 0 0.15em 1.2em; }
+.reveal strong { font-weight: 600; }
+.reveal em { font-style: italic; }
+.reveal a { color: var(--slide-accent); text-decoration-thickness: 0.045em; text-underline-offset: 0.12em; }
+.reveal code { color: var(--slide-magenta); font-size: 0.86em; }
+
+.reveal ::selection { background: var(--slide-accent); color: var(--slide-background); text-shadow: none; }
+
+.reveal blockquote:not(.colorbox) {
+  margin: 0.5em 0 0.5em 0.2em;
+  padding: 0 0 0 0.9em;
+  border: 0;
+  border-left: 2px solid var(--slide-rule);
+  color: var(--slide-muted);
+  font-style: italic;
+}
+
+.reveal blockquote:not(.colorbox) p { margin: 0.2em 0; font-size: 0.9em; }
+
+.reveal pre {
+  margin: 0.5em 0;
+  border: 1px solid var(--slide-rule);
+  box-shadow: none;
+}
+
+/* Unhighlighted code (no hljs plugin match) still needs a legible fallback. */
+.reveal pre code:not(.hljs) {
+  padding: 0.6em 0.75em;
+  color: var(--slide-ink);
+  background: var(--slide-box-blue);
+  font-size: 0.58em;
+  line-height: 1.35;
+  border-radius: 0;
+}
+
+/* highlight.js owns color/background once it processes a block; only re-scale type to match the deck. */
+.reveal pre code.hljs {
+  padding: 0.6em 0.75em;
+  font-size: 0.58em;
+  line-height: 1.35;
+}
+
+/* Whatever actually holds a table (.slide-content, .slide-column, a colorbox, ...) becomes a
+   centered flex column, so the table centers both ways within that container instead of
+   sitting flush left at the top. Generic rather than naming each container: it only fires on
+   an element that directly contains a <table>, so nothing else is affected. */
+.reveal :has(> table) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.reveal table {
+  margin: 0.5em 0;
+  border-collapse: collapse;
+  font-size: 1.3em;
+}
+
+.reveal table th,
+.reveal table td {
+  padding: 0.25em 0.6em;
+  border-bottom: 1px solid var(--slide-rule);
+  text-align: left;
+}
+
+.reveal table th { color: var(--slide-ink); font-weight: 600; }
+
+/* A heavier double rule under the header row only, so it reads as a clear break from the
+   body rows below rather than just another gridline. */
+.reveal table thead th { border-bottom: 3px double var(--slide-muted); }
+
+.reveal .slide-content :is(video, iframe) { max-width: 100%; max-height: 100%; }
+
+.slide-grid {
+  display: grid;
+  grid-template-columns: var(--slide-columns);
+  grid-template-rows: 1fr;
+  gap: 1rem;
+  align-items: stretch;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.slide-column {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.slide-column > :first-child { margin-top: 0; }
+.slide-column > :last-child { margin-bottom: 0; }
+.slide-column > .media-figure { flex: 1; }
+
+.slide-footer {
+  display: grid;
+  grid-template-columns: minmax(8em, 1fr) minmax(0, 2fr) minmax(4em, 1fr);
+  align-items: end;
+  gap: 0.65rem;
+  min-height: 1.1em;
+  color: var(--slide-muted);
+  font-size: 0.48em;
+  line-height: 1.15;
+}
+
+/* Explicit grid columns, not source order: a slide with no footer note only appends two
+   children (course, folio), which would otherwise auto-place into columns 1 and 2 and leave
+   the page number stranded in the middle instead of the bottom-right corner. */
+.slide-course { grid-column: 1; justify-self: start; }
+.slide-footer-note { grid-column: 2; justify-self: center; text-align: center; }
+.slide-folio { grid-column: 3; justify-self: end; font-variant-numeric: tabular-nums; }
+.reveal .slide-footer-note p { margin: 0; color: inherit; font-size: 1em; text-align: center; }
+
+.is-title-slide .slide-frame {
+  grid-template-rows: 1fr 1fr auto;
+}
+
+.is-section-slide .slide-frame {
+  grid-template-rows: 1fr auto;
+}
+
+.is-title-slide .slide-header { align-self: end; }
+.is-section-slide .slide-header { align-self: center; }
+
+.is-title-slide .slide-header h1 {
+  max-width: 88%;
+  padding-bottom: 0.15em;
+  border-bottom: 5px solid var(--slide-accent);
+  font-size: 4.0em;
+}
+
+.is-section-slide .slide-header h2 {
+  padding-top: 0.25em;
+  border-top: 3px solid var(--slide-accent);
+  border-bottom: 0;
+  font-size: 3.125em; /* ~75pt (75 * 96/72 = 100px) relative to the .reveal root's 32px base */
+}
+
+.is-title-slide .slide-content {
+  display: block;
+  padding-top: 0.65em;
+}
+
+.is-title-slide .slide-content p { color: var(--slide-muted); font-size: 0.82em; }
+.is-section-slide .slide-content { display: none; }
+
+.is-title-slide .slide-footer,
+.is-section-slide .slide-footer { display: none; }
+
+.media-figure {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+/* `width/height: 100%` plus `object-fit: contain` is the only reliable way to let the image grow
+   past its source's native size while guaranteeing its aspect ratio is never distorted (that
+   guarantee is `object-fit`'s entire job, per spec) — the alternative (`height: auto` sized off
+   `width: 100%`, capped with `max-height`) stretches the image out of shape whenever max-height
+   has to clamp the height, since the width stays pinned at its literal 100% instead of shrinking
+   back down with it. */
+.static-figure img {
+  display: block;
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  margin: 0 auto;
+  object-fit: contain;
+}
+
+/* An inlined external SVG (see inlineStaticSvgs) replaces its <img> outright, so it needs the
+   same box treatment — but `object-fit` only applies to actual replaced elements, not a plain
+   inline <svg>. Filling the box on both axes and leaving the "contain" job to the SVG's own
+   viewBox + preserveAspectRatio (set to xMidYMid meet if the file didn't already specify one)
+   is the equivalent for an element CSS can't object-fit. */
+.static-figure svg.static-figure-svg {
+  display: block;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  margin: 0 auto;
+}
+
+.embedded-figure {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  min-height: 220px;
+  overflow: hidden;
+  background: var(--slide-background);
+}
+
+.interactive-figure,
+.embedded-figure > iframe {
+  background: var(--slide-background);
+}
+
+.reveal svg,
+.embedded-figure[data-overflow-shown="true"] {
+  overflow: visible;
+}
+
+.embedded-figure > iframe { display: block; }
+
+.reveal figcaption {
+  margin-top: 0.35em;
+  color: var(--slide-muted);
+  font-size: 0.52em;
+  font-style: normal;
+  line-height: 1.15;
+  text-align: center;
+}
+
+.colorbox {
+  --box-color: var(--slide-blue);
+  margin: 0.65em 0;
+  padding: 0.5em 0.7em 0.55em 1.2em;
+  border: 0;
+  border-left: 4px solid var(--box-color);
+  background: color-mix(in srgb, var(--box-color) 12%, transparent);
+  box-shadow: none;
+}
+
+.colorbox-green { --box-color: var(--slide-green); }
+.colorbox-gold { --box-color: var(--slide-gold); }
+.colorbox-note,
+.colorbox-example { --box-color: var(--slide-blue); }
+.colorbox-warning { --box-color: var(--slide-orange); }
+.colorbox-danger { --box-color: var(--slide-magenta); }
+.colorbox-margin { max-width: 38%; margin-left: auto; background: transparent; }
+
+.reveal .colorbox p {
+  margin: 0.2em 0;
+  font-size: 0.76em;
+}
+
+.reveal .colorbox .colorbox-label {
+  margin: 0 0 0.18em;
+  color: var(--box-color);
+  font-size: 0.875em;
+  font-style: italic;
+  font-weight: 600;
+}
+
+/* `.fig-controls` — a column of input controls docked beside an interactive figure (see
+   assets/figures/contour/contour.html for an example). Every figure under assets/figures/* is
+   its own standalone document, loaded into a slide through an <iframe> with no shared build
+   step — installFigureBackgroundSync in deck-builder.js injects this stylesheet into that
+   document directly, so `.fig-controls` (and the theme variables it reads) work there exactly
+   as they do in the deck itself, without each figure needing its own copy of these rules. */
+
+/* Whatever element directly wraps a `.fig-controls` (an id like #fig, a plain <div>, ...)
+   becomes a two-part row: the control panel on the left, the figure's own visualization filling
+   the rest — without that wrapper needing any particular class or id of its own. */
+*:has(> .fig-controls) {
+  display: flex;
+  align-items: stretch;
+  gap: 1.25em;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  box-sizing: border-box;
+}
+
+*:has(> .fig-controls) > :not(.fig-controls) {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Styled like a colorbox (thick left rule, tinted fill) but in a neutral tone, since this is
+   chrome around a control panel rather than a callout. `align-self: flex-start` plus leaving
+   height unset keeps the panel exactly as tall as its own controls need rather than stretching
+   to match the figure alongside it, top-aligned with the figure's other content instead of
+   floating at mid-height; `max-height`/`overflow-y` only step in as a fallback if a control list
+   is ever taller than the figure has room for. */
+.fig-controls {
+  --box-color: var(--slide-muted);
+  align-self: flex-start;
+  flex: 0 1 200px;
+  min-width: 140px;
+  max-height: 100%;
+  overflow-y: auto;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0.6em 0.9em 0.6em 1.1em;
+  border: 0;
+  border-left: 4px solid var(--box-color);
+  background: color-mix(in srgb, var(--box-color) 12%, transparent);
+  color: var(--slide-ink);
+  font-size: 1.25em;
+  font-style: italic;
+  font-weight: normal;
+  line-height: 1.4;
+}
+
+/* `<br>` is the simplest way to lay out a couple of controls (see contour.html) and doesn't
+   accept margin/padding on its own — giving it `display: block` first is the standard trick
+   that lets it carry spacing anyway, so plain br-separated controls still read as a column with
+   real gaps instead of cramming together. */
+.fig-controls br {
+  display: block;
+  content: "";
+  margin-top: 0.5em;
+}
+
+.fig-controls label {
+  display: block;
+  margin-bottom: 0.15em;
+  color: var(--slide-muted);
+}
+
+/* A checkbox/radio's label names a single inline toggle, not a control block below a
+   caption the way a range or select's label does — keep the two side by side (in
+   whichever order the markup puts them) instead of the block default forcing a line
+   break between them. */
+.fig-controls label:has(+ input[type="checkbox"]),
+.fig-controls label:has(+ input[type="radio"]) {
+  display: inline;
+  margin-bottom: 0;
+  margin-right: 0.4em;
+}
+
+.fig-controls input[type="checkbox"] + label,
+.fig-controls input[type="radio"] + label {
+  display: inline;
+  margin-bottom: 0;
+}
+
+.fig-controls > label,
+.fig-controls > div,
+.fig-controls > fieldset {
+  margin-bottom: 0.9em;
+}
+.fig-controls > :last-child {
+  margin-bottom: 0;
+}
+
+.fig-controls fieldset {
+  margin: 0 0 0.9em;
+  padding: 0.6em 0.7em;
+  border: 1px solid var(--slide-rule);
+  border-radius: 4px;
+}
+
+.fig-controls legend {
+  padding: 0 0.3em;
+  color: var(--slide-muted);
+}
+
+.fig-controls input,
+.fig-controls select,
+.fig-controls textarea,
+.fig-controls button {
+  font: inherit;
+  color: var(--slide-ink);
+  accent-color: var(--slide-accent);
+}
+
+.fig-controls input[type="range"] {
+  display: block;
+  width: 100%;
+  margin: 0.3em 0;
+}
+
+.fig-controls input[type="checkbox"],
+.fig-controls input[type="radio"] {
+  margin: 0 0.5em 0 0;
+  vertical-align: middle;
+}
+
+.fig-controls input:where([type="text"], [type="number"], [type="search"], [type="date"], [type="color"]),
+.fig-controls select,
+.fig-controls textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0.3em 0;
+  padding: 0.35em 0.5em;
+  border: 1px solid var(--slide-rule);
+  border-radius: 3px;
+  background: var(--slide-background);
+}
+
+.fig-controls input:where([type="text"], [type="number"], [type="search"], [type="date"]):focus-visible,
+.fig-controls select:focus-visible,
+.fig-controls textarea:focus-visible {
+  outline: 2px solid var(--slide-accent);
+  outline-offset: 1px;
+}
+
+.fig-controls input[type="color"] {
+  height: 2em;
+  padding: 0.2em;
+}
+
+.fig-controls textarea {
+  resize: vertical;
+}
+
+.fig-controls button {
+  display: inline-block;
+  margin: 0.3em 0;
+  padding: 0.4em 0.9em;
+  border: 1px solid var(--slide-accent);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--slide-accent);
+  cursor: pointer;
+}
+
+.fig-controls button:hover,
+.fig-controls button:focus-visible {
+  background: var(--slide-accent);
+  color: var(--slide-background);
+}
+
+.fig-controls output {
+  color: var(--slide-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Default sizing for any bare `<svg>` an interactive figure appends (see
+   assets/figures/contour/contour.html) — injected into every figure alongside `.fig-controls`
+   (see installFigureBackgroundSync in deck-builder.js), so a figure no longer has to set this
+   itself. Low specificity (a single type selector) is deliberate: a figure that needs different
+   sizing — the deck's own diagram SVGs (`.simple-diagram`) size themselves this way already —
+   just overrides it with any more specific rule of its own, same as a browser default would.
+   `max-width: 100%; height: auto` scales the svg down to fit its container without ever
+   cropping or upscaling past its own intrinsic size; `display: block; margin: auto` centers it
+   since svg is inline by default and would otherwise leave phantom baseline whitespace below it. */
+svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: auto;
+}
+
+.reveal .text-lead { max-width: 31em; line-height: 1.2; }
+.reveal .text-accent { font-style: italic; }
+.reveal .text-center { text-align: center; }
+
+/* font-size and color live here instead of on the plain `.reveal .text-X` rules above: those
+   are two classes (0,2,0), while the base paragraph rule they need to beat —
+   `.reveal .slide-content p` / `.reveal .slide-column p` — is two classes *plus* a type
+   selector (0,2,1), so it wins the cascade and silently overrides both back to the normal
+   paragraph size and color. Matching that rule's own selector here outranks it instead of
+   tying with it. */
+.reveal .slide-content .text-lead,
+.reveal .slide-column .text-lead { font-size: 0.94em; }
+
+.reveal .slide-content .text-small,
+.reveal .slide-column .text-small { font-size: 0.56em; }
+
+.reveal .slide-content .text-muted,
+.reveal .slide-column .text-muted { color: var(--slide-muted); }
+
+.reveal .slide-content .text-accent,
+.reveal .slide-column .text-accent { color: var(--slide-accent); }
+
+.reveal .slide-content .text-big,
+.reveal .slide-column .text-big {
+  font-size: 2em;
+  font-style: italic;
+  font-weight: 400;
+  text-align: center;
+}
+
+/* `[vcenter]` marks a paragraph whose *container* should center its content vertically rather
+   than sitting at the top — the paragraph itself just carries the flag. If it was only that
+   flag with no other text, replaceTextTreatments leaves an empty <p> behind so :has() below
+   still has something to find; :empty here keeps that marker from taking up a phantom line
+   of space. */
+.reveal .slide-content p:empty,
+.reveal .slide-column p:empty { display: none; }
+
+.reveal .slide-content:has(> .text-vcenter),
+.reveal .slide-column:has(> .text-vcenter) {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* justify-content: center centers the flex children's margin boxes, not their border boxes —
+   a paragraph's own trailing margin (from the base `.slide-content p` rule) would otherwise
+   count as content and visibly push the centered text above true center. */
+.reveal .slide-content:has(> .text-vcenter) > :first-child,
+.reveal .slide-column:has(> .text-vcenter) > :first-child { margin-top: 0; }
+.reveal .slide-content:has(> .text-vcenter) > :last-child,
+.reveal .slide-column:has(> .text-vcenter) > :last-child { margin-bottom: 0; }
+
+/* The diagram itself is an <svg class="simple-diagram">; see deck-builder.js for the node/edge
+   language that builds it. It carries its own viewBox, so it only needs to fill its slot. */
+.simple-diagram {
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0 auto;
+}
+
+.simple-diagram text { font-family: var(--slide-serif); }
+
+/* Applied briefly by deck-builder.js's hand-rolled diagram Auto-Animate (see
+   installDiagramAutoAnimate) while a matched node/edge eases from its previous slide's
+   position, size, and color into its new one — and, via the second selector, the equivalent
+   hand-rolled FLIP for an inlined *external* SVG (see animateExternalSvgTransition): Reveal's
+   own built-in auto-animate measures matched elements with offsetLeft/offsetWidth, which are
+   simply undefined on any SVG-namespaced element, so a plain <circle>/<path>/etc. a designer
+   drew by hand never actually animates under Reveal's own FLIP even when correctly matched —
+   both diagram and external-SVG cases need this same manual attribute-transition treatment
+   instead. rx/ry (an ellipse's radii, or a rect's corner rounding) and the x1/y1/x2/y2 a <line>
+   uses instead of x/y/width/height are only ever set by external SVGs, never our own
+   generated diagrams, but harmless to list unconditionally here rather than duplicating this
+   whole rule just to vary that by four properties. */
+.simple-diagram.is-flipping :is(rect, circle, text, path),
+.static-figure-svg.is-flipping :is(rect, circle, ellipse, line, path, text, tspan) {
+  transition: x var(--diagram-flip-duration, 0.5s) var(--diagram-flip-easing, ease),
+    y var(--diagram-flip-duration, 0.5s) var(--diagram-flip-easing, ease),
+    width var(--diagram-flip-duration, 0.5s) var(--diagram-flip-easing, ease),
+    height var(--diagram-flip-duration, 0.5s) var(--diagram-flip-easing, ease),
+    cx var(--diagram-flip-duration, 0.5s) var(--diagram-flip-easing, ease),
+    cy var(--diagram-flip-duration, 0.5s) var(--diagram-flip-easing, ease),
+    r var(--diagram-flip-duration, 0.5s) var(--diagram-flip-easing, ease),
+    rx var(--diagram-flip-duration, 0.5s) var(--diagram-flip-easing, ease),
+    ry var(--diagram-flip-duration, 0.5s) var(--diagram-flip-easing, ease),
+    x1 var(--diagram-flip-duration, 0.5s) var(--diagram-flip-easing, ease),
+    y1 var(--diagram-flip-duration, 0.5s) var(--diagram-flip-easing, ease),
+    x2 var(--diagram-flip-duration, 0.5s) var(--diagram-flip-easing, ease),
+    y2 var(--diagram-flip-duration, 0.5s) var(--diagram-flip-easing, ease),
+    fill var(--diagram-flip-duration, 0.5s) var(--diagram-flip-easing, ease),
+    stroke var(--diagram-flip-duration, 0.5s) var(--diagram-flip-easing, ease),
+    stroke-width var(--diagram-flip-duration, 0.5s) var(--diagram-flip-easing, ease),
+    opacity var(--diagram-flip-duration, 0.5s) var(--diagram-flip-easing, ease),
+    fill-opacity var(--diagram-flip-duration, 0.5s) var(--diagram-flip-easing, ease),
+    stroke-opacity var(--diagram-flip-duration, 0.5s) var(--diagram-flip-easing, ease),
+    d var(--diagram-flip-duration, 0.5s) var(--diagram-flip-easing, ease),
+    /* A <text>/<tspan>'s x/y aren't real animatable CSS properties (see
+       flipDiagramTextPosition in deck-builder.js), so its FLIP rides a transform instead —
+       harmless to list here for every other tag too, since none of them ever set one. */
+    transform var(--diagram-flip-duration, 0.5s) var(--diagram-flip-easing, ease);
+}
+
+.tufte-button {
+  padding: 0.32em 0.65em;
+  border: 1px solid var(--slide-accent);
+  border-radius: 0;
+  color: var(--slide-accent);
+  background: transparent;
+  font: 600 0.62em var(--slide-serif);
+  cursor: pointer;
+}
+
+.tufte-button:hover,
+.tufte-button:focus-visible { color: var(--slide-background); background: var(--slide-accent); }
+
+.has-visualization-background .slide-frame { position: relative; z-index: 2; }
+.has-visualization-background .slide-header,
+.has-visualization-background .slide-footer,
+.has-visualization-background .slide-content > p {
+  width: fit-content;
+  max-width: 84%;
+  padding: 0.28em 0.48em;
+  background: rgb(251 250 243 / 88%);
+}
+
+.reveal .progress { height: 2px; color: var(--slide-accent); }
+.reveal .progress span { background: var(--slide-accent); }
+.reveal .controls { color: var(--slide-accent); }
+
+@media (max-width: 700px) {
+  .slide-grid { grid-template-columns: 1fr; overflow-y: auto; }
+  .slide-footer { grid-template-columns: 1fr auto; }
+  .slide-folio { grid-column: 2; }
+  .slide-footer-note { display: none; }
+  .colorbox-margin { max-width: 100%; }
+}

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 420" font-family="EB Garamond, Georgia, serif">
+  <!-- axis -->
+  <line x1="120" y1="360" x2="700" y2="360" stroke="#282722" stroke-width="3"/>
+  <line x1="120" y1="360" x2="120" y2="40" stroke="#282722" stroke-width="3"/>
+  <text x="40" y="200" fill="#282722" font-size="22" transform="rotate(-90 40 200)" text-anchor="middle">ms / item</text>
+
+  <!-- gridlines -->
+  <line x1="120" y1="280" x2="700" y2="280" stroke="#d8d5ca" stroke-width="1.5"/>
+  <text x="105" y="286" fill="#817d72" font-size="18" text-anchor="end">20</text>
+  <line x1="120" y1="200" x2="700" y2="200" stroke="#d8d5ca" stroke-width="1.5"/>
+  <text x="105" y="206" fill="#817d72" font-size="18" text-anchor="end">40</text>
+
+  <!-- no preview bar -->
+  <rect x="230" y="185" width="140" height="175" fill="#345a94"/>
+  <text x="300" y="390" fill="#282722" font-size="20" text-anchor="middle">no preview</text>
+  <text x="300" y="170" fill="#282722" font-size="20" text-anchor="middle">~32</text>
+
+  <!-- preview bar -->
+  <rect x="450" y="195" width="140" height="165" fill="#c7a900"/>
+  <text x="520" y="390" fill="#282722" font-size="20" text-anchor="middle">preview (300ms)</text>
+  <text x="520" y="180" fill="#282722" font-size="20" text-anchor="middle">~29</text>
+</svg>

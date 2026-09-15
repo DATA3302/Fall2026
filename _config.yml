@@ -11,6 +11,8 @@ favicon: /assets/images/logo.png
 theme_color: "#154f3b"
 
 markdown: kramdown
+kramdown:
+  input: GFM
 permalink: pretty
 
 exclude:
@@ -18,14 +20,29 @@ exclude:
   - Gemfile
   - Gemfile.lock
   - README.md
-  - assets/files/README.md
+  - content/tmp
+  - reveal/README.md
   - vendor
 
 sass:
   style: compressed
+
+# Interactive Reveal.js decks (see reveal/README.md) live in their own collection,
+# nested under reveal/ so their source and everything they load stays separate from
+# the site's own pages/layouts and from the static PDF course content in content/.
+collections_dir: reveal
+collections:
+  decks:
+    output: true
+    permalink: /slides/:name/
 
 defaults:
   - scope:
       path: ""
     values:
       layout: default
+  - scope:
+      path: ""
+      type: decks
+    values:
+      layout: deck

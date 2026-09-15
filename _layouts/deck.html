@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="{{ site.lang | default: 'en' }}">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="description" content="{{ page.description | default: site.description | escape }}">
+        <title>{{ page.title | escape }} | {{ site.title | escape }}</title>
+        <meta name="theme-color" content="{{ site.theme_color }}">
+        <link rel="icon" type="image/png" href="{{ site.favicon | relative_url }}">
+        <link rel="apple-touch-icon" href="{{ site.favicon | relative_url }}">
+
+        <link
+            rel="stylesheet"
+            href="{{ '/reveal/lib/reveal.js/dist/reveal.css' | relative_url }}"
+        />
+        <link
+            rel="stylesheet"
+            href="{{ '/reveal/lib/reveal.js/css/github.css' | relative_url }}"
+        />
+        <link
+            rel="stylesheet"
+            href="{{ '/reveal/assets/css/deck.css' | relative_url }}"
+        />
+        {% for stylesheet in page.stylesheets %}
+        <link rel="stylesheet" href="{{ stylesheet | relative_url }}" />
+        {% endfor %}
+    </head>
+    <body>
+        {%- comment -%}
+        Every <img> in the rendered deck content is rewritten here before it ever reaches the
+        page, in two ways:
+
+        1. A root-relative markdown image/embed reference (`![](/images/human-factors/x.svg)`,
+           `![figure](/embed/chart/chart.html)`) only needs to name the path under reveal/assets/
+           — the `/reveal/assets` segment and the site's baseurl are prepended automatically here,
+           so authors never have to spell out either one. An absolute (http/https) reference is
+           left untouched.
+        2. Regardless of the above, src is renamed to data-src: WebKit's speculative preload
+           scanner fetches <img src> resources even when they sit inside an inert <template>
+           (Chromium's scanner skips template content; WebKit's doesn't), so a real src attribute
+           here — even the fully-resolved one from step 1 — would get eagerly requested and, for
+           anything not yet visible in the DOM, wastefully fetched. Since data-src isn't a
+           resource-loading attribute in any browser, nothing fetches it until deck-builder.js
+           (which reads data-src verbatim — no further prefixing there) builds the real element.
+        {%- endcomment -%}
+        {%- assign deck_asset_src = '<img data-src="' | append: site.baseurl | append: '/reveal/assets/' -%}
+        <template id="deck-source">{{ content | replace: '<img src="/', deck_asset_src | replace: '<img src="', '<img data-src="' }}</template>
+
+        <div class="reveal">
+            <div class="slides" id="deck-slides"></div>
+        </div>
+
+        <script id="deck-settings" type="application/json">
+            {"baseUrl": {{ site.baseurl | jsonify }}, "course": {{ page.course | jsonify }}, "design": {{ page.design | jsonify }}, "reveal": {{ page.reveal | jsonify }}}
+        </script>
+        <script src="{{ '/reveal/assets/js/deck-builder.js' | relative_url }}"></script>
+        <script src="{{ '/reveal/lib/reveal.js/dist/reveal.js' | relative_url }}"></script>
+        <script src="{{ '/reveal/lib/reveal.js/plugin/reveald3.js' | relative_url }}"></script>
+        <script src="{{ '/reveal/lib/reveal.js/plugin/notes/notes.js' | relative_url }}"></script>
+        <script src="{{ '/reveal/lib/reveal.js/plugin/highlight/highlight.js' | relative_url }}"></script>
+        <script>
+            const settings = JSON.parse(
+                document.getElementById("deck-settings").textContent,
+            );
+            DeckBuilder.build({
+                source: document.getElementById("deck-source"),
+                target: document.getElementById("deck-slides"),
+                baseUrl: settings.baseUrl,
+                course: settings.course,
+            });
+
+            const deckConfig = settings.reveal || {};
+            const reveald3Config = Object.assign(
+                {
+                    runLastState: true,
+                    onSlideChangedDelay: 400,
+                    mapPath: false,
+                    tryFallbackURL: false,
+                    disableCheckFile: false,
+                },
+                deckConfig.reveald3 || {},
+            );
+
+            Reveal.initialize(
+                Object.assign(
+                    {
+                        width: "100%",
+                        height: "100%",
+                        margin: 0.02,
+                        controls: false,
+                        progress: true,
+                        history: true,
+                        center: false,
+                        viewDistance: 3,
+                        autoAnimate: true,
+                        autoAnimateDuration: 0.5,
+                        // deck-builder.js's own "autoanimate" handler (installDiagramAutoAnimate)
+                        // takes over fading in unmatched elements, so it can delay that fade
+                        // until after the matched-element transition finishes, and skip it
+                        // entirely when nothing matched at all — Reveal's built-in handling
+                        // does neither (it fades unmatched content in partway through the main
+                        // transition, always, even between two otherwise-unrelated slides).
+                        autoAnimateUnmatched: false,
+                    },
+                    deckConfig,
+                    {
+                        plugins: [Reveald3, RevealNotes, RevealHighlight],
+                        reveald3: reveald3Config,
+                        autoAnimateMatcher: DeckBuilder.autoAnimateMatcher,
+                    },
+                ),
+            );
+            DeckBuilder.installDiagramAutoAnimate();
+        </script>
+    </body>
+</html>
