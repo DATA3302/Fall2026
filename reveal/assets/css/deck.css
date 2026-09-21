@@ -384,10 +384,14 @@ body,
 
 .colorbox-green { --box-color: var(--slide-green); }
 .colorbox-gold { --box-color: var(--slide-gold); }
-.colorbox-note,
-.colorbox-example { --box-color: var(--slide-blue); }
-.colorbox-warning { --box-color: var(--slide-orange); }
-.colorbox-danger { --box-color: var(--slide-magenta); }
+.colorbox-blue { --box-color: var(--slide-blue); }
+.colorbox-orange { --box-color: var(--slide-orange); }
+.colorbox-magenta { --box-color: var(--slide-magenta); }
+/* The two neutrals, for a box that should read as plain rather than as an accent.
+   `ink` is the body-text near-black; `muted` is the softer grey used for de-emphasized
+   text. Both names match the diagram language's color names exactly. */
+.colorbox-ink { --box-color: var(--slide-ink); }
+.colorbox-muted { --box-color: var(--slide-muted); }
 .colorbox-margin { max-width: 38%; margin-left: auto; background: transparent; }
 
 .reveal .colorbox p {
@@ -626,6 +630,19 @@ svg {
   text-align: center;
 }
 
+/* A colorbox is a block of reading matter, not a display line: centered text inside one is hard
+   to scan and leaves a ragged left edge against the box's own left rule. Text inside a colorbox
+   is always left-aligned, whatever centering the slide or a text treatment applies around it.
+   Note the selector length — per the specificity note above, `.reveal .colorbox p` (0,2,1) loses
+   to `.reveal .slide-content .text-big` (0,3,0), so `[big]` items inside a colorbox stayed
+   centered. Matching the treatment rules' own two-class prefix outranks them instead. */
+.reveal .slide-content .colorbox,
+.reveal .slide-column .colorbox,
+.reveal .slide-content .colorbox :is(p, li, td, th, .colorbox-label),
+.reveal .slide-column .colorbox :is(p, li, td, th, .colorbox-label) {
+  text-align: left;
+}
+
 /* `[vcenter]` marks a paragraph whose *container* should center its content vertically rather
    than sitting at the top — the paragraph itself just carries the flag. If it was only that
    flag with no other text, replaceTextTreatments leaves an empty <p> behind so :has() below
@@ -659,6 +676,24 @@ svg {
 }
 
 .simple-diagram text { font-family: var(--slide-serif); }
+
+/* `height: 100%` above makes a diagram eat its whole slot, which silently clips anything
+   authored after it — a caption under a diagram simply never renders. When the diagram has
+   siblings, lay the box out as a flex column instead so the SVG takes only the space the
+   siblings leave. A diagram that really is the slide's only content keeps the simpler
+   fill-the-slot behaviour. */
+.reveal .slide-content:has(> .simple-diagram):not(:has(> .simple-diagram:only-child)),
+.reveal .slide-column:has(> .simple-diagram):not(:has(> .simple-diagram:only-child)) {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.reveal .slide-content:has(> .simple-diagram):not(:has(> .simple-diagram:only-child)) > .simple-diagram,
+.reveal .slide-column:has(> .simple-diagram):not(:has(> .simple-diagram:only-child)) > .simple-diagram {
+  flex: 1 1 auto;
+  min-height: 0;
+}
 
 /* Applied briefly by deck-builder.js's hand-rolled diagram Auto-Animate (see
    installDiagramAutoAnimate) while a matched node/edge eases from its previous slide's

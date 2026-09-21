@@ -3,6 +3,16 @@
 #import "@preview/tdtr:0.5.4" as tdtr: tidy-tree-draws, tidy-tree-graph
 
 
+#let paper = rgb("#fffff8")
+#let ink = rgb("#242421")
+#let muted-ink = rgb("#77746d")
+#let rule = rgb("#d8d4c8")
+#let accent-green = rgb("#176b4d")
+#let accent-ochre = rgb("#bd7b16")
+#let accent-red = rgb("#b52b20")
+#let accent-purple = rgb("#7a2f5c")
+#let accent-blue = rgb("#2a4f8c")
+
 #let sans-fonts = (
   "Fira Sans",
   "Helvetica",

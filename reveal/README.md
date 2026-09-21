@@ -90,9 +90,64 @@ gets `{{ site.baseurl }}/reveal/assets` prepended automatically by
 one and stays correct on the deployed GitHub Pages project site. An absolute
 (`http(s)://`) reference is left untouched.
 
-For the full authoring reference — diagram syntax, Auto-Animate details,
-colorbox types, and deck front-matter options (`course`, `design`, `reveal`)
-— see the source repo this was ported from.
+For Auto-Animate details and deck front-matter options (`course`, `design`,
+`reveal`), see the source repo this was ported from. The diagram language and
+the colorbox names are documented below, since both have been extended here.
+
+## Colorboxes
+
+A blockquote whose first line is `[!<name>]` becomes a callout. Callouts are
+named by the color they render in, not by a semantic type:
+
+| Name | Renders |
+|---|---|
+| `[!green]` | green rule and tint |
+| `[!gold]` | gold |
+| `[!blue]` | blue |
+| `[!orange]` | orange |
+| `[!magenta]` | magenta |
+| `[!ink]` | neutral: near-black rule, pale grey tint |
+| `[!muted]` | neutral: softer grey rule and tint |
+| `[!margin]` | the one non-color name: narrow, right-aligned, transparent |
+
+Anything after the marker on the same line becomes the box's title; with no
+title it falls back to the capitalized name, which is rarely what you want.
+Text inside a colorbox is always left-aligned.
+
+`[!notes]` (presenter notes) and `[!auto-animate]` are separate directives, not
+colorboxes.
+
+## Diagram nodes
+
+    node <id> (x,y) [enclose (x2,y2)] ["label"] [options]
+
+Coordinates are grid units: one column is 240px, one row is 170px. `enclose`
+makes the node an area whose two coordinates are opposite corners, drawn behind
+everything else — that is how the nested plates in `user-research.md` are built.
+
+| Option | Effect |
+|---|---|
+| `color=<c>` | label color, and the tint the node is filled with |
+| `stroke=<c>` | border color (default: muted gray) |
+| `nostroke` | no border |
+| `fill=<c>` | explicit interior. `fill=none` is transparent — use it with `nostroke` for floating text, or alone for a plain outline |
+| `shape=rect\|circle\|triangle` | overrides the default, which is a rounded rect, or a bare dot for a node with no label and no size |
+| `w=<n>` `h=<n>` | size in columns / rows. A circle takes `h` from `w` if `h` is omitted |
+| `label-pos=c\|n\|ne\|e\|se\|s\|sw\|w\|nw` | where the label sits. Defaults to `n` for an enclosure, `c` otherwise |
+
+`<c>` is a palette name — `green`, `gold`, `blue`, `magenta`, `orange`,
+`muted`, `ink` — or any raw CSS color.
+
+A label placed at an edge or corner is inset from the border by 22px and the
+font is 40px, so **an edge label needs about 62px of clear space** inside the
+node, or roughly 0.37 of a row. Enclosures whose plates are stacked tighter
+than that will draw their own border through the label text.
+
+## Diagram edges
+
+    edge <from> <to> [via (x,y)]... [label="..."] [color=<c>] [arrow=<a>] [noarrow]
+
+`arrow=` takes `->`, `<->`, `o`, `.`, `..`, `..>`, or `=>`.
 
 ## Run locally
 

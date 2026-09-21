@@ -1,7 +1,11 @@
 window.DeckBuilder = (() => {
   const isBlank = (node) => node.nodeType === Node.TEXT_NODE && !node.textContent.trim();
   const isHeading = (node) => node.nodeType === Node.ELEMENT_NODE && /^H[1-6]$/.test(node.tagName);
-  const calloutPattern = /^\[!(green-box|gold-box|note|example|warning|danger|margin)\](?:\s+(.*))?$/i;
+  // Callouts are named by the color they render in, not by a semantic type: the box's whole job
+  // is to be visually distinct, and a "note"/"warning"/"danger" vocabulary implied a meaning the
+  // deck never actually assigned. `margin` is the one non-color name — it is a layout variant
+  // (narrow, right-aligned, transparent) rather than a color.
+  const calloutPattern = /^\[!(green|gold|blue|orange|magenta|ink|muted|margin)\](?:\s+(.*))?$/i;
   const presenterNotesPattern = /^\[!notes\]\s*/i;
   const autoAnimatePattern = /^\[!auto-animate\]\s*$/i;
   const textKeyword = "lead|muted|accent|small|center|big|vcenter";
@@ -257,9 +261,7 @@ window.DeckBuilder = (() => {
     section.querySelectorAll("blockquote").forEach((quote) => {
       const match = calloutMatch(quote);
       if (!match) return;
-      const type = match[1].toLowerCase();
-      const colorMatch = type.match(/^(green|gold)-box$/);
-      const className = colorMatch ? colorMatch[1] : type;
+      const className = match[1].toLowerCase();
       const defaultLabel = className[0].toUpperCase() + className.slice(1);
       const first = quote.firstElementChild;
       const label = document.createElement("p");
@@ -288,7 +290,7 @@ window.DeckBuilder = (() => {
   // grid, `edge` connects two nodes by id with an optional routed path and arrowhead. See
   // README.md for the authoring syntax; this renders straight to SVG rather than HTML/CSS so
   // paths, corners, and arrowheads can be drawn precisely instead of approximated with flexbox.
-  const diagramPalette = ["green", "gold", "blue", "magenta", "orange"];
+  const diagramPalette = ["green", "gold", "blue", "magenta", "orange", "muted", "ink"];
   const DIAGRAM_COL = 240;
   const DIAGRAM_ROW = 170;
   const DIAGRAM_NODE_HEIGHT = 100;
@@ -308,6 +310,7 @@ window.DeckBuilder = (() => {
   // than "c") rather than dead-center, so the text clears the border instead of touching it.
   const DIAGRAM_LABEL_PAD = 22;
   const DIAGRAM_LABEL_POSITIONS = new Set(["c", "n", "ne", "e", "se", "s", "sw", "w", "nw"]);
+  const DIAGRAM_SHAPES = new Set(["rect", "circle", "triangle"]);
   // Two parallel edges between the same node pair land this far apart. Has to comfortably
   // clear an arrowhead's own rendered width (see diagramArrowMarker) — at the source end a
   // bare offset line is visibly separated at almost any spacing, but at the target end two
@@ -503,6 +506,17 @@ window.DeckBuilder = (() => {
           label,
           color: diagramColorValue(options.color),
           stroke: diagramColorValue(options.stroke),
+          // `fill=none` leaves a node's interior transparent, for floating text (an axis label,
+          // a caption inside a diagram) or a plain outline. Any other value paints that color and
+          // is resolved like `color=`: a palette name, or a raw CSS color passed through.
+          fill: options.fill
+            ? (options.fill.toLowerCase() === "none" ? "none" : diagramColorValue(options.fill))
+            : null,
+          // `shape=rect|circle|triangle`. Left null, the shape is inferred as before: a node with
+          // no label and no explicit size is a bare dot (circle), anything else is a rounded rect.
+          shape: DIAGRAM_SHAPES.has((options.shape || "").toLowerCase())
+            ? options.shape.toLowerCase()
+            : null,
           noStroke: /\bnostroke\b/i.test(rest),
           width: options.w ? Number(options.w) * DIAGRAM_COL : null,
           height: options.h ? Number(options.h) * DIAGRAM_ROW : null,
@@ -557,16 +571,19 @@ window.DeckBuilder = (() => {
       // A node authored with no label and no explicit size renders as a plain circle — a
       // junction/anchor point rather than a labeled box — sized to match a standard node's
       // height so it reads as part of the same family rather than a stray dot.
-      node.isCircle = !node.label && !node.width && !node.height;
+      // An explicit `shape=` wins; otherwise fall back to the original inference.
+      const bareDot = !node.label && !node.width && !node.height && !node.shape;
+      node.isCircle = node.shape ? node.shape === "circle" : bareDot;
+      node.isTriangle = node.shape === "triangle";
       if (node.isCircle) {
-        node.w = DIAGRAM_NODE_HEIGHT;
-        node.h = DIAGRAM_NODE_HEIGHT;
+        node.w = node.width || DIAGRAM_NODE_HEIGHT;
+        node.h = node.height || node.w;
         // A "no content" node reads as a plain dot, not a labeled box, so it defaults to a
         // solid ink-filled circle with no border instead of the pale-tinted, gray-bordered
         // look a box gets — cleaner and more legible as a bare point (see the Gestalt
         // proximity/connectedness-style diagrams this is for). An explicit color=, stroke=,
         // or nostroke on the node always wins over this default.
-        if (!node.color && !node.stroke && !node.noStroke) {
+        if (bareDot && !node.color && !node.stroke && !node.noStroke) {
           node.color = "var(--slide-ink)";
           node.noStroke = true;
         }
@@ -652,20 +669,63 @@ window.DeckBuilder = (() => {
   // left at the route's own unshifted point instead, so this line and its mirror (half negated)
   // don't draw two separate marker-width gaps side by side — they taper back together over
   // their last segment and meet exactly at the single shared arrowhead.
+  // How far an arrowhead reaches back from its tip, in user units: the marker's wings trail to
+  // x=7.4 in a 0..12 viewBox whose refX (the tip) is 11, and markerUnits defaults to strokeWidth,
+  // so the viewBox scales by markerWidth/12 * stroke-width. Pipe rails stop here rather than
+  // running on to the tip, so the arrowhead caps them instead of being speared by them.
+  const DIAGRAM_ARROW_DEPTH = (11 - 7.4) * (15.6 / 12) * DIAGRAM_EDGE_STROKE;
+
+  // One rail of a `=>` pipe: the whole route pushed `half` to one side. Offsetting every vertex
+  // — including the ends — is what keeps the two rails parallel for their entire length, the way
+  // Fletcher's double-ruled edges are. Interior vertices are offset along the *miter* (the
+  // bisector of the two adjoining normals, lengthened by 1/cos of the half-angle) rather than
+  // along either segment's own normal, so the perpendicular gap between the rails stays exactly
+  // DIAGRAM_PIPE_GAP around a corner instead of pinching on the inside of the turn.
   function pipeLinePoints(points, half, edge) {
-    const from = points[0];
-    const to = points.at(-1);
-    const dx = to.x - from.x;
-    const dy = to.y - from.y;
-    const length = Math.hypot(dx, dy) || 1;
-    const px = (-dy / length) * half;
-    const py = (dx / length) * half;
-    return points.map((p, i) => {
-      if (i === 0 && edge.arrowStart) return p;
-      if (i === points.length - 1 && edge.arrowEnd) return p;
-      return { x: p.x + px, y: p.y + py };
+    const unit = (a, b) => {
+      const dx = b.x - a.x, dy = b.y - a.y;
+      const len = Math.hypot(dx, dy) || 1;
+      return { x: dx / len, y: dy / len };
+    };
+    const normalOf = (d) => ({ x: -d.y, y: d.x });
+
+    const dirs = points.slice(0, -1).map((p, i) => unit(p, points[i + 1]));
+
+    const offset = points.map((p, i) => {
+      const dIn = dirs[i - 1];
+      const dOut = dirs[i];
+      if (!dIn || !dOut) {
+        const n = normalOf(dIn || dOut);
+        return { x: p.x + n.x * half, y: p.y + n.y * half };
+      }
+      const nIn = normalOf(dIn);
+      const nOut = normalOf(dOut);
+      let mx = nIn.x + nOut.x;
+      let my = nIn.y + nOut.y;
+      const mLen = Math.hypot(mx, my);
+      // A perfect reversal (the two segments doubling back) has no usable bisector.
+      if (mLen < 1e-6) return { x: p.x + nIn.x * half, y: p.y + nIn.y * half };
+      mx /= mLen;
+      my /= mLen;
+      // 1/cos(theta/2), capped so a very sharp corner does not fling the rail far outward.
+      const scale = Math.min(1 / Math.max(mx * nIn.x + my * nIn.y, 1e-3), 4);
+      return { x: p.x + mx * half * scale, y: p.y + my * half * scale };
     });
+
+    // Pull each end back to the arrowhead's base so the rails meet the wings rather than the tip.
+    const trim = (endIndex, neighbourIndex) => {
+      const end = offset[endIndex];
+      const d = unit(offset[neighbourIndex], end);
+      const span = Math.hypot(end.x - offset[neighbourIndex].x, end.y - offset[neighbourIndex].y);
+      const back = Math.min(DIAGRAM_ARROW_DEPTH, span * 0.9);
+      offset[endIndex] = { x: end.x - d.x * back, y: end.y - d.y * back };
+    };
+    if (edge.arrowEnd && offset.length >= 2) trim(offset.length - 1, offset.length - 2);
+    if (edge.arrowStart && offset.length >= 2) trim(0, 1);
+
+    return offset;
   }
+
 
   // A straight polyline through `points`, with interior corners rounded to `radius` by
   // trimming each corner and bridging the gap with a quadratic curve — a common technique
@@ -846,19 +906,40 @@ window.DeckBuilder = (() => {
       return path;
     }
 
+    // The arrowhead of a `=>` pipe rides a hairline stub on the route's own centerline, so it
+    // sits centered between the two rails instead of on one of them. The stub is one unit long
+    // purely so the marker has a direction to orient to; it is never painted.
+    function pipeMarkerStub(points, edge) {
+      const a = points.at(-2), b = points.at(-1);
+      const len = Math.hypot(b.x - a.x, b.y - a.y) || 1;
+      const sx = b.x - (b.x - a.x) / len, sy = b.y - (b.y - a.y) / len;
+      const path = svgEl("path", {
+        d: `M ${sx},${sy} L ${b.x},${b.y}`,
+        fill: "none",
+        stroke: "none",
+        // markerUnits defaults to strokeWidth, so the marker is scaled by this even though the
+        // stub itself is never painted. Without it the width falls back to 1 and the arrowhead
+        // renders at well under half size.
+        "stroke-width": DIAGRAM_EDGE_STROKE,
+        "data-diagram-edge": edge.key + "~m"
+      });
+      if (edge.arrowEnd) path.setAttribute("marker-end", `url(#${markerFor(edge.arrowEnd, edge.color)})`);
+      if (edge.arrowStart) path.setAttribute("marker-start", `url(#${markerFor(edge.arrowStart, edge.color)})`);
+      return path;
+    }
+
     const edgePointSets = [];
     edges.forEach((edge) => {
       const points = diagramEdgePoints(edge, nodes);
       if (!points) return;
       edgePointSets.push(points);
       if (edge.pipe) {
-        // Two parallel lines at the normal stroke width, converging back onto the plain
-        // centerline at whichever end(s) have an arrowhead (see pipeLinePoints) — the marker
-        // itself is only ever drawn once, on line "a", since both lines meet at that same
-        // point and a second copy would just draw directly on top of the first.
+        // Two rails, parallel for their whole length (see pipeLinePoints), with the single
+        // arrowhead carried on a centerline stub so it stays centered between them.
         const half = DIAGRAM_PIPE_GAP / 2;
-        edgeGroup.append(buildEdgeLine(edge, pipeLinePoints(points, half, edge), "~a", true));
+        edgeGroup.append(buildEdgeLine(edge, pipeLinePoints(points, half, edge), "~a", false));
         edgeGroup.append(buildEdgeLine(edge, pipeLinePoints(points, -half, edge), "~b", false));
+        if (edge.arrowEnd || edge.arrowStart) edgeGroup.append(pipeMarkerStub(points, edge));
       } else {
         edgeGroup.append(buildEdgeLine(edge, points, "", true));
       }
@@ -881,14 +962,29 @@ window.DeckBuilder = (() => {
       // to read as a soft highlight next to a solid stroke — would leave it nearly invisible.
       // Paint it with the color at full strength instead (what a stroke would normally use)
       // whenever there's no border to do that job.
-      const solidFill = !!(node.color && node.noStroke);
-      const fill = solidFill
-        ? node.color
+      // An explicit `fill=` always wins. Otherwise: a no-border node has no stroke to carry its
+      // color, so the usual light 8% tint — meant to read as a soft highlight next to a solid
+      // stroke — would leave it nearly invisible; paint it with the color at full strength
+      // instead (what a stroke would normally use) whenever there's no border to do that job.
+      const paintedFill = node.fill !== null
+        ? node.fill
+        : (node.color && node.noStroke ? node.color : null);
+      // Label contrast only has to fight a background that something actually painted, so
+      // `fill=none` is explicitly not "solid" here even though it is an explicit fill.
+      const solidFill = paintedFill !== null && paintedFill !== "none";
+      const fill = paintedFill !== null
+        ? paintedFill
         : "var(--diagram-node-fill, color-mix(in srgb, var(--box-color, var(--slide-muted)) 8%, var(--slide-background)))";
       const stroke = node.noStroke ? "none" : (node.stroke || "var(--slide-muted)");
       if (node.isCircle) {
         group.append(svgEl("circle", {
           cx: node.cx, cy: node.cy, r: node.w / 2,
+          fill, stroke, "stroke-width": DIAGRAM_EDGE_STROKE
+        }));
+      } else if (node.isTriangle) {
+        const hw = node.w / 2, hh = node.h / 2;
+        group.append(svgEl("polygon", {
+          points: `${node.cx},${node.cy - hh} ${node.cx + hw},${node.cy + hh} ${node.cx - hw},${node.cy + hh}`,
           fill, stroke, "stroke-width": DIAGRAM_EDGE_STROKE
         }));
       } else {
@@ -913,7 +1009,11 @@ window.DeckBuilder = (() => {
           // it stays the node's own accent color there. Over a solid fill (see `solidFill`
           // above) that same accent color would be the text's own background too — fall back
           // to whichever of white/ink actually contrasts against it instead.
-          fill: solidFill ? (isColorDark(node.color) ? "#fff" : "var(--slide-ink)") : (node.color || "var(--slide-ink)"),
+          // `color=none` is an existing idiom for an invisible shape (see perception.md's spacer
+          // and border nodes); it must not become invisible *text* on a node that has a label.
+          fill: solidFill
+            ? (isColorDark(paintedFill) ? "#fff" : "var(--slide-ink)")
+            : (node.color && node.color !== "none" ? node.color : "var(--slide-ink)"),
           "font-style": "italic",
           "font-size": DIAGRAM_FONT_SIZE,
           "text-anchor": anchor.textAnchor,

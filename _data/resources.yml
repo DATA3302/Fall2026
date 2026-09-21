@@ -21,8 +21,12 @@ slides:
     file: /content/slides/04-Grammar-of-Graphics.pdf
     status: PDF
 
-  - title: Human Factors
-    file: /slides/human-factors/
+  - title: Perception
+    file: /slides/perception/
+    status: Interactive
+
+  - title: User Research
+    file: /slides/user-research/
     status: Interactive
 
 labs:
@@ -40,3 +44,5 @@ labs:
     url: https://observablehq.com/@cal-poly-data-design-lab/d3-intro
   - title: D3 in Depth
     url: https://www.d3indepth.com/introduction/
+  - title: User Study Activity
+    file: /content/lab-activities/02-Mini-User-Study.pdf

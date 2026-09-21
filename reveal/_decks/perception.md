@@ -243,22 +243,22 @@ edge eye brain label="System 1" color="purple"
 
 [big] Measure Task Accuracy and Response Time
 
-> [!gold-box] Target Detection
+> [!gold] Target Detection
 >
 > Users rapidly and accurately detect the presence or absence of a "target" element with a unique visual feature within a field of distractor elements.
 
-> [!gold-box] Boundary Detection
+> [!gold] Boundary Detection
 >
 > Users rapidly and accurately detect a texture boundary
 between two groups of elements, where all of the elements in each group have a
 common visual property.
 
-> [!gold-box] Region Tracking
+> [!gold] Region Tracking
 >
 > Users track one or more elements with a unique visual feature as
 they move in time and space.
 
-> [!gold-box] Counting and Estimation
+> [!gold] Counting and Estimation
 >
 > Users count or estimate the number of elements with a
 unique visual feature.
@@ -419,7 +419,7 @@ unique visual feature.
 ### Gestalt Psychology
 
 [vcenter]
-> [!gold-box] [big]Gestalt Laws of Grouping
+> [!gold] [big]Gestalt Laws of Grouping
 >
 > [big] Proximity
 >
@@ -829,7 +829,7 @@ edge brain ltm arrow="<->" color=purple
 ### System 2: Post-attentive
 
 [vcenter]
->[!green-box] Discussion
+>[!green] Discussion
 >
 > [big] What design idiom(s) most effectively address the problems associated with change blindness?
 
