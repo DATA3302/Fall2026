@@ -21,32 +21,32 @@
   end: 2026-09-18
   dates: September 14, 16, 18
   lecture: Human Factors
-  lab: Mini User-Studies
+  lab: Design Crits
 - label: Week 5
   start: 2026-09-21
   end: 2026-09-25
   dates: September 21, 23, 25
-  lecture: Evaluation and Critique
-  lab: Design Crits
+  lecture: User Research
+  lab: Mini-user studies
 - label: Week 6
   start: 2026-09-28
   end: 2026-10-02
   dates: September 28, 30; October 2
   lecture: Composition
-  lab: Midterm 1
-  important: true
+  lab: Mini-user studies continued
 - label: Week 7
   start: 2026-10-05
   end: 2026-10-09
   dates: October 5, 7, 9
   lecture: Interaction
-  lab: Interaction in D3
+  lab: Midterm 1
+  important: true
 - label: Week 8
   start: 2026-10-12
   end: 2026-10-16
   dates: October 12, 14, 16
   lecture: Uncertainty
-  lab: D3 Continued
+  lab: Interaction in D3
 - label: Week 9
   start: 2026-10-19
   end: 2026-10-23

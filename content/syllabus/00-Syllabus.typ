@@ -44,7 +44,7 @@ The primary learning objectives for this course, as outlined in the course catal
 + Create basic and advanced charts that communicate insights from data.
 + Select appropriate visualization techniques for different types of data.
 + Work in a team to visualize real-world data to persuasively tell a story.
-+	Communicate insights from data using multiple displays and dashboards.
++ Communicate insights from data using multiple displays and dashboards.
 + Critically evaluate visualizations and suggest improvements and refinements.
 + Use principles of human perception and cognition in visualization design.
 
@@ -56,7 +56,7 @@ Your grade for this course will be based on three kinds of assessment: Participa
 
 
 == Grading Scale
-Every assessment will ultimately be graded on a coarse grain scale of 0-3, where each value corresponds to the letter grade representing the degree of mastery over the material demonstrated through the assessment#sidenote(dy:-10em)[Even when an assessment internally uses some kind of points tabulation, the actual grade will be based on a holistic evaluation of the overall assessment, and so any thresholds used to determine specific assessment grades will vary.].
+Every assessment will ultimately be graded on a coarse grain scale of 0-3, where each value corresponds to the letter grade representing the degree of mastery over the material demonstrated through the assessment#sidenote(dy: -10em)[Even when an assessment internally uses some kind of points tabulation, the actual grade will be based on a holistic evaluation of the overall assessment, and so any thresholds used to determine specific assessment grades will vary.].
 
 #colorbox(title: "Grading Scale")[
 
@@ -77,7 +77,7 @@ Both in lecture and lab sessions there will be many opportunities for interactio
 
 The course will include two non-cumulative written midterm exams taking place in the weeks indicated on the course schedule covering the material up to that point in the course. On the listed exam weeks, the Monday lab section will be dedicated to exam practice and review, the Wednesday lab section will be dedicated to taking the exam, and the Friday lab section will be dedicated to going over the exam. For each exam you will be able to bring in one hand written, double sided, study sheet.
 
-I understand that sometimes life happens, maybe you got sick and were not be able to study very well for an exam, or a topic may be difficult and require more time to get a handle on. There are all sorts of reasons why any given exam on any given day may not be representative of what you can do, but I am not really interested in judging the validity of different situations and would prefer everyone get a baseline level of consideration that should cover all but the most exceptional circumstances. *Therefore, at the end of the course you will have an opportunity to re-take either of the two exams for full credit.* Make-up exams will cover the same material but with different questions and give you a second opportunity to show mastery over the material with no penalty#sidenote(dy:-5em)[Of course, this does not mean you can skip everything. Only one of the two exams can be retaken, and so you cannot just blow everything off until the very end of the quarter. You should still try your best on your first attempts when you can. Additionally, the re-take exams are likely to be somewhat _more_ difficult than the corresponding initial exams to account for the additional time to prepare.]. If you have an exceptional circumstance preventing you from making-up a missed exam or you are forced to miss both exams, please talk to me as soon as possible to figure out what can be done.
+I understand that sometimes life happens, maybe you got sick and were not be able to study very well for an exam, or a topic may be difficult and require more time to get a handle on. There are all sorts of reasons why any given exam on any given day may not be representative of what you can do, but I am not really interested in judging the validity of different situations and would prefer everyone get a baseline level of consideration that should cover all but the most exceptional circumstances. *Therefore, at the end of the course you will have an opportunity to re-take either of the two exams for full credit.* Make-up exams will cover the same material but with different questions and give you a second opportunity to show mastery over the material with no penalty#sidenote(dy: -5em)[Of course, this does not mean you can skip everything. Only one of the two exams can be retaken, and so you cannot just blow everything off until the very end of the quarter. You should still try your best on your first attempts when you can. Additionally, the re-take exams are likely to be somewhat _more_ difficult than the corresponding initial exams to account for the additional time to prepare.]. If you have an exceptional circumstance preventing you from making-up a missed exam or you are forced to miss both exams, please talk to me as soon as possible to figure out what can be done.
 
 == Assignments
 
@@ -117,26 +117,52 @@ Finally, your final project will determine any plus and minus modifiers as well 
     #table(
       columns: 4,
       align: left,
-      table.header(
-        [*Week*], [*Dates*], [*Lecture*], [*Lab*]
-      ),
-      [1],  [August 24, 26, 28],  [Course Introduction,  History of Visualization],  [Course Onboarding],
-      [2],  [August 31,  September 2, 4],  [Data and Design Processes],  [Sketching, SVG, and Observable],
-      [3],  [September 9, 11],  [Grammar of Graphics],  [Introduction to D3],
-      [4],  [September 14, 16, 18],  [Human Factors],  [Mini User-Studies],
-      [5],  [September 21, 23, 25],  [Evaluation and Critique],  [Design Crits],
-      [6],  [September 28, 30,  October 2],  [Composition],  [Midterm 1],
-      [7],  [October 5, 7, 9],  [Interaction],  [Interaction in D3],
-      [8],  [October 12, 14, 16],  [Uncertainty],  [More Interaction in D3],
-      [9],  [October 19, 21, 23],  [Ethics and Deception],  [Clarification and Obfuscation],
-      [10],  [October 26, 28, 30],  [Spatiotemporal Visualization],  [Maps and Animations],
-      [11],  [November 2, 4, 6 ],  [Advanced Visualizations],  [Midterm 2],
-      [12],  [November 9, 13],  [VIS 2026],  [Paper Seminars],
-      [13],  [November 16, 18, 20],  [Storytelling and Narrative],  [Scrollytelling],
-      [Fall Break],  [November 23, 25, 27],  [],  [],
-      [14],  [November 30,  December 2, 4],  [Accessibility],  [Project Studio],
-      [15],  [December 7, 9, 11],  [Special Topics],  [ Project Studio, Makeup Exams],
-      [Finals],  [December  14 1:00PM-3:30PM],  [Project Colloquium],  [],
+      table.header([*Week*], [*Dates*], [*Lecture*], [*Lab*]),
+      [1],
+      [August 24, 26, 28],
+      [Course Introduction,  History of Visualization],
+      [Course Onboarding],
+
+      [2],
+      [August 31,  September 2, 4],
+      [Data and Design Processes],
+      [Sketching, SVG, and Observable],
+
+      [3], [September 9, 11], [Grammar of Graphics], [Introduction to D3],
+      [4], [September 14, 16, 18], [Human Factors], [Design Crits],
+      [5], [September 21, 23, 25], [User Research], [Mini User-Studies],
+      [6],
+      [September 28, 30,  October 2],
+      [Composition],
+      [Mini User-Studies continued ],
+
+      [7], [October 5, 7, 9], [Interaction], [Midterm 1],
+      [8], [October 12, 14, 16], [Uncertainty], [Interaction in D3],
+      [9],
+      [October 19, 21, 23],
+      [Ethics and Deception],
+      [Clarification and Obfuscation],
+
+      [10],
+      [October 26, 28, 30],
+      [Spatiotemporal Visualization],
+      [Maps and Animations],
+
+      [11], [November 2, 4, 6 ], [Advanced Visualizations], [Midterm 2],
+      [12], [November 9, 13], [VIS 2026], [Paper Seminars],
+      [13],
+      [November 16, 18, 20],
+      [Storytelling and Narrative],
+      [Scrollytelling],
+
+      [Fall Break], [November 23, 25, 27], [], [],
+      [14], [November 30,  December 2, 4], [Accessibility], [Project Studio],
+      [15],
+      [December 7, 9, 11],
+      [Special Topics],
+      [ Project Studio, Makeup Exams],
+
+      [Finals], [December  14 1:00PM-3:30PM], [Project Colloquium], [],
     )
   ]
 ]
