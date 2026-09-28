@@ -1274,6 +1274,14 @@ window.DeckBuilder = (() => {
       (el) => `${el.nodeName}:::${svgShapeSignature(el)}`
     );
 
+    // Every pair below that one of our own animate*Transition handlers takes over gets
+    // `styles: []` as well as `scale/translate: false`. Reveal only writes a pair's CSS when at
+    // least one tracked style differs between the two elements, but when it does, that CSS pins
+    // `transition: none !important` (pending) and then `transition: all ...; transition-property:
+    // <changed styles> !important` (running) onto the incoming element — overriding the inline
+    // transform/viewBox transition our handler put there, and snapping it straight to its end
+    // state. With nothing to compare, Reveal never writes any CSS for the pair at all.
+    const handedOff = { scale: false, translate: false, styles: [] };
     pairs.forEach((pair) => {
       if (pair.from.matches(autoAnimateHeadingSelector) || isHeadingTitleSpan(pair.from)) {
         pair.options = { scale: false };
@@ -1292,12 +1300,16 @@ window.DeckBuilder = (() => {
         // always ~1 even though the *picture* — letterboxed differently at each width — genuinely
         // needs to resize on both axes. animateImageTransition (below) replaces Reveal's
         // box-based FLIP with one measured against the picture's own visible bounds instead.
-        pair.options = { scale: false, translate: false };
+        pair.options = handedOff;
+      } else if (pair.from.matches(".embedded-figure > iframe")) {
+        // Same box-vs-content mismatch again, for a figure page's own chart inside its iframe —
+        // animateIframeTransition replaces Reveal's box-based FLIP here too.
+        pair.options = handedOff;
       } else if (pair.from.matches(".simple-diagram")) {
         // Same box-vs-content mismatch as static-figure img, just via SVG's own equivalent of
         // object-fit: contain (`preserveAspectRatio="xMidYMid meet"`, set in buildDiagramSvg)
         // instead of CSS — animateDiagramTransition replaces Reveal's box-based FLIP here too.
-        pair.options = { scale: false, translate: false };
+        pair.options = handedOff;
       } else if (pair.from.matches("svg.static-figure-svg") || pair.from.closest("svg.static-figure-svg")) {
         // Same box-vs-content mismatch as .simple-diagram, for an inlined external SVG's own
         // viewBox + preserveAspectRatio (see inlineStaticSvgs) — animateExternalSvgTransition
@@ -1308,7 +1320,7 @@ window.DeckBuilder = (() => {
         // that inline style.transition — which, being inline, overrides the CSS class our own
         // transition depends on regardless of which one "meant" to apply — onto the element,
         // silently overwriting our transition-property list and leaving nothing to animate.
-        pair.options = { scale: false, translate: false };
+        pair.options = handedOff;
       }
     });
 
@@ -1386,9 +1398,23 @@ window.DeckBuilder = (() => {
   // has no such issue — it's an ordinary animatable paint property — so this only reroutes the
   // position through a `transform: translate()`, which *is* animatable on every element,
   // leaving fill to flipDiagramAttributes as before.
+  // The offset comes from where each label actually renders (getBBox, in the diagram's own
+  // coordinates on both slides), not from the raw x/y attributes: those are only the text's
+  // anchor point, so a label whose text-anchor changes between slides (middle -> start when a
+  // node's label position changes) would start off by half its own width. Centers are aligned,
+  // which is exact for an unchanged label and keeps a changed one centered where the old one sat.
   function flipDiagramTextPosition(el, fromEl) {
-    const dx = Number(fromEl.getAttribute("x")) - Number(el.getAttribute("x"));
-    const dy = Number(fromEl.getAttribute("y")) - Number(el.getAttribute("y"));
+    let dx, dy;
+    try {
+      const from = fromEl.getBBox();
+      const to = el.getBBox();
+      dx = from.x + from.width / 2 - (to.x + to.width / 2);
+      dy = from.y + from.height / 2 - (to.y + to.height / 2);
+    } catch (_) {
+      dx = Number(fromEl.getAttribute("x")) - Number(el.getAttribute("x"));
+      dy = Number(fromEl.getAttribute("y")) - Number(el.getAttribute("y"));
+    }
+    if (!Number.isFinite(dx) || !Number.isFinite(dy)) return () => {};
     el.style.transform = `translate(${dx}px, ${dy}px)`;
     return () => { el.style.transform = ""; };
   }
@@ -1427,7 +1453,7 @@ window.DeckBuilder = (() => {
   // the bezier for the parametric point whose X equals the elapsed time fraction (Newton-
   // Raphson, a couple of iterations converges to well under a pixel of error here), then
   // returning that point's Y. Needed anywhere a hand-rolled requestAnimationFrame loop (see
-  // animateViewBox) has to move in lockstep with a real `transition: ... var(--...-easing)` —
+  // animateDiagramTransition) has to move in lockstep with a real `transition: ... var(--...-easing)` —
   // a mismatched curve (e.g. this loop's own easing formula vs. the CSS one) makes elements
   // driven by each look like they're moving at different rates relative to one another, even
   // though they start and end at the same time.
@@ -1458,26 +1484,58 @@ window.DeckBuilder = (() => {
     };
   }
 
-  // requestAnimationFrame-driven, because `viewBox` is a plain SVG attribute, not a CSS
-  // property — it can't ride a normal CSS `transition` the way the rect/text/path attributes
-  // above do. Uses `easing` (the same string driving every element's CSS transition, per
-  // diagramEasingFunction) rather than an easing formula of its own, so the "camera" pan/zoom
-  // this drives and the individually-FLIPping nodes/edges move in lockstep — otherwise a node
-  // that isn't moving in its own coordinates (nothing to FLIP) but *is* moving on screen purely
-  // because the viewBox is panning under it visibly drifts off the curve everything else is
-  // moving on, reading as the whole diagram warping rather than a single rigid camera move.
-  function animateViewBox(svg, fromViewBox, toViewBox, duration, easing) {
-    const from = fromViewBox.split(/\s+/).map(Number);
-    const to = toViewBox.split(/\s+/).map(Number);
-    if (from.length !== 4 || to.length !== 4) return;
-    const start = performance.now();
-    const ease = diagramEasingFunction(easing);
-    (function tick(now) {
-      const t = Math.min(1, (now - start) / (duration * 1000));
-      const eased = ease(t);
-      svg.setAttribute("viewBox", from.map((value, i) => value + (to[i] - value) * eased).join(" "));
-      if (t < 1) requestAnimationFrame(tick);
-    })(start);
+  // Where `preserveAspectRatio="xMidYMid meet"` puts diagram coordinates on screen: a uniform
+  // scale `s` (screen px per viewBox unit) plus the screen position of the viewBox origin.
+  function meetMapping(box, viewBox) {
+    const [vx, vy, vw, vh] = viewBox;
+    const s = Math.min(box.width / vw, box.height / vh);
+    return { s, x: box.left + (box.width - vw * s) / 2 - vx * s, y: box.top + (box.height - vh * s) / 2 - vy * s };
+  }
+
+  // Every hand-rolled flip below that's still running on an element, keyed by the element,
+  // mapped to a function that jumps it straight to its end state and stops it. A transition
+  // that starts while an earlier one is still running on the same element (navigating again
+  // mid-transition) settles that one first: otherwise the new one would read the old one's
+  // mid-animation attributes — or leftover transform — as its own final state, and leave the
+  // element there for good.
+  const activeFlips = new WeakMap();
+  function settleFlip(el) {
+    activeFlips.get(el)?.();
+  }
+  function registerFlip(el, finish) {
+    let done = false;
+    const settle = () => {
+      if (done) return;
+      done = true;
+      if (activeFlips.get(el) === settle) activeFlips.delete(el);
+      finish();
+    };
+    activeFlips.set(el, settle);
+    return { settle, isDone: () => done };
+  }
+
+  // Every layout ancestor between an animating element and its slide — .media-figure,
+  // .slide-column, .slide-grid, .slide-content, .slide-frame — clips to its own
+  // (already-final-size) box via `overflow: hidden`. Content whose starting appearance is larger
+  // than, or outside of, its final layout slot would be cropped down to the smallest of those
+  // boxes instead of showing in full while it eases into place. Lifting the clip on all of them
+  // for the duration of the transition fixes that; it's safe to do unconditionally because the
+  // fade-in of any new content sharing that space is deliberately staggered to start only after
+  // the transition finishes (see fadeInNewContent), so there's nothing yet visible for the
+  // temporarily unclipped content to spill over. Stops at the slide's own <section>, not past
+  // it — escaping the slide entirely would spill into neighboring UI (footer, other slides)
+  // rather than just the room the auto-animate transition already has to work with.
+  function liftAncestorClipping(el, duration) {
+    for (let ancestor = el.parentElement; ancestor && ancestor.tagName !== "SECTION"; ancestor = ancestor.parentElement) {
+      if (ancestor.dataset.clipLifted) continue;
+      const previousOverflow = ancestor.style.overflow;
+      ancestor.dataset.clipLifted = "true";
+      ancestor.style.overflow = "visible";
+      setTimeout(() => {
+        ancestor.style.overflow = previousOverflow;
+        delete ancestor.dataset.clipLifted;
+      }, duration * 1000 + 50);
+    }
   }
 
   // Parses the "x,y x,y ..." data-diagram-edge-route attribute (see buildEdgeLine) back into
@@ -1522,38 +1580,36 @@ window.DeckBuilder = (() => {
     return points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x},${p.y}`).join(" ");
   }
 
-  // Falls back to this whenever an edge's route grows/loses a via point between two
-  // auto-animate slides (see the [data-diagram-edge] loop below): the two `d` strings then
-  // have a different number of path commands (e.g. "M L" vs. "M L Q L" for the rounded corner
-  // a via point adds), and a CSS `d` transition only interpolates between path data that's
-  // already command-for-command compatible — given a structural mismatch like this it doesn't
-  // error or warn, it just never animates at all, snapping straight to the end state. This
-  // resamples both routes to the same point count (resamplePoints) and manually tweens between
-  // them frame by frame instead, snapping to the *exact* final `d` (the one true to however the
-  // edge really renders, corner-rounding included) only once the tween completes.
-  function animateEdgeMorph(el, fromPoints, toPoints, duration, easingName) {
-    const sampleCount = Math.max(16, fromPoints.length, toPoints.length);
-    const fromSample = resamplePoints(fromPoints, sampleCount);
-    const toSample = resamplePoints(toPoints, sampleCount);
-    const finalD = el.getAttribute("d");
-    el.setAttribute("d", polylinePathD(fromSample));
-    const ease = diagramEasingFunction(easingName);
-    return () => {
-      const start = performance.now();
-      (function tick(now) {
-        const t = Math.min(1, (now - start) / (duration * 1000));
-        if (t >= 1) { el.setAttribute("d", finalD); return; }
-        const eased = ease(t);
-        const framePoints = fromSample.map((p, i) => ({
-          x: p.x + (toSample[i].x - p.x) * eased,
-          y: p.y + (toSample[i].y - p.y) * eased
-        }));
-        el.setAttribute("d", polylinePathD(framePoints));
-        requestAnimationFrame(tick);
-      })(start);
-    };
-  }
+  // Every number in one of our edge `d` strings, in order. buildEdgeLine only ever emits
+  // absolute M/L/Q/C commands (roundedPolylinePath/smoothPath), whose arguments are all x,y
+  // pairs — so even-indexed numbers are x coordinates and odd-indexed ones y, and two paths with
+  // the same command skeleton line up number-for-number.
+  const PATH_NUMBER = /-?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?/gi;
+  const pathSkeleton = (d) => d.replace(PATH_NUMBER, "#");
+  const pathNumbers = (d) => (d.match(PATH_NUMBER) || []).map(Number);
 
+  // Every matched diagram part, and the diagram as a whole, moves along one timeline here.
+  //
+  // The "camera" is the map from diagram coordinates to the screen: a uniform scale plus an
+  // offset (meetMapping), different on each slide whenever the diagram's viewBox changes (it
+  // grew to fit a new node) or its slot on the page changes shape (a column-count change).
+  // It's eased from the outgoing slide's camera to the incoming one's, and applied through the
+  // incoming svg's viewBox alone — recomputed each frame as whatever region of diagram space the
+  // current camera shows through the svg's own final box — rather than a CSS transform stacked on
+  // top of a separately-animating viewBox, which double-counts the zoom and scales X and Y apart
+  // whenever the two viewBoxes' aspect ratios differ.
+  //
+  // Each matched part's geometry (a node's rect/circle, a label's position, every coordinate of
+  // an edge's path) is then blended in *screen* space — from where it was drawn on the outgoing
+  // slide to where it's drawn on the incoming one — and mapped back into diagram coordinates
+  // under that frame's camera. Easing a part's diagram coordinates on their own (a CSS attribute
+  // transition) while the camera zooms underneath would multiply two linear blends together, so
+  // a node that grows while the view zooms out would overshoot its final size mid-transition and
+  // drift off the straight line everything else travels on. Done this way, every point moves in a
+  // straight line on screen, every size changes monotonically, and edges stay attached to the
+  // nodes they connect at every frame. All of it is requestAnimationFrame-driven on the same
+  // easing curve Reveal's own transitions use (diagramEasingFunction); only color changes, which
+  // don't depend on the camera, still ride CSS transitions (the `.is-flipping` rule in deck.css).
   function animateDiagramTransition({ fromSlide, toSlide }) {
     const fromSvg = fromSlide?.querySelector(".simple-diagram");
     const toSvg = toSlide?.querySelector(".simple-diagram");
@@ -1563,85 +1619,230 @@ window.DeckBuilder = (() => {
     const duration = config.autoAnimateDuration || 1;
     const easing = config.autoAnimateEasing || "ease";
 
-    // The two SVGs are already matched as whole containers (both carry the same `data-id`;
-    // see buildDiagramSvg), which stops Reveal from fading the entire canvas out and back in.
-    // But a diagram that grows to fit a newly added node gets a wider auto-computed viewBox,
-    // and that can't ride Reveal's transform/style diffing like the container's position or
-    // size could — without this, every node would still individually FLIP correctly, but the
-    // whole canvas would silently snap to the new framing around them instead of smoothly
-    // zooming/panning into it.
-    const fromViewBox = fromSvg.getAttribute("viewBox");
-    const toViewBox = toSvg.getAttribute("viewBox");
-    if (fromViewBox && toViewBox && fromViewBox !== toViewBox) animateViewBox(toSvg, fromViewBox, toViewBox, duration, easing);
+    // Both sides are read attribute-by-attribute below, so neither may still be mid-flip.
+    settleFlip(fromSvg);
+    settleFlip(toSvg);
 
-    // Fixes the same box-vs-content mismatch flipContainFit fixes for images, here for the
-    // svg's own box vs. what preserveAspectRatio paints inside it — independent of the viewBox
-    // morph above, which only covers the diagram's own content changing extent, not its slot on
-    // the page changing shape (e.g. a column-count change) while the content extent stays put.
-    const fromViewBoxSize = fromViewBox?.split(/\s+/).map(Number);
-    const toViewBoxSize = toViewBox?.split(/\s+/).map(Number);
-    if (fromViewBoxSize?.length === 4 && toViewBoxSize?.length === 4) {
-      flipContainFit(
-        toSvg,
-        fromSvg.getBoundingClientRect(), { width: fromViewBoxSize[2], height: fromViewBoxSize[3] },
-        toSvg.getBoundingClientRect(), { width: toViewBoxSize[2], height: toViewBoxSize[3] },
-        duration, easing,
-      );
-    }
+    const fromViewBox = fromSvg.getAttribute("viewBox")?.split(/\s+/).map(Number);
+    const toViewBox = toSvg.getAttribute("viewBox")?.split(/\s+/).map(Number);
+    const finalViewBox = toSvg.getAttribute("viewBox");
+    const fromBox = fromSvg.getBoundingClientRect();
+    const toBox = toSvg.getBoundingClientRect();
+    const hasCamera = fromViewBox?.length === 4 && toViewBox?.length === 4
+      && fromBox.width > 0 && fromBox.height > 0 && toBox.width > 0 && toBox.height > 0;
+    const a = hasCamera ? meetMapping(fromBox, fromViewBox) : { s: 1, x: 0, y: 0 };
+    const b = hasCamera ? meetMapping(toBox, toViewBox) : a;
+    const lerp = (p, q, e) => p + (q - p) * e;
+    const cameraAt = (e) => ({ s: lerp(a.s, b.s, e), x: lerp(a.x, b.x, e), y: lerp(a.y, b.y, e) });
+    // A coordinate/size `p` from the outgoing diagram and `q` from the incoming one, blended on
+    // screen and expressed back in diagram units under camera `c`.
+    const blendX = (p, q, e, c) => (lerp(a.x + a.s * p, b.x + b.s * q, e) - c.x) / c.s;
+    const blendY = (p, q, e, c) => (lerp(a.y + a.s * p, b.y + b.s * q, e) - c.y) / c.s;
+    const blendSize = (p, q, e, c) => lerp(a.s * p, b.s * q, e) / c.s;
 
-    const applyEndState = [];
+    const tracks = []; // { set(e, camera), end() } — geometry driven every frame
+    const colorFlips = []; // CSS-transitioned; see flipDiagramAttributes
+
+    const attributeTrack = (el, fromEl, kinds) => {
+      const entries = Object.entries(kinds).map(([name, kind]) => {
+        const end = el.getAttribute(name);
+        return { name, kind, end, p: Number(fromEl.getAttribute(name)), q: Number(end) };
+      }).filter(({ p, q, end }) => end != null && Number.isFinite(p) && Number.isFinite(q));
+      if (!entries.length) return;
+      const blend = { x: blendX, y: blendY, size: blendSize };
+      tracks.push({
+        set: (e, c) => entries.forEach(({ name, kind, p, q }) => el.setAttribute(name, blend[kind](p, q, e, c))),
+        end: () => entries.forEach(({ name, end }) => el.setAttribute(name, end))
+      });
+    };
+
+    // A <text>'s x/y are only its anchor point (and aren't CSS-animatable anyway — see
+    // flipDiagramTextPosition), so a label moves by a transform from its final position, blended
+    // between the centers of where it actually rendered on each slide (getBBox, exact even when
+    // its text-anchor changes between slides).
+    const textTrack = (el, fromEl) => {
+      let from, to;
+      try { from = fromEl.getBBox(); to = el.getBBox(); } catch (_) { return; }
+      const fx = from.x + from.width / 2, fy = from.y + from.height / 2;
+      const tx = to.x + to.width / 2, ty = to.y + to.height / 2;
+      tracks.push({
+        set: (e, c) => { el.style.transform = `translate(${blendX(fx, tx, e, c) - tx}px, ${blendY(fy, ty, e, c) - ty}px)`; },
+        end: () => { el.style.transform = ""; }
+      });
+    };
+
+    // An attribute made of nothing but x,y pairs (an edge's `d`, a triangle's `points`) blended
+    // number-for-number, provided both sides share the same skeleton of commands/separators.
+    const pairListTrack = (el, attr, fromValue, toValue) => {
+      if (pathSkeleton(fromValue) !== pathSkeleton(toValue)) return false;
+      const p = pathNumbers(fromValue);
+      const q = pathNumbers(toValue);
+      tracks.push({
+        set: (e, c) => {
+          let i = 0;
+          el.setAttribute(attr, toValue.replace(PATH_NUMBER, () => {
+            const k = i++;
+            return (k % 2 === 0 ? blendX : blendY)(p[k], q[k], e, c);
+          }));
+        },
+        end: () => el.setAttribute(attr, toValue)
+      });
+      return true;
+    };
+
+    // For a node whose shape changes between slides (circle <-> triangle <-> rect), where no
+    // attribute of one maps onto the other: the new shape is drawn from the first frame, but
+    // starting exactly over the old shape's box and easing to its own, by a per-frame transform
+    // (translate/scale about its own center) — a swap in place instead of a jump to where it
+    // ends up while everything around it is still moving.
+    const boxTrack = (el, fromEl) => {
+      let from, to;
+      try { from = fromEl.getBBox(); to = el.getBBox(); } catch (_) { return; }
+      if (!to.width || !to.height) return;
+      const fx = from.x + from.width / 2, fy = from.y + from.height / 2;
+      const tx = to.x + to.width / 2, ty = to.y + to.height / 2;
+      tracks.push({
+        set: (e, c) => {
+          const sx = blendSize(from.width, to.width, e, c) / to.width;
+          const sy = blendSize(from.height, to.height, e, c) / to.height;
+          el.style.transform = `translate(${blendX(fx, tx, e, c)}px, ${blendY(fy, ty, e, c)}px) scale(${sx}, ${sy}) translate(${-tx}px, ${-ty}px)`;
+        },
+        end: () => { el.style.transform = ""; }
+      });
+    };
+
+    // An edge blends coordinate-for-coordinate when both `d` strings share a command skeleton —
+    // the overwhelming majority, which only reposition. When a route gains or loses a via point
+    // the skeletons differ (e.g. "M L" vs. "M L Q L"), so both routes are resampled to the same
+    // number of points by arc length and blended point-by-point instead, snapping to the exact
+    // final `d` (corner rounding and all) only once the transition completes.
+    const pathTrack = (el, fromEl) => {
+      const fromD = fromEl.getAttribute("d");
+      const toD = el.getAttribute("d");
+      // An unchanged coordinate blends to itself under any camera (the camera is the same blend
+      // of the two slides' mappings), so an edge whose path didn't change needs no track at all.
+      if (!fromD || !toD || fromD === toD) return;
+      if (pairListTrack(el, "d", fromD, toD)) return;
+      const fromRoute = routePointsFromString(fromEl.getAttribute("data-diagram-edge-route"));
+      const toRoute = routePointsFromString(el.getAttribute("data-diagram-edge-route"));
+      if (!fromRoute?.length || !toRoute?.length) return;
+      const count = Math.max(16, fromRoute.length, toRoute.length);
+      const fromSample = resamplePoints(fromRoute, count);
+      const toSample = resamplePoints(toRoute, count);
+      tracks.push({
+        set: (e, c) => el.setAttribute("d", polylinePathD(fromSample.map((pt, i) => ({
+          x: blendX(pt.x, toSample[i].x, e, c),
+          y: blendY(pt.y, toSample[i].y, e, c)
+        })))),
+        end: () => el.setAttribute("d", toD)
+      });
+    };
+
     matchDiagramElements(fromSvg, toSvg, "[data-diagram-node]").forEach(({ from, to }) => {
       // The node's own box color lives on this <g>, as the --box-color custom property the
       // rect's fill reads via color-mix() — not an attribute on the rect itself — so it needs
       // its own flip or a node that changes color would just snap instead of fading.
-      applyEndState.push(flipDiagramStyleProperty(to, "--box-color", from, "var(--slide-muted)"));
-      // A node's shape is a <rect> or, for a circle node (see layoutDiagramNodes), a <circle> —
-      // each needs its own attribute list flipped, and the two only match up (mixing one node
-      // gaining/losing its label between two auto-animate slides would change its shape) when
-      // both sides render as the same tag; otherwise it just cuts instead of morphing.
-      const fromShape = from.querySelector("rect, circle");
-      const toShape = to.querySelector("rect, circle");
-      if (fromShape && toShape && fromShape.tagName === toShape.tagName) {
-        const shapeAttrs = fromShape.tagName === "circle"
-          ? ["cx", "cy", "r", "fill", "stroke"]
-          : ["x", "y", "width", "height", "fill", "stroke"];
-        applyEndState.push(flipDiagramAttributes(toShape, shapeAttrs, fromShape));
+      colorFlips.push(flipDiagramStyleProperty(to, "--box-color", from, "var(--slide-muted)"));
+      // A node's shape is a <rect>, a <circle>, or a triangle's <polygon> (see buildDiagramSvg).
+      // The same shape on both sides morphs attribute-for-attribute; a shape that changes
+      // between slides (a node gaining/losing its label, or an explicit `shape=`) can't, so it
+      // swaps in place instead (boxTrack).
+      const fromShape = from.querySelector("rect, circle, polygon");
+      const toShape = to.querySelector("rect, circle, polygon");
+      if (fromShape && toShape) {
+        const tag = toShape.tagName;
+        if (tag === fromShape.tagName && tag === "circle") {
+          attributeTrack(toShape, fromShape, { cx: "x", cy: "y", r: "size" });
+        } else if (tag === fromShape.tagName && tag === "rect") {
+          attributeTrack(toShape, fromShape, { x: "x", y: "y", width: "size", height: "size" });
+        } else if (!(tag === fromShape.tagName && tag === "polygon"
+          && pairListTrack(toShape, "points", fromShape.getAttribute("points") || "", toShape.getAttribute("points") || ""))) {
+          boxTrack(toShape, fromShape);
+        }
+        colorFlips.push(flipDiagramAttributes(toShape, ["fill", "stroke"], fromShape));
       }
       const fromText = from.querySelector("text");
       const toText = to.querySelector("text");
       if (fromText && toText) {
-        applyEndState.push(flipDiagramTextPosition(toText, fromText));
-        applyEndState.push(flipDiagramAttributes(toText, ["fill"], fromText));
+        textTrack(toText, fromText);
+        colorFlips.push(flipDiagramAttributes(toText, ["fill"], fromText));
       }
     });
     matchDiagramElements(fromSvg, toSvg, "[data-diagram-edge]").forEach(({ from, to }) => {
-      applyEndState.push(flipDiagramAttributes(to, ["stroke"], from));
-      // A `d` transition only animates when both sides are command-for-command compatible
-      // (see animateEdgeMorph) — that holds for the overwhelming majority of edges, which
-      // only ever reposition, so it's worth checking route point-count first rather than
-      // always paying for the manual tween.
-      const fromRoute = routePointsFromString(from.getAttribute("data-diagram-edge-route"));
-      const toRoute = routePointsFromString(to.getAttribute("data-diagram-edge-route"));
-      if (fromRoute && toRoute && fromRoute.length !== toRoute.length) {
-        applyEndState.push(animateEdgeMorph(to, fromRoute, toRoute, duration, easing));
-      } else {
-        applyEndState.push(flipDiagramAttributes(to, ["d"], from));
-      }
+      pathTrack(to, from);
+      colorFlips.push(flipDiagramAttributes(to, ["stroke"], from));
     });
     matchDiagramElements(fromSvg, toSvg, "[data-diagram-edge-label]").forEach(({ from, to }) => {
-      applyEndState.push(flipDiagramTextPosition(to, from));
-      applyEndState.push(flipDiagramAttributes(to, ["fill"], from));
+      textTrack(to, from);
+      colorFlips.push(flipDiagramAttributes(to, ["fill"], from));
     });
-    if (!applyEndState.length) return;
 
+    // Parts of the diagram that only exist on the incoming slide wait for the move to finish
+    // and then fade in — the same staging fadeInNewContent gives new HTML content — rather
+    // than popping in at full opacity mid-zoom.
+    const newParts = ["data-diagram-node", "data-diagram-edge", "data-diagram-edge-label"].flatMap((attr) => {
+      const existing = new Set(Array.from(fromSvg.querySelectorAll(`[${attr}]`), (el) => el.getAttribute(attr)));
+      return Array.from(toSvg.querySelectorAll(`[${attr}]`)).filter((el) => !existing.has(el.getAttribute(attr)));
+    });
+
+    const cameraMoves = hasCamera && (a.s !== b.s || a.x !== b.x || a.y !== b.y);
+    if (!cameraMoves && !tracks.length && !colorFlips.length && !newParts.length) return;
+
+    const frame = (e) => {
+      const c = cameraAt(e);
+      if (cameraMoves) {
+        toSvg.setAttribute("viewBox", [(toBox.left - c.x) / c.s, (toBox.top - c.y) / c.s, toBox.width / c.s, toBox.height / c.s].join(" "));
+      }
+      tracks.forEach((track) => track.set(e, c));
+    };
+    const finish = () => {
+      if (cameraMoves) toSvg.setAttribute("viewBox", finalViewBox);
+      tracks.forEach((track) => track.end());
+    };
+
+    // The starting frame is applied synchronously, in the same task Reveal shows the incoming
+    // slide in, so the very first painted frame is already the outgoing slide's picture.
+    frame(0);
+    if (cameraMoves) liftAncestorClipping(toSvg, duration);
+    newParts.forEach((el) => {
+      el.style.transition = "none";
+      el.style.opacity = "0";
+    });
     toSvg.style.setProperty("--diagram-flip-duration", `${duration}s`);
-    toSvg.style.setProperty("--diagram-flip-easing", config.autoAnimateEasing || "ease");
+    toSvg.style.setProperty("--diagram-flip-easing", easing);
     toSvg.classList.remove("is-flipping");
     void toSvg.getBoundingClientRect(); // flush the instant "from" state before transitioning
-    requestAnimationFrame(() => {
+
+    let started = false;
+    const start = () => {
+      if (started) return;
+      started = true;
       toSvg.classList.add("is-flipping");
-      applyEndState.forEach((apply) => apply());
+      colorFlips.forEach((apply) => apply());
+      newParts.forEach((el) => {
+        el.style.transition = `opacity ${NEW_CONTENT_FADE_DURATION}s ${easing} ${duration}s`;
+        el.style.opacity = "";
+      });
       setTimeout(() => toSvg.classList.remove("is-flipping"), duration * 1000 + 50);
+      setTimeout(() => newParts.forEach((el) => { el.style.transition = ""; }), (duration + NEW_CONTENT_FADE_DURATION) * 1000 + 50);
+    };
+    const run = registerFlip(toSvg, () => {
+      start(); // settled before its first frame: its colors/fades still need their end state
+      newParts.forEach((el) => { el.style.transition = ""; el.style.opacity = ""; });
+      finish();
+    });
+
+    const ease = diagramEasingFunction(easing);
+    requestAnimationFrame((startTime) => {
+      if (run.isDone()) return;
+      start();
+      (function tick(now) {
+        if (run.isDone()) return;
+        const t = Math.min(1, (now - startTime) / (duration * 1000));
+        if (t >= 1) { run.settle(); return; }
+        frame(ease(t));
+        requestAnimationFrame(tick);
+      })(startTime);
     });
   }
 
@@ -1657,62 +1858,111 @@ window.DeckBuilder = (() => {
   }
 
   // Reveal's own FLIP transform is computed purely from the matched element's own box
-  // (offsetWidth/offsetHeight) — that's the whole flex slot a `static-figure img` sits in, or
-  // the whole `simple-diagram` svg's slot, not the picture `object-fit: contain` (images) or
-  // `preserveAspectRatio="xMidYMid meet"` (our diagram SVGs, set in buildDiagramSvg — SVG's own
-  // equivalent of object-fit: contain) actually paints inside it, which is usually smaller on
-  // one axis (letterboxed). A figure or diagram box's height in particular barely changes across
-  // a column-count change — it's set by the row track, not the column width — so Reveal's own
-  // scaleY ends up ~1 even though the *content*, letterboxed differently at each width, needs to
-  // resize on both axes to really track what's on screen. autoAnimateMatcher disables Reveal's
-  // transform for both kinds of match (`scale: false, translate: false`) so this can replace it
-  // with one measured against the content's own visible bounds (via containRect, the same math
-  // `object-fit: contain`/`preserveAspectRatio` themselves use) instead of the box — scaling
-  // between two contain-fits of the same source is always a uniform zoom (both axes share the
-  // source's fixed aspect ratio), never a stretch, so this reads as one continuous zoom/pan
-  // rather than a size change that doesn't match what's actually on screen.
+  // (offsetWidth/offsetHeight) — for a `static-figure img` that's the whole flex slot it sits
+  // in, not the picture `object-fit: contain` actually paints inside it (and likewise for an
+  // inlined external SVG's `preserveAspectRatio`), which is usually smaller on one axis
+  // (letterboxed). A figure box's height in particular barely changes across a column-count
+  // change — it's set by the row track, not the column width — so Reveal's own scaleY ends up
+  // ~1 even though the *content*, letterboxed differently at each width, needs to resize on
+  // both axes to really track what's on screen. autoAnimateMatcher disables Reveal's transform
+  // for these matches so this can replace it with one measured against the content's own visible
+  // bounds (via containRect, the same math `object-fit: contain`/`preserveAspectRatio` use) —
+  // scaling between two contain-fits of the same source is always a uniform zoom, never a
+  // stretch. (Our own diagrams don't come through here: see animateDiagramTransition.)
   function flipContainFit(toEl, fromBox, fromNatural, toBox, toNatural, duration, easing) {
     if (!fromBox.width || !fromBox.height || !toBox.width || !toBox.height) return;
     if (!fromNatural.width || !fromNatural.height || !toNatural.width || !toNatural.height) return;
-    const scale = Reveal.getScale();
     const fromContent = containRect(fromBox.width, fromBox.height, fromNatural.width, fromNatural.height);
     const toContent = containRect(toBox.width, toBox.height, toNatural.width, toNatural.height);
+    flipContentRect(
+      toEl, toBox,
+      { left: fromBox.left + fromContent.x, top: fromBox.top + fromContent.y, width: fromContent.width, height: fromContent.height },
+      { left: toBox.left + toContent.x, top: toBox.top + toContent.y, width: toContent.width, height: toContent.height },
+      duration, easing,
+    );
+  }
+
+  // The FLIP transform itself, given where the element's *content* sits on screen on each
+  // slide (not its box): translate+scale toEl, from its top-left corner, so its content lands
+  // exactly on the outgoing content's rectangle, then ease back to identity.
+  //
+  // `fromClip` is for an element with an opaque box around its content (an iframe, painted in
+  // the slide's background color): scaled up to match a larger outgoing figure, that whole box
+  // grows with it — past both its old and its new footprint, over neighboring content like the
+  // footer, which the lifted ancestor clipping no longer hides. Given the outgoing element's own
+  // box, the element is instead clipped every frame to the straight-line blend of that box and
+  // its own final one, so what's visible is exactly the old box at the start, exactly the new
+  // one at the end, and never anything outside the two. A CSS clip-path transition can't do
+  // this: the inset lives in the element's own (scaling) coordinates, so interpolating it
+  // alongside the transform traces a curve that bulges well past both boxes mid-way. So this
+  // variant drives transform and clip together from one requestAnimationFrame clock instead.
+  function flipContentRect(toEl, toBox, fromContent, toContent, duration, easing, fromClip) {
+    if (!fromContent.width || !fromContent.height || !toContent.width || !toContent.height) return;
+    const scale = Reveal.getScale();
     const scaleX = fromContent.width / toContent.width;
     const scaleY = fromContent.height / toContent.height;
-    const dx = (fromBox.left + fromContent.x - toBox.left - scaleX * toContent.x) / scale;
-    const dy = (fromBox.top + fromContent.y - toBox.top - scaleY * toContent.y) / scale;
+    const dx = (fromContent.left - toBox.left - scaleX * (toContent.left - toBox.left)) / scale;
+    const dy = (fromContent.top - toBox.top - scaleY * (toContent.top - toBox.top)) / scale;
     if (Math.round((scaleX - 1) * 1000) === 0 && Math.round((scaleY - 1) * 1000) === 0
       && Math.round(dx) === 0 && Math.round(dy) === 0) return;
 
-    // Every layout ancestor between toEl and its slide — .media-figure, .slide-column,
-    // .slide-grid, .slide-content, .slide-frame — clips to its own (already-final-size) box via
-    // `overflow: hidden`. Since only toEl itself gets this transform, not any of them, a "from"
-    // appearance larger than the final layout gets cropped down to the smallest of those boxes
-    // instead of showing in full while it shrinks into place. Lifting the clip on all of them
-    // for the duration of the transform fixes that; it's safe to do unconditionally because the
-    // fade-in of any new content sharing that space is deliberately staggered to start only
-    // after this transform finishes (see fadeInNewContent), so there's nothing yet visible for
-    // the temporarily unclipped content to spill over. Stops at the slide's own <section>, not
-    // past it — escaping the slide entirely would spill into neighboring UI (footer, other
-    // slides) rather than just the room the auto-animate transition already has to work with.
-    for (let ancestor = toEl.parentElement; ancestor && ancestor.tagName !== "SECTION"; ancestor = ancestor.parentElement) {
-      const previousOverflow = ancestor.style.overflow;
-      ancestor.style.overflow = "visible";
-      setTimeout(() => { ancestor.style.overflow = previousOverflow; }, duration * 1000 + 50);
+    liftAncestorClipping(toEl, duration);
+
+    if (fromClip) {
+      const width = toEl.offsetWidth;
+      const height = toEl.offsetHeight;
+      const lerp = (a, b, e) => a + (b - a) * e;
+      const frame = (e) => {
+        const sx = lerp(scaleX, 1, e);
+        const sy = lerp(scaleY, 1, e);
+        const tx = dx * (1 - e);
+        const ty = dy * (1 - e);
+        toEl.style.transform = `translate(${tx}px, ${ty}px) scale(${sx}, ${sy})`;
+        // The blended clip rectangle, on screen, mapped back into toEl's own coordinates.
+        const localX = (x) => ((x - toBox.left) / scale - tx) / sx;
+        const localY = (y) => ((y - toBox.top) / scale - ty) / sy;
+        const top = Math.max(0, localY(lerp(fromClip.top, toBox.top, e)));
+        const right = Math.max(0, width - localX(lerp(fromClip.right, toBox.right, e)));
+        const bottom = Math.max(0, height - localY(lerp(fromClip.bottom, toBox.bottom, e)));
+        const left = Math.max(0, localX(lerp(fromClip.left, toBox.left, e)));
+        toEl.style.clipPath = `inset(${top}px ${right}px ${bottom}px ${left}px)`;
+      };
+      const ease = diagramEasingFunction(easing);
+      toEl.style.transition = "none";
+      toEl.style.transformOrigin = "top left";
+      frame(0);
+      const run = registerFlip(toEl, () => {
+        toEl.style.transition = "";
+        toEl.style.transform = "";
+        toEl.style.transformOrigin = "";
+        toEl.style.clipPath = "";
+      });
+      requestAnimationFrame((start) => {
+        (function tick(now) {
+          if (run.isDone()) return;
+          const t = Math.min(1, (now - start) / (duration * 1000));
+          if (t >= 1) { run.settle(); return; }
+          frame(ease(t));
+          requestAnimationFrame(tick);
+        })(start);
+      });
+      return;
     }
 
     toEl.style.transition = "none";
     toEl.style.transformOrigin = "top left";
     toEl.style.transform = `translate(${dx}px, ${dy}px) scale(${scaleX}, ${scaleY})`;
     void toEl.getBoundingClientRect(); // flush the instant "from" state before transitioning
+    const run = registerFlip(toEl, () => {
+      toEl.style.transition = "";
+      toEl.style.transform = "";
+      toEl.style.transformOrigin = "";
+    });
     requestAnimationFrame(() => {
+      if (run.isDone()) return;
       toEl.style.transition = `transform ${duration}s ${easing}`;
       toEl.style.transform = "none";
-      setTimeout(() => {
-        toEl.style.transition = "";
-        toEl.style.transform = "";
-        toEl.style.transformOrigin = "";
-      }, duration * 1000 + 50);
+      setTimeout(run.settle, duration * 1000 + 50);
     });
   }
 
@@ -1733,6 +1983,7 @@ window.DeckBuilder = (() => {
       const src = toImg.getAttribute("src");
       const fromImg = src && fromImages.get(src);
       if (!fromImg || !fromImg.naturalWidth || !toImg.naturalWidth) return;
+      settleFlip(toImg);
       flipContainFit(
         toImg,
         fromImg.getBoundingClientRect(), { width: fromImg.naturalWidth, height: fromImg.naturalHeight },
@@ -1742,11 +1993,73 @@ window.DeckBuilder = (() => {
     });
   }
 
+  // Where an embedded figure's own chart sits on screen: the figure page's root <svg> (the
+  // chart every figure page draws into #fig), mapped out of the iframe's document through the
+  // iframe's on-screen box. Null when there's nothing to measure — a cross-origin page, or one
+  // that hasn't rendered yet.
+  function iframeContentRect(iframe, box) {
+    try {
+      const doc = iframe.contentDocument;
+      const content = doc?.readyState === "complete" && doc.querySelector("#fig svg, svg");
+      if (!content || !iframe.offsetWidth || !iframe.offsetHeight) return null;
+      const inner = content.getBoundingClientRect();
+      if (!inner.width || !inner.height) return null;
+      const kx = box.width / iframe.offsetWidth;
+      const ky = box.height / iframe.offsetHeight;
+      return { left: box.left + inner.left * kx, top: box.top + inner.top * ky, width: inner.width * kx, height: inner.height * ky };
+    } catch (_) {
+      return null;
+    }
+  }
+
+  // An embedded figure is an <iframe>, and the same figure file on two consecutive slides is
+  // two separate iframes laid out at different sizes. Reveal's own FLIP would scale the
+  // incoming one's *box* onto the outgoing one's, independently on each axis — but the chart
+  // inside is drawn to fit its own viewport uniformly (#fig's max-width/max-height), so a box
+  // whose aspect ratio changed stretches the chart (text included) and then un-stretches it.
+  // autoAnimateMatcher turns that off for iframes; this FLIPs against the chart itself instead,
+  // which on both slides is the same drawing at two uniform scales, so the transform between
+  // them is uniform too. When either side can't be measured, the content is assumed to fill the
+  // incoming box and to have started out contain-fit in the outgoing one — still uniform, just
+  // less exact about where inside the box the chart sat.
+  function animateIframeTransition({ fromSlide, toSlide }) {
+    if (!fromSlide || !toSlide) return;
+    const srcOf = (iframe) => iframe.getAttribute("src") || iframe.getAttribute("data-src");
+    const fromFrames = new Map();
+    fromSlide.querySelectorAll(".embedded-figure > iframe").forEach((iframe) => {
+      const src = srcOf(iframe);
+      if (src && !fromFrames.has(src)) fromFrames.set(src, iframe);
+    });
+    if (!fromFrames.size) return;
+
+    const config = Reveal.getConfig();
+    const duration = config.autoAnimateDuration || 1;
+    const easing = config.autoAnimateEasing || "ease";
+
+    toSlide.querySelectorAll(".embedded-figure > iframe").forEach((toFrame) => {
+      const fromFrame = fromFrames.get(srcOf(toFrame));
+      if (!fromFrame) return;
+      fromFrames.delete(srcOf(toFrame));
+      settleFlip(toFrame);
+      const fromBox = fromFrame.getBoundingClientRect();
+      const toBox = toFrame.getBoundingClientRect();
+      if (!fromBox.width || !fromBox.height || !toBox.width || !toBox.height) return;
+      let fromContent = iframeContentRect(fromFrame, fromBox);
+      let toContent = iframeContentRect(toFrame, toBox);
+      if (!fromContent || !toContent) {
+        const fit = containRect(fromBox.width, fromBox.height, toBox.width, toBox.height);
+        fromContent = { left: fromBox.left + fit.x, top: fromBox.top + fit.y, width: fit.width, height: fit.height };
+        toContent = { left: toBox.left, top: toBox.top, width: toBox.width, height: toBox.height };
+      }
+      flipContentRect(toFrame, toBox, fromContent, toContent, duration, easing, fromBox);
+    });
+  }
+
   // Which attributes carry a shape's own geometry, by tag — the same list buildDiagramSvg's
   // own node/edge shapes would use if they were rect/circle, extended to the handful of extra
   // primitives an externally-authored SVG can use that our own diagram DSL never produces.
   // polygon/polyline are deliberately absent: their geometry lives in a single `points` string,
-  // which (like a mismatched `d` — see animateEdgeMorph) was never promoted to a real
+  // which (like a mismatched `d` — see the pathTrack fallback in animateDiagramTransition) was never promoted to a real
   // animatable CSS property, so there's no attribute-transition equivalent to flip it by; those
   // tags still get matched and still FLIP their fill/stroke/opacity, just not their shape.
   const SVG_SHAPE_FLIP_ATTRS = {
@@ -1786,6 +2099,7 @@ window.DeckBuilder = (() => {
       const fromViewBox = fromSvg?.viewBox.baseVal;
       const toViewBox = toSvg.viewBox.baseVal;
       if (!fromViewBox?.width || !toViewBox?.width) return;
+      settleFlip(toSvg);
       flipContainFit(
         toSvg,
         fromSvg.getBoundingClientRect(), { width: fromViewBox.width, height: fromViewBox.height },
@@ -1886,6 +2200,7 @@ window.DeckBuilder = (() => {
   function handleAutoAnimate({ fromSlide, toSlide }) {
     animateDiagramTransition({ fromSlide, toSlide });
     animateImageTransition({ fromSlide, toSlide });
+    animateIframeTransition({ fromSlide, toSlide });
     animateExternalSvgTransition({ fromSlide, toSlide });
     if (!toSlide) return;
     // Reveal already tags every matched "to" element with data-auto-animate-target before
@@ -1897,8 +2212,27 @@ window.DeckBuilder = (() => {
     fadeInNewContent(toSlide, config.autoAnimateDuration || 1, config.autoAnimateEasing || "ease");
   }
 
+  // Reveal preloads a slide's iframes (preloadIframes, set in _layouts/deck.html) whenever it
+  // brings that slide within viewDistance — but reveald3 only creates a figure's iframe after
+  // Reveal is ready (and after an async existence check), so every figure near the starting
+  // slide misses that first pass and would otherwise wait until the navigation that makes its
+  // slide current. Loading each one as soon as reveald3 inserts it, if its slide is within view
+  // distance already (Reveal hides every slide outside it with display: none), closes that gap.
+  function preloadLateFigureIframes() {
+    new MutationObserver((records) => {
+      const slides = new Set();
+      records.forEach((record) => record.addedNodes.forEach((node) => {
+        if (node.tagName !== "IFRAME" || !node.hasAttribute("data-src")) return;
+        const slide = node.closest("section");
+        if (slide && slide.style.display !== "none") slides.add(slide);
+      }));
+      slides.forEach((slide) => Reveal.loadSlide(slide));
+    }).observe(Reveal.getSlidesElement(), { childList: true, subtree: true });
+  }
+
   function installDiagramAutoAnimate() {
     Reveal.on("autoanimate", handleAutoAnimate);
+    preloadLateFigureIframes();
   }
 
   function build({ source, target, baseUrl = "", course = "", design = defaultDesign }) {

@@ -102,6 +102,13 @@
                         // does neither (it fades unmatched content in partway through the main
                         // transition, always, even between two otherwise-unrelated slides).
                         autoAnimateUnmatched: false,
+                        // An embedded figure's iframe otherwise only starts loading the moment
+                        // its slide becomes current — the same instant an Auto-Animate
+                        // transition into it starts — so the figure would be blank for the
+                        // first frames, then pop in (in a fallback font) mid-transition. Loading
+                        // every iframe within viewDistance ahead of time means the chart is
+                        // already rendered when the transition measures and moves it.
+                        preloadIframes: true,
                     },
                     deckConfig,
                     {

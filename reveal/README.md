@@ -66,7 +66,7 @@ The compiler applies these conventions:
 | `:::` | Equal-width column boundary |
 | `::: 45/55` | Weighted grid columns |
 | `![figure](/embed/chart/chart.html)` | Reveald3 figure |
-| `![figure preload](/embed/chart/chart.html)` | Preloaded figure |
+| `![figure preload](/embed/chart/chart.html)` | Preloaded figure (now the default for every figure within `viewDistance`, so Auto-Animate never catches one mid-load; the token is kept for compatibility) |
 | `![figure height-400](/page.html)` | Figure with a 400px height |
 | `![background](/embed/chart/chart.html)` | Visualization background |
 | `![background contained](...)` | Background contained to the slide |

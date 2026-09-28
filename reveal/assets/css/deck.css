@@ -31,7 +31,7 @@
 }
 
 :root {
-  --slide-background: #fbfaf3;
+  --slide-background: #faf9f6;
   --slide-ink: #282722;
   --slide-muted: #817d72;
   --slide-rule: #d8d5ca;
@@ -186,7 +186,8 @@ body,
   line-height: 1.35;
 }
 
-/* Whatever actually holds a table (.slide-content, .slide-column, a colorbox, ...) becomes a
+/* Whatever actually holds a table (.slide-content, .slide-column, a
+, ...) becomes a
    centered flex column, so the table centers both ways within that container instead of
    sitting flush left at the top. Generic rather than naming each container: it only fires on
    an element that directly contains a <table>, so nothing else is affected. */
@@ -310,6 +311,23 @@ body,
   overflow: hidden;
 }
 
+/* Same trap `.simple-diagram` has further down: `height: 100%` above makes a figure claim the
+   whole slot, so a heading authored beside it pushes the figure's box past the bottom of the
+   content area — where `overflow: hidden` crops the figure's own last rows (an x axis and its
+   labels simply vanish). `.slide-column` is already a flex column and sizes its figure with
+   `flex: 1`, so only `.slide-content` needs this; a figure that really is the slide's only
+   content keeps the simpler fill-the-slot behaviour. */
+.reveal .slide-content:has(> .media-figure):not(:has(> .media-figure:only-child)) {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.reveal .slide-content:has(> .media-figure):not(:has(> .media-figure:only-child)) > .media-figure {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
 /* `width/height: 100%` plus `object-fit: contain` is the only reliable way to let the image grow
    past its source's native size while guaranteeing its aspect ratio is never distorted (that
    guarantee is `object-fit`'s entire job, per spec) — the alternative (`height: auto` sized off
@@ -375,10 +393,11 @@ body,
 .colorbox {
   --box-color: var(--slide-blue);
   margin: 0.65em 0;
-  padding: 0.5em 0.7em 0.55em 1.2em;
+  padding: 5px 5px 25px 15px;
   border: 0;
-  border-left: 4px solid var(--box-color);
-  background: color-mix(in srgb, var(--box-color) 12%, transparent);
+  border-left: 2px solid var(--box-color);
+  border-top: 2px solid var(--box-color);
+  border-radius: 15pt;
   box-shadow: none;
 }
 
@@ -396,15 +415,15 @@ body,
 
 .reveal .colorbox p {
   margin: 0.2em 0;
-  font-size: 0.76em;
+  font-size: 0.9em;
 }
 
 .reveal .colorbox .colorbox-label {
   margin: 0 0 0.18em;
   color: var(--box-color);
-  font-size: 0.875em;
+  font-size: 1.5em;
   font-style: italic;
-  font-weight: 600;
+  font-weight: 400;
 }
 
 /* `.fig-controls` — a column of input controls docked beside an interactive figure (see
@@ -695,19 +714,22 @@ svg {
   min-height: 0;
 }
 
-/* Applied briefly by deck-builder.js's hand-rolled diagram Auto-Animate (see
-   installDiagramAutoAnimate) while a matched node/edge eases from its previous slide's
-   position, size, and color into its new one — and, via the second selector, the equivalent
-   hand-rolled FLIP for an inlined *external* SVG (see animateExternalSvgTransition): Reveal's
+/* Applied briefly by deck-builder.js's hand-rolled diagram Auto-Animate while a matched
+   node/edge eases into its new color. Only color rides CSS here: a diagram's geometry is driven
+   frame by frame alongside its pan/zoom (see animateDiagramTransition), and a CSS transition on
+   the same attributes would lag every one of those per-frame updates by the full duration. */
+.simple-diagram.is-flipping :is(rect, circle, polygon, text, path) {
+  transition: fill var(--diagram-flip-duration, 0.5s) var(--diagram-flip-easing, ease),
+    stroke var(--diagram-flip-duration, 0.5s) var(--diagram-flip-easing, ease);
+}
+
+/* The equivalent hand-rolled FLIP for an inlined *external* SVG (see
+   animateExternalSvgTransition), which does carry position and size too: Reveal's
    own built-in auto-animate measures matched elements with offsetLeft/offsetWidth, which are
    simply undefined on any SVG-namespaced element, so a plain <circle>/<path>/etc. a designer
-   drew by hand never actually animates under Reveal's own FLIP even when correctly matched —
-   both diagram and external-SVG cases need this same manual attribute-transition treatment
-   instead. rx/ry (an ellipse's radii, or a rect's corner rounding) and the x1/y1/x2/y2 a <line>
-   uses instead of x/y/width/height are only ever set by external SVGs, never our own
-   generated diagrams, but harmless to list unconditionally here rather than duplicating this
-   whole rule just to vary that by four properties. */
-.simple-diagram.is-flipping :is(rect, circle, text, path),
+   drew by hand never actually animates under Reveal's own FLIP even when correctly matched, so
+   it gets this manual attribute transition instead — including rx/ry (an ellipse's radii, or a
+   rect's corner rounding) and the x1/y1/x2/y2 a <line> uses instead of x/y/width/height. */
 .static-figure-svg.is-flipping :is(rect, circle, ellipse, line, path, text, tspan) {
   transition: x var(--diagram-flip-duration, 0.5s) var(--diagram-flip-easing, ease),
     y var(--diagram-flip-duration, 0.5s) var(--diagram-flip-easing, ease),

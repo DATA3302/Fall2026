@@ -1029,7 +1029,7 @@ node algo (0.36,1.20) enclose (2.44,1.8) "Algorithm Design"
 
 [big vcenter] Contextual Inquiry
 
-[small muted] Validates the **domain** level. Ninety minutes to half a day per participant, three to six participants.
+[muted] Ninety minutes to half a day per session, three to six participants.
 
 ::: 
 
@@ -1057,7 +1057,7 @@ node algo (0.36,1.20) enclose (2.44,1.8) "Algorithm Design"
 
 [big vcenter] Think-aloud protocol
 
-[small muted] Validates the **abstraction** level. One session per participant, thirty to ninety minutes.
+[muted] One session per participant, ten to ninety minutes.
 
 :::
  
@@ -1083,9 +1083,23 @@ node algo (0.36,1.20) enclose (2.44,1.8) "Algorithm Design"
 >
 >  [big] "What did you expect that to do?"
 > 
->  [big muted] Ask about the last time, not about usually.
+>  [big accent] Ask about the last time, not about usually.
 
-:::
+
+
+---
+
+> [!gold] Ask them...
+>
+> [muted] "Tell me more."
+>
+>  [muted] "What are you looking at right now?"
+>
+>  [muted] "What did you expect that to do?"
+> 
+>  [muted] Ask about the last time, not about usually.
+
+::: 35/65
 
 > [!magenta] Never ask them
 > 
@@ -1093,9 +1107,9 @@ node algo (0.36,1.20) enclose (2.44,1.8) "Algorithm Design"
 >
 > [big] "What features do you want?"
 >
-> [big]"Would you use this a feature here?"
+> [big] "Would you use this feature here?"
 >
-> [big muted] People are bad judges of what they would do
+> [big accent] People are very bad judges of themselves
 
 
 ---
