@@ -1,0 +1,29 @@
+<!doctype html>
+<link rel="stylesheet" href="lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    // Reference: "By default, layers will share common axes." Both series layered onto ONE y
+    // scale — petalWidth, whose real range is 0.10–0.35, is crushed flat against the baseline.
+    import { setosaSeries, xScale, line, drawXAxis, d3, svgRoot, drawAxis, chartFrame, axisTitle } from "./lib/setosa.js";
+    import { blue } from "./lib/chart.js";
+
+    const { sepal, petal } = await setosaSeries();
+    const width = 960, height = 560;
+    const margin = { top: 24, right: 40, bottom: 62, left: 110 };
+    const x = xScale(margin.left, width - margin.right);
+    const y = d3.scaleLinear().domain([0, 4.5]).range([height - margin.bottom, margin.top]);
+
+    const svg = svgRoot(width, height);
+    for (const series of [sepal, petal]) {
+        svg.append("path").attr("d", line(x, y)(series))
+            .style("fill", "none").style("stroke", blue).style("stroke-width", 2.8);
+    }
+
+    chartFrame(svg, x, y);
+    drawXAxis(svg, x, width, margin, height);
+    drawAxis(svg, d3.axisLeft(y).ticks(9).tickFormat(d3.format(".1f")), `translate(${margin.left},0)`);
+    axisTitle(svg, "Mean of petalWidth, Mean of sepalWidth", {
+        x: 26, y: (margin.top + height - margin.bottom) / 2, rotate: -90, size: 15,
+    });
+    fig.append(svg.node());
+</script>

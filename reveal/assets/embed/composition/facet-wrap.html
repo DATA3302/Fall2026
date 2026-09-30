@@ -1,0 +1,64 @@
+<!doctype html>
+<link rel="stylesheet" href="lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    // Reference: "Can wrap single Facet" — .facet(alt.Facet('year:O').columns(5)) over
+    // vega-datasets' population.json. One facet variable, wrapped automatically into a grid;
+    // every panel shares one y scale so the growth across decades is directly comparable.
+    import { d3, svgRoot, drawAxis, chartFrame, axisTitle, blue, serif } from "./lib/chart.js";
+
+    const raw = await d3.json("data/population.json");
+    const byYear = d3.groups(raw, (d) => d.year).sort((a, b) => a[0] - b[0]);
+    const series = byYear.map(([year, rows]) => [
+        year,
+        d3.rollups(rows, (v) => d3.sum(v, (d) => d.people), (d) => d.age)
+            .sort((a, b) => a[0] - b[0])
+            .map(([age, people]) => ({ age, people })),
+    ]);
+
+    const columns = 5;
+    const width = 1080, height = 620;
+    const pad = { top: 78, left: 92, right: 26, bottom: 54 };
+    const cellW = (width - pad.left - pad.right) / columns;
+    const cellH = (height - pad.top - pad.bottom) / Math.ceil(series.length / columns);
+    const inner = { w: cellW - 30, h: cellH - 44 };
+
+    const ages = series[0][1].map((d) => d.age);
+    const x = d3.scalePoint().domain(ages).range([0, inner.w]);
+    const y = d3.scaleLinear()
+        .domain([0, d3.max(series, ([, rows]) => d3.max(rows, (d) => d.people))]).nice()
+        .range([inner.h, 0]);
+    const area = d3.area().x((d) => x(d.age)).y0(inner.h).y1((d) => y(d.people));
+
+    const svg = svgRoot(width, height);
+    svg.append("text").attr("class", "chart-title").attr("x", 20).attr("y", 26)
+        .style("font-family", serif).style("font-size", "21px").text("US Age Distribution By Year");
+    svg.append("text").attr("class", "chart-label").attr("x", pad.left + (width - pad.left - pad.right) / 2).attr("y", 54)
+        .attr("text-anchor", "middle")
+        .style("font-family", serif).style("font-size", "18px").text("year");
+
+    series.forEach(([year, rows], i) => {
+        const ri = Math.floor(i / columns), ci = i % columns;
+        const panel = svg.append("g")
+            .attr("transform", `translate(${pad.left + ci * cellW},${pad.top + ri * cellH + 24})`);
+
+        chartFrame(panel, x, y);
+        panel.append("path").attr("d", area(rows)).style("fill", blue).style("opacity", 0.85);
+
+        panel.append("text").attr("class", "chart-title").attr("x", inner.w / 2).attr("y", -10).attr("text-anchor", "middle")
+            .style("font-family", serif).style("font-size", "17px").text(year);
+
+        if (ci === 0) {
+            drawAxis(panel, d3.axisLeft(y).ticks(3).tickFormat(d3.format("~s")),
+                "translate(0,0)", { size: 14 });
+            axisTitle(panel, "Population", { x: -54, y: inner.h / 2, rotate: -90, size: 15 });
+        }
+        if (ri === Math.ceil(series.length / columns) - 1) {
+            drawAxis(panel, d3.axisBottom(x).tickValues(ages.filter((_, k) => k % 4 === 0)),
+                `translate(0,${inner.h})`, { size: 14 });
+            axisTitle(panel, "age", { x: inner.w / 2, y: inner.h + 40, size: 15 });
+        }
+    });
+
+    fig.append(svg.node());
+</script>

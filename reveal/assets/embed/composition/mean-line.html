@@ -1,0 +1,8 @@
+<!doctype html>
+<link rel="stylesheet" href="lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    import { irisMeanBand } from "./lib/iris-panel.js";
+    const svg = await irisMeanBand({ band: false, line: true, yLabel: "Mean of sepalWidth" });
+    fig.append(svg.node());
+</script>

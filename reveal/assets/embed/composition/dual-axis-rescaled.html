@@ -1,0 +1,53 @@
+<!doctype html>
+<link rel="stylesheet" href="lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    // Added for the "why dangerous" slide: the same two series, twice, differing only in the
+    // range chosen for the second axis. Nothing about the data changed — but on the left the two
+    // lines track each other, and on the right one sits well above the other. The second axis is
+    // a free parameter, and the chart gives a reader no way to see which value was picked.
+    import { setosaSeries, xScale, line, X_TICKS } from "./lib/setosa.js";
+    import { d3, svgRoot, drawAxis, chartFrame, axisTitle, gridY, blue, orange, serif } from "./lib/chart.js";
+
+    const { sepal, petal } = await setosaSeries();
+    const width = 1258, height = 520;  // left + 2 panels + gap + right, so panel 2's axis fits
+    const panelW = 500, gap = 110;
+    const margin = { top: 56, bottom: 64, left: 74, right: 74 };
+    const plotH = height - margin.top - margin.bottom;
+
+    const svg = svgRoot(width, height);
+
+    [[0, [0, 4.5], "right axis 0.0 – 4.5"], [1, [0, 9], "right axis 0.0 – 9.0"]].forEach(
+        ([i, sepalDomain, caption]) => {
+            const ox = margin.left + i * (panelW + gap);
+            const panel = svg.append("g").attr("transform", `translate(${ox},${margin.top})`);
+            const x = xScale(0, panelW);
+            const yPetal = d3.scaleLinear().domain([0, 0.4]).range([plotH, 0]);
+            const ySepal = d3.scaleLinear().domain(sepalDomain).range([plotH, 0]);
+
+            // A dual-axis illustration is exactly where a grid earns its keep — here it's the
+            // whole point: the same gridlines, held fixed, while only the right axis's range
+            // changes underneath them.
+            gridY(panel, yPetal, 0, panelW, 5);
+            chartFrame(panel, x, yPetal, { left: blue, right: orange });
+
+            panel.append("path").attr("d", line(x, yPetal)(petal))
+                .style("fill", "none").style("stroke", blue).style("stroke-width", 2.8);
+            panel.append("path").attr("d", line(x, ySepal)(sepal))
+                .style("fill", "none").style("stroke", orange).style("stroke-width", 2.8);
+
+            drawAxis(panel, d3.axisBottom(x).tickValues(X_TICKS.filter((_, k) => k % 2 === 0))
+                .tickFormat(d3.format(".1f")), `translate(0,${plotH})`, { size: 14 });
+            drawAxis(panel, d3.axisLeft(yPetal).ticks(5).tickFormat(d3.format(".2f")),
+                "translate(0,0)", { size: 14, color: blue });
+            drawAxis(panel, d3.axisRight(ySepal).ticks(5).tickFormat(d3.format(".1f")),
+                `translate(${panelW},0)`, { size: 14, color: orange });
+
+            panel.append("text").attr("class", "chart-title").attr("x", panelW / 2).attr("y", -24).attr("text-anchor", "middle")
+                .style("font-family", serif).style("font-size", "20px").text(caption);
+            axisTitle(panel, "sepalLength (binned)", { x: panelW / 2, y: plotH + 46, size: 15 });
+        },
+    );
+
+    fig.append(svg.node());
+</script>

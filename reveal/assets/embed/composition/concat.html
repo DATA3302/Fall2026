@@ -1,0 +1,117 @@
+<!doctype html>
+<link rel="stylesheet" href="lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    // Reference: chart1 | chart2 — horizontal concatenation.
+    // The composition point: these two views share a dataset and a legend but NOT a coordinate
+    // space. Nothing lines up across the seam, and nothing is meant to.
+    import {
+        d3,
+        svgRoot,
+        drawAxis,
+        chartFrame,
+        axisTitle,
+        legend,
+        SPECIES,
+        speciesColor,
+        loadIris,
+    } from "./lib/chart.js";
+
+    const iris = await loadIris();
+    const width = 1060,
+        height = 600;
+    const pad = { top: 24, left: 84, right: 190, bottom: 64 };
+    const leftW = 470,
+        gap = 80,
+        rightW = 170;
+    const plotH = height - pad.top - pad.bottom;
+
+    const svg = svgRoot(width, height);
+
+    // chart1 — the scatterplot.
+    const c1 = svg
+        .append("g")
+        .attr("transform", `translate(${pad.left},${pad.top})`);
+    const x1 = d3.scaleLinear().domain([0, 7]).range([0, leftW]);
+    const y1 = d3.scaleLinear().domain([0, 2.6]).range([plotH, 0]);
+    c1.append("g")
+        .selectAll("circle")
+        .data(iris)
+        .join("circle")
+        .attr("cx", (d) => x1(d.petalLength))
+        .attr("cy", (d) => y1(d.petalWidth))
+        .attr("r", 4.8)
+        .style("fill", "none")
+        .style("stroke", (d) => speciesColor(d.species))
+        .style("stroke-width", 1.5)
+        .style("opacity", 0.85);
+    chartFrame(c1, x1, y1);
+    drawAxis(c1, d3.axisBottom(x1).ticks(7), `translate(0,${plotH})`);
+    drawAxis(
+        c1,
+        d3.axisLeft(y1).ticks(6).tickFormat(d3.format(".1f")),
+        "translate(0,0)",
+    );
+    axisTitle(c1, "petalLength", { x: leftW / 2, y: plotH + 44 });
+    axisTitle(c1, "petalWidth", { x: -58, y: plotH / 2, rotate: -90 });
+
+    // chart2 — an independent histogram, stacked by species, with its own axes.
+    const c2 = svg
+        .append("g")
+        .attr("transform", `translate(${pad.left + leftW + gap},${pad.top})`);
+    const step = 0.1;
+    const binIndex = (v) => Math.floor((v - 0.1) / step);
+    const stacked = d3
+        .rollups(
+            iris,
+            (rows) => rows.length,
+            (d) => binIndex(d.petalWidth),
+            (d) => d.species,
+        )
+        .sort((a, b) => a[0] - b[0]);
+    const maxCount = d3.max(stacked, ([, s]) => d3.sum(s, ([, n]) => n));
+    const x2 = d3.scaleLinear().domain([0, maxCount]).nice().range([0, rightW]);
+    const y2 = d3.scaleLinear().domain([0.1, 2.6]).range([plotH, 0]);
+    const barH = Math.abs(y2(0.1) - y2(0.1 + step)) - 1.5;
+    stacked.forEach(([index, speciesCounts]) => {
+        let offset = 0;
+        SPECIES.forEach((name) => {
+            const entry = speciesCounts.find(([sp]) => sp === name);
+            if (!entry) return;
+            const [, n] = entry;
+            c2.append("rect")
+                .attr("x", x2(offset))
+                .attr("width", x2(n) - x2(0))
+                .attr("y", y2(0.1 + (index + 1) * step))
+                .attr("height", barH)
+                .style("fill", speciesColor(name));
+            offset += n;
+        });
+    });
+    chartFrame(c2, x2, y2);
+    drawAxis(c2, d3.axisBottom(x2).ticks(4), `translate(0,${plotH})`);
+    drawAxis(
+        c2,
+        d3.axisLeft(y2).ticks(8).tickFormat(d3.format(".1f")),
+        "translate(0,0)",
+    );
+    axisTitle(c2, "Count of Records", {
+        x: rightW / 2,
+        y: plotH + 44,
+        size: 15,
+    });
+    axisTitle(c2, "petalWidth (binned)", {
+        x: -58,
+        y: plotH / 2,
+        rotate: -90,
+        size: 15,
+    });
+
+    legend(svg, {
+        x: pad.left + leftW + gap + rightW + 66,
+        y: pad.top + 20,
+        title: "species",
+        items: SPECIES,
+    });
+    fig.append(svg.node());
+</script>

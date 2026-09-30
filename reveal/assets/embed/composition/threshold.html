@@ -1,0 +1,56 @@
+<!doctype html>
+<link rel="stylesheet" href="lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    // Reference: "Not all layering has to be a full chart / Can be used for callouts."
+    // Four layers over one coordinate space: bars, a red re-draw of the part of any bar above the
+    // threshold, a rule at the threshold, and a text label anchored to that rule.
+    import { d3, svgRoot, drawAxis, chartFrame, axisTitle, ink, blue, red, serif } from "./lib/chart.js";
+
+    // The dataset from Altair's "bar chart with highlighted segment" example.
+    const values = [54.8, 112.1, 63.6, 37.6, 79.7, 137.9, 120.1, 103.3, 394.8,
+                    199.5, 72.3, 51.1, 112.0, 174.5, 130.5];
+    const data = values.map((Value, i) => ({ Day: i + 1, Value }));
+    const threshold = 300;
+
+    const width = 960, height = 560;
+    const margin = { top: 26, right: 40, bottom: 62, left: 78 };
+    const x = d3.scaleBand().domain(data.map((d) => d.Day))
+        .range([margin.left, width - margin.right]).padding(0.18);
+    const y = d3.scaleLinear().domain([0, 400]).range([height - margin.bottom, margin.top]);
+
+    const svg = svgRoot(width, height);
+
+    // Layer 1 — every bar, base to value.
+    svg.append("g").selectAll("rect").data(data).join("rect")
+        .attr("x", (d) => x(d.Day)).attr("width", x.bandwidth())
+        .attr("y", (d) => y(d.Value)).attr("height", (d) => y(0) - y(d.Value))
+        .style("fill", blue);
+
+    // Layer 2 — only the excess above the threshold, in red.
+    svg.append("g").selectAll("rect").data(data.filter((d) => d.Value > threshold)).join("rect")
+        .attr("x", (d) => x(d.Day)).attr("width", x.bandwidth())
+        .attr("y", (d) => y(d.Value)).attr("height", (d) => y(threshold) - y(d.Value))
+        .style("fill", red);
+
+    // Layer 3 — the rule.
+    svg.append("line")
+        .attr("x1", margin.left).attr("x2", width - margin.right)
+        .attr("y1", y(threshold)).attr("y2", y(threshold))
+        .style("stroke", ink).style("stroke-width", 2);
+
+    // Layer 4 — the label riding on it.
+    svg.append("text")
+        .attr("x", width - margin.right - 4).attr("y", y(threshold) - 8)
+        .attr("text-anchor", "end")
+        .style("font-family", serif).style("font-size", "20px").style("fill", ink)
+        .text("hazardous");
+
+    chartFrame(svg, x, y);
+    drawAxis(svg, d3.axisBottom(x), `translate(0,${height - margin.bottom})`);
+    drawAxis(svg, d3.axisLeft(y).ticks(8), `translate(${margin.left},0)`);
+    axisTitle(svg, "Day", { x: (margin.left + width - margin.right) / 2, y: height - 16 });
+    axisTitle(svg, "Value", { x: 24, y: (margin.top + height - margin.bottom) / 2, rotate: -90 });
+
+    fig.append(svg.node());
+</script>

@@ -1,0 +1,76 @@
+/* Shared frame for every composition figure. deck.css is injected into each figure iframe by
+   installFigureBackgroundSync and carries a bare `svg { max-width:100%; height:auto }` rule, so
+   these selectors are id-qualified in order to outrank it no matter which stylesheet loads last:
+   a figure here needs to fit the slide slot on BOTH axes, not just width. */
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+#fig {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 100vh;
+  padding: 4px;
+}
+
+#fig > svg {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100vh;
+}
+
+/* Chart design system — every D3 figure marks its axes, frame, gridlines, and text with these
+   classes instead of setting font/stroke properties inline, so the look of a chart can be retuned
+   here without touching the drawing code in lib/chart.js or any individual figure. The chart.js
+   helpers (drawAxis, chartFrame, axisTitle, gridY, legend) apply these classes; anything a helper
+   draws picks the rules up automatically, including elements a D3 axis regenerates on re-render
+   (e.g. the dashboard's linked-brushing updates just re-`.call()` the axis — no re-styling needed).
+   Only data-driven color (a per-species or per-series hue) still comes from a `color`/`fill` option
+   passed inline, since a CSS class can't express "whichever hue this line's data owns". */
+
+/* No per-side domain line and no tick marks — chart-frame() draws one rectangle around the whole
+   data space instead (below), so tick labels sit outside it with nothing connecting them in. */
+.chart-axis .domain,
+.chart-axis .tick line {
+  display: none;
+}
+
+.chart-axis text,
+.chart-label {
+  font-weight: 400;
+  font-style: italic;
+  fill: var(--chart-text-color, var(--slide-muted, #817d72));
+}
+
+/* Halfway between the muted text/rule color and the page background — the default weight for a
+   structural line (the frame) that should read as a boundary, not as data or text. */
+.chart-frame {
+  fill: none;
+  stroke: var(
+    --chart-axis-color,
+    color-mix(in srgb, var(--slide-muted, #817d72) 50%, var(--slide-background, #fbfaf3) 50%)
+  );
+  stroke-width: 3px;
+  stroke-opacity: 1;
+}
+
+.chart-title {
+  font-weight: 600;
+  font-style: normal;
+  fill: var(--slide-ink, #282722);
+}
+
+/* Off by default — a chart only gets gridlines when a figure explicitly draws them via gridY(),
+   which is reserved for cases where the grid is the point (e.g. the dual-axis illustrations, where
+   a reader needs to trace a line back to the scale it belongs to). */
+.chart-gridline {
+  stroke: var(--chart-gridline-color, var(--slide-rule, #d8d5ca));
+  stroke-width: 3px;
+  stroke-opacity: 0.15;
+}

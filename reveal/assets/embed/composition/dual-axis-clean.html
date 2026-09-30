@@ -1,0 +1,7 @@
+<!doctype html>
+<link rel="stylesheet" href="lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    import { dualAxis } from "./lib/dual.js";
+    fig.append((await dualAxis({ clean: true })).node());
+</script>

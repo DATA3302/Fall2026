@@ -1,0 +1,64 @@
+<!doctype html>
+<link rel="stylesheet" href="lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    // Reference: "Can Facet Row and Column Independently" — alt.Row("a:N") x alt.Column("b:N").
+    // The composition point is the GRID: one small chart per (a, b) pair, every panel sharing the
+    // same 0–100% x scale, with the two facet variables chosen independently of each other.
+    import { d3, svgRoot, drawAxis, chartFrame, axisTitle, legend, blue, orange, magenta, serif, muted } from "./lib/chart.js";
+
+    const rows = ["a1", "a2", "a3"], cols = ["b1", "b2", "b3"], settings = ["x", "y", "z"];
+    // Illustrative values transcribed from the reference slide's panels.
+    const p = {
+        a1: { b1: [0.05, 0.60, 0.02], b2: [0.85, 0.50, 0.40], b3: [0.08, 0.75, 0.85] },
+        a2: { b1: [0.85, 0.90, 0.65], b2: [0.95, 0.85, 0.95], b3: [0.80, 0.75, 0.15] },
+        a3: { b1: [0.65, 0.35, 0.55], b2: [0.90, 0.45, 0.95], b3: [0.95, 0.85, 0.45] },
+    };
+    const color = d3.scaleOrdinal().domain(settings).range([blue, orange, magenta]);
+
+    const width = 1000, height = 600;
+    const pad = { top: 96, left: 120, right: 210, bottom: 66 };
+    const cellW = (width - pad.left - pad.right) / cols.length;
+    const cellH = (height - pad.top - pad.bottom) / rows.length;
+    const inner = { w: cellW - 34, h: cellH - 26 };
+
+    const svg = svgRoot(width, height);
+    const x = d3.scaleLinear().domain([0, 1]).range([0, inner.w]);
+    const yBand = d3.scaleBand().domain(settings).range([0, inner.h]).padding(0.25);
+
+    rows.forEach((a, ri) => cols.forEach((b, ci) => {
+        const gx = pad.left + ci * cellW, gy = pad.top + ri * cellH;
+        const panel = svg.append("g").attr("transform", `translate(${gx},${gy})`);
+
+        chartFrame(panel, x, yBand);
+        panel.append("line").attr("x1", x(0.5)).attr("x2", x(0.5))
+            .attr("y1", 0).attr("y2", inner.h)
+            .style("stroke", muted).style("stroke-opacity", 0.3);
+
+        panel.selectAll("rect.bar").data(settings).join("rect").attr("class", "bar")
+            .attr("x", 0).attr("y", (s) => yBand(s))
+            .attr("width", (s, i) => x(p[a][b][i])).attr("height", yBand.bandwidth())
+            .style("fill", (s) => color(s));
+
+        // Only the bottom row carries an x axis, as in a faceted chart with a shared scale.
+        if (ri === rows.length - 1) {
+            drawAxis(panel, d3.axisBottom(x).tickValues([0, 1]).tickFormat(d3.format(".0%")),
+                `translate(0,${inner.h})`, { size: 14 });
+        }
+        if (ri === 0) {
+            panel.append("text").attr("class", "chart-title").attr("x", inner.w / 2).attr("y", -14).attr("text-anchor", "middle")
+                .style("font-family", serif).style("font-size", "18px").text(b);
+        }
+        if (ci === 0) {
+            panel.append("text").attr("class", "chart-title").attr("x", -18).attr("y", inner.h / 2 + 6).attr("text-anchor", "end")
+                .style("font-family", serif).style("font-size", "18px").text(a);
+        }
+    }));
+
+    axisTitle(svg, "Factor B", { x: pad.left + (width - pad.left - pad.right) / 2, y: 40, size: 20 });
+    axisTitle(svg, "Factor A", { x: 34, y: pad.top + (height - pad.top - pad.bottom) / 2, rotate: -90, size: 20 });
+    legend(svg, { x: width - pad.right + 60, y: pad.top + 10, title: "settings",
+        items: settings, swatch: "square", color });
+
+    fig.append(svg.node());
+</script>

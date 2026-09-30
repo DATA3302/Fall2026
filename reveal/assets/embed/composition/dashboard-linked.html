@@ -1,0 +1,7 @@
+<!doctype html>
+<link rel="stylesheet" href="lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    import { buildDashboard } from "./lib/dashboard.js";
+    fig.append((await buildDashboard({ linked: true })).node());
+</script>

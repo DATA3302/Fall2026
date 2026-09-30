@@ -1,0 +1,47 @@
+<!doctype html>
+<link rel="stylesheet" href="lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    // Reference: (mean_line_chart + error_band).repeat(row=[...]).
+    // Repeat composing with Layer — every repeated panel is itself the two-layer chart from the
+    // Layer section, and `.scale(zero=False)` lets each row frame its own field.
+    import { d3, svgRoot, drawAxis, chartFrame, axisTitle, legend, SPECIES, binBySpecies, meanBandPanel, loadIris } from "./lib/chart.js";
+
+    const iris = await loadIris();
+    const fields = ["sepalWidth", "petalWidth", "petalLength"];
+
+    const width = 980, height = 660;
+    const pad = { top: 20, left: 96, right: 198, bottom: 58 };
+    const gap = 42;
+    const cellH = (height - pad.top - pad.bottom - gap * (fields.length - 1)) / fields.length;
+    const cellW = width - pad.left - pad.right;
+
+    const svg = svgRoot(width, height);
+    const x = d3.scaleLinear().domain([4, 8]).range([0, cellW]);
+
+    fields.forEach((field, i) => {
+        const series = binBySpecies(iris, { yField: field });
+        const oy = pad.top + i * (cellH + gap);
+        const panel = svg.append("g").attr("transform", `translate(${pad.left},${oy})`);
+
+        // zero=False: each repeated row frames its own field rather than sharing one scale.
+        const extent = [
+            d3.min([...series.values()], (points) => d3.min(points, (d) => d.q1)),
+            d3.max([...series.values()], (points) => d3.max(points, (d) => d.q3)),
+        ];
+        const y = d3.scaleLinear().domain(extent).nice().range([cellH, 0]);
+
+        meanBandPanel(panel, { series, x, y, lineWidth: 2.2 });
+
+        chartFrame(panel, x, y);
+        drawAxis(panel, d3.axisLeft(y).ticks(5), "translate(0,0)", { size: 14 });
+        axisTitle(panel, `Mean, Q1, Q3 of ${field}`, { x: -62, y: cellH / 2, rotate: -90, size: 14 });
+        if (i === fields.length - 1) {
+            drawAxis(panel, d3.axisBottom(x).ticks(8), `translate(0,${cellH})`, { size: 14 });
+            axisTitle(panel, "sepalLength (binned)", { x: cellW / 2, y: cellH + 44, size: 16 });
+        }
+    });
+
+    legend(svg, { x: width - pad.right + 52, y: pad.top + 16, title: "species", items: SPECIES });
+    fig.append(svg.node());
+</script>

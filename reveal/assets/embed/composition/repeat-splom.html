@@ -1,0 +1,60 @@
+<!doctype html>
+<link rel="stylesheet" href="lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    // Reference: Repeat — alt.X(alt.repeat("column")), alt.Y(alt.repeat("row")).
+    // The composition point: unlike Facet, the repeated variable is the FIELD each panel encodes,
+    // not a subset of the rows. Every panel draws the whole dataset through a different pair of
+    // accessors, and the axes are independent by default.
+    import { d3, svgRoot, drawAxis, chartFrame, axisTitle, legend, SPECIES, speciesColor, loadIris } from "./lib/chart.js";
+
+    const iris = await loadIris();
+    const rowFields = ["petalLength", "petalWidth"];
+    const colFields = ["sepalLength", "sepalWidth"];
+    const domains = {
+        sepalLength: [0, 8], sepalWidth: [0, 4.5],
+        petalLength: [0, 7], petalWidth: [0, 2.5],
+    };
+
+    const width = 1040, height = 620;
+    const pad = { top: 22, left: 84, right: 210, bottom: 62 };
+    const gap = { x: 86, y: 74 };
+    const cellW = (width - pad.left - pad.right - gap.x) / 2;
+    const cellH = (height - pad.top - pad.bottom - gap.y) / 2;
+
+    const svg = svgRoot(width, height);
+
+    rowFields.forEach((rowField, ri) => colFields.forEach((colField, ci) => {
+        const ox = pad.left + ci * (cellW + gap.x);
+        const oy = pad.top + ri * (cellH + gap.y);
+        const panel = svg.append("g").attr("transform", `translate(${ox},${oy})`);
+
+        const x = d3.scaleLinear().domain(domains[colField]).range([0, cellW]);
+        const y = d3.scaleLinear().domain(domains[rowField]).range([cellH, 0]);
+
+        panel.append("g").selectAll("circle").data(iris).join("circle")
+            .attr("cx", (d) => x(d[colField])).attr("cy", (d) => y(d[rowField])).attr("r", 4.6)
+            .style("fill", "none")
+            .style("stroke", (d) => speciesColor(d.species))
+            .style("stroke-width", 1.5)
+            .style("opacity", 0.85);
+
+        chartFrame(panel, x, y);
+        // x is the same field (and domain) down a whole column, and y the same across a whole
+        // row, so only the panels on the grid's true bottom/left edge need tick values or a
+        // title — an interior panel's axis would only repeat what its neighbor already shows.
+        if (ri === rowFields.length - 1) {
+            drawAxis(panel, d3.axisBottom(x).ticks(5), `translate(0,${cellH})`, { size: 14 });
+            axisTitle(panel, colField, { x: cellW / 2, y: cellH + 42, size: 16 });
+        }
+        if (ci === 0) {
+            drawAxis(panel, d3.axisLeft(y).ticks(6), "translate(0,0)", { size: 14 });
+            axisTitle(panel, rowField, { x: -56, y: cellH / 2, rotate: -90, size: 16 });
+        }
+    }));
+
+    legend(svg, { x: width - pad.right + 60, y: pad.top + 18, title: "species",
+        items: SPECIES, swatch: "hollow" });
+
+    fig.append(svg.node());
+</script>

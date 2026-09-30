@@ -1,0 +1,41 @@
+<!doctype html>
+<link rel="stylesheet" href="lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    // Reference slide: "We have already seen some layering" —
+    // alt.Chart(df).mark_circle().encode(x='sepalLength', y='sepalWidth', color='species')
+    import {
+        d3, svgRoot, drawAxis, chartFrame, axisTitle, legend,
+        SPECIES, speciesColor, loadIris,
+    } from "./lib/chart.js";
+
+    const iris = await loadIris();
+
+    const width = 960, height = 560;
+    const margin = { top: 20, right: 190, bottom: 58, left: 74 };
+
+    // Altair includes zero for a quantitative scale by default, which is why the reference
+    // scatter runs 0–8 and 0–4.5 rather than hugging the data.
+    const x = d3.scaleLinear().domain([0, 8]).range([margin.left, width - margin.right]);
+    const y = d3.scaleLinear().domain([0, 4.5]).range([height - margin.bottom, margin.top]);
+
+    const svg = svgRoot(width, height);
+    svg.append("g")
+        .selectAll("circle")
+        .data(iris)
+        .join("circle")
+        .attr("cx", (d) => x(d.sepalLength))
+        .attr("cy", (d) => y(d.sepalWidth))
+        .attr("r", 5)
+        .style("fill", (d) => speciesColor(d.species))
+        .style("opacity", 0.7);
+
+    chartFrame(svg, x, y);
+    drawAxis(svg, d3.axisBottom(x).ticks(8), `translate(0,${height - margin.bottom})`);
+    drawAxis(svg, d3.axisLeft(y).ticks(9), `translate(${margin.left},0)`);
+    axisTitle(svg, "sepalLength", { x: (margin.left + width - margin.right) / 2, y: height - 16 });
+    axisTitle(svg, "sepalWidth", { x: 22, y: (margin.top + height - margin.bottom) / 2, rotate: -90 });
+    legend(svg, { x: width - margin.right + 34, y: margin.top + 18, title: "species", items: SPECIES });
+
+    fig.append(svg.node());
+</script>
