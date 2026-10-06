@@ -33,6 +33,10 @@ slides:
     file: /slides/composition/
     status: Interactive
 
+  - title: Interaction
+    file: /slides/interactivity/
+    status: Interactive
+
 labs:
   - title: Intro to Observable
     url: https://observablehq.com/@calpoly-data3302-fall2026/intro-observable

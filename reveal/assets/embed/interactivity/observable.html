@@ -1,0 +1,34 @@
+<!doctype html>
+<link rel="stylesheet" href="lib/figure.css" />
+<style>
+    /* Observable notebooks size themselves to the page width (the runtime's `width`). */
+    body { margin: 0; overflow: hidden; }
+    #fig { display: block; }
+    #fig > div { width: 100%; }
+    #fig .observablehq > svg { width: 100%; height: auto; max-height: calc(100vh - 4px); }
+</style>
+<div id="fig"></div>
+<script type="module">
+    // Live embed of a published Observable notebook, run in the browser with the official
+    // Observable runtime (the notebook itself, unmodified, is fetched from api.observablehq.com).
+    //   ?nb=@d3/focus-context&cells=chart,viewof focus,!update
+    // `cells` lists the cells to show, top to bottom; a leading "!" runs a cell without showing it
+    // (here `update`, which wires the brush to the chart).
+    import { Runtime, Inspector } from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@5/dist/runtime.js";
+
+    const q = new URLSearchParams(location.search);
+    const nb = q.get("nb");
+    const cells = (q.get("cells") || "chart").split(",");
+    const { default: define } = await import(`https://api.observablehq.com/${nb}.js?v=4`);
+    const fig = document.getElementById("fig");
+    const slots = new Map(cells.map((name) => {
+        if (name.startsWith("!")) return [name.slice(1), null];
+        const div = fig.appendChild(document.createElement("div"));
+        return [name, div];
+    }));
+    new Runtime().module(define, (name) => {
+        if (!slots.has(name)) return undefined;
+        const div = slots.get(name);
+        return div ? new Inspector(div) : true;
+    });
+</script>

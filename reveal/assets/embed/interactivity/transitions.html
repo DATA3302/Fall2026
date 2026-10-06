@@ -1,0 +1,74 @@
+<!doctype html>
+<link rel="stylesheet" href="lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    // .transition(), running the code on each slide; it replays every time the slide is shown.
+    //   ?mode=chain    one circle: transition right, then a chained transition back
+    //   ?mode=delay    five circles, each delayed by d * 500 ms
+    //   ?mode=elastic  the same, with d3.easeElastic
+    import { d3, params, canvasFill, onShow, addButton } from "./lib/common.js";
+
+    const mode = params.get("mode") ?? "chain";
+    const width = 600, height = 160;
+    const r = mode === "chain" ? 40 : 24;
+    const data = [0, 1, 2, 3, 4];
+    const x = (i) => r + i * 2.6 * r;
+    const root = d3.create("svg").attr("viewBox", [0, 0, width, height]).attr("width", width).attr("height", height);
+    root.append("rect").attr("width", width).attr("height", height).style("fill", canvasFill);
+    const svg = root.append("g"); // the code below draws into `svg`, exactly as on the slide
+
+    function play() {
+        svg.selectAll("*").interrupt().remove();
+
+        if (mode === "chain") {
+            const circle = svg
+                .append("circle")
+                .style("fill", "orange")
+                .attr("r", r)
+                .attr("cx", r)
+                .attr("cy", height * 0.5)
+                .transition()
+                .duration(1000)
+                .attr("cx", width - r)
+                .transition()
+                .duration(1000)
+                .attr("cx", r);
+        }
+
+        if (mode === "delay") {
+            const circle = svg
+                .selectAll("circle")
+                .data(data)
+                .join("circle")
+                .style("fill", "orange")
+                .attr("r", r)
+                .attr("cx", (_, i) => x(i))
+                .attr("cy", height * 0.5)
+                .transition()
+                .duration(3000)
+                .delay((d) => d * 500)
+                .attr("cx", width - r);
+        }
+
+        if (mode === "elastic") {
+            const circle = svg
+                .selectAll("circle")
+                .data(data)
+                .join("circle")
+                .style("fill", "orange")
+                .attr("r", r)
+                .attr("cx", (_, i) => x(i))
+                .attr("cy", height * 0.5)
+                .transition()
+                .duration(3000)
+                .delay((d) => d * 500)
+                .ease(d3.easeElastic)
+                .attr("cx", width - r);
+        }
+    }
+
+    onShow(play);
+    addButton("Replay", play);
+    fig.append(root.node());
+    play();
+</script>

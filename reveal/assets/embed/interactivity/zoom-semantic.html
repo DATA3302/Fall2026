@@ -1,0 +1,85 @@
+<!doctype html>
+<link rel="stylesheet" href="lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    // Geometric vs semantic zoom on the same four marks. Geometric zoom magnifies the drawing
+    // (marks grow with the zoom factor); semantic zoom changes what is drawn at each scale (marks
+    // keep their size, spread apart, and resolve into labelled clusters once there is room).
+    // Arrow keys step: overview -> geometric zoom -> semantic zoom. Scroll/drag either panel to zoom.
+    import { d3, ink, muted, serif, canvasFill, stepper, blue, magenta, green, orange } from "./lib/common.js";
+
+    const step = stepper(3);
+    const S = 360, gap = 120, top = 70;
+    const width = 2 * S + gap, height = S + top + 10;
+    const svg = d3.create("svg").attr("viewBox", [0, 0, width, height]).attr("width", width).attr("height", height)
+        .style("font-family", serif);
+
+    // Four marks near the upper middle; each mark is really a small group of items.
+    const clusters = [
+        { id: "A", x: 0.555, y: 0.36, color: magenta, members: [[-0.6, -0.2], [0.5, 0.4]] },
+        { id: "B", x: 0.6, y: 0.43, color: green, members: [[-0.5, 0.3], [0.3, -0.4], [0.6, 0.4]] },
+        { id: "C", x: 0.525, y: 0.43, color: blue, members: [[-0.5, -0.3], [0.5, 0.0], [0.0, 0.5]] },
+        { id: "D", x: 0.565, y: 0.5, color: orange, members: [[-0.6, 0.0], [0.0, 0.2], [0.6, -0.1]] },
+    ];
+    const focus = [0.565, 0.4325];
+
+    function panel(ox, title, semantic) {
+        const g = svg.append("g").attr("transform", `translate(${ox},${top})`);
+        g.append("text").attr("x", S / 2).attr("y", -22).attr("text-anchor", "middle")
+            .style("font-size", "30px").style("fill", ink).text(title);
+        g.append("clipPath").attr("id", `clip-${title.replace(/\s/g, "")}`)
+            .append("rect").attr("width", S).attr("height", S);
+        g.append("rect").attr("width", S).attr("height", S).style("fill", canvasFill);
+        const plot = g.append("g").attr("clip-path", `url(#clip-${title.replace(/\s/g, "")})`);
+        g.append("rect").attr("width", S).attr("height", S).style("fill", "none").style("stroke", ink).style("stroke-width", 2);
+        const marks = plot.selectAll("g.cluster").data(clusters).join("g").attr("class", "cluster");
+        const hull = marks.append("circle").style("fill", (d) => d.color).style("fill-opacity", 0.35).attr("r", 0);
+        const label = marks.append("text").text((d) => d.id).style("font-style", "italic").style("font-size", "18px")
+            .style("fill", (d) => d.color).style("opacity", 0);
+        const dot = marks.append("circle").style("fill", ink);
+        const members = marks.selectAll("circle.member").data((d) => d.members).join("circle")
+            .attr("class", "member").style("fill", ink).attr("r", 0);
+
+        function draw(t, duration = 0) {
+            const k = t.k;
+            const sx = (v) => t.applyX(v * S), sy = (v) => t.applyY(v * S);
+            const tr = (sel) => (duration ? sel.transition().duration(duration) : sel);
+            if (!semantic) {
+                // Geometric: everything scales with k, including the mark itself.
+                tr(marks).attr("transform", (d) => `translate(${sx(d.x)},${sy(d.y)})`);
+                tr(dot).attr("r", 4.5 * k);
+                return;
+            }
+            // Semantic: positions spread with k but marks keep their size; past k ~ 3 each mark
+            // is replaced by its members inside a labelled cluster region.
+            const detail = Math.max(0, Math.min(1, (k - 2.5) / 2));
+            const spread = 6.5 * Math.max(1, k / 2.2);
+            tr(marks).attr("transform", (d) => `translate(${sx(d.x)},${sy(d.y)})`);
+            tr(dot).attr("r", 4.5 * (1 - detail)).style("opacity", 1 - detail);
+            tr(members).attr("r", 3.5 * detail)
+                .attr("cx", (m) => m[0] * spread * detail).attr("cy", (m) => m[1] * spread * detail);
+            tr(hull).attr("r", spread * 1.9 * detail);
+            tr(label).style("opacity", detail).attr("x", spread * 1.6).attr("y", -spread * 1.4);
+        }
+        return { g, draw };
+    }
+
+    const left = panel(0, "Geometric Zoom", false);
+    const right = panel(S + gap, "Semantic Zoom", true);
+
+    const at = (k) => d3.zoomIdentity.translate(S / 2, S / 2).scale(k).translate(-focus[0] * S, -focus[1] * S);
+    const zoomFor = (p) => d3.zoom().scaleExtent([1, 12]).extent([[0, 0], [S, S]])
+        .on("zoom", (e) => p.draw(e.transform));
+    const zl = zoomFor(left), zr = zoomFor(right);
+    const hitL = left.g.append("rect").attr("width", S).attr("height", S).style("fill", "transparent").call(zl);
+    const hitR = right.g.append("rect").attr("width", S).attr("height", S).style("fill", "transparent").call(zr);
+
+    fig.append(svg.node());
+    const states = [[1, 1], [5, 1], [5, 5]];
+    step.set((s, animate) => {
+        const [kl, kr] = states[s];
+        const d = animate ? 900 : 0;
+        (d ? hitL.transition().duration(d) : hitL).call(zl.transform, kl === 1 ? d3.zoomIdentity : at(kl));
+        (d ? hitR.transition().duration(d) : hitR).call(zr.transform, kr === 1 ? d3.zoomIdentity : at(kr));
+    });
+</script>

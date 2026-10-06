@@ -1,0 +1,48 @@
+<!doctype html>
+<link rel="stylesheet" href="lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    // Live SVG elements drawn with D3, labelled with the attributes that place and size them.
+    //   ?el=tag    <circle r=5 fill="green"></circle> (drawn at a readable size)
+    //   ?el=svg    the <svg> canvas
+    //   ?el=circle cx, cy, r
+    //   ?el=rect   x, y, width, height
+    //   ?el=rectr  x, y, width, height, rx, ry
+    import { d3, ink, serif, orange, green, canvasFill, params, mono } from "./lib/common.js";
+
+    const el = params.get("el") ?? "circle";
+    const width = 420, height = 360;
+    const svg = d3.create("svg").attr("viewBox", [0, 0, width, height]).attr("width", width).attr("height", height)
+        .style("font-family", mono);
+    const label = (x, y, t, anchor = "start") => svg.append("text").attr("x", x).attr("y", y).attr("text-anchor", anchor)
+        .style("fill", orange).style("font-size", "22px").text(t);
+    const guide = (x1, y1, x2, y2) => svg.append("line").attr("x1", x1).attr("y1", y1).attr("x2", x2).attr("y2", y2)
+        .style("stroke", orange).style("stroke-width", 2);
+
+    if (el === "tag") {
+        svg.append("circle").attr("cx", width / 2).attr("cy", height / 2).attr("r", 60).style("fill", green);
+    } else {
+        svg.append("rect").attr("x", 10).attr("y", 10).attr("width", width - 20).attr("height", height - 20).style("fill", canvasFill);
+    }
+    if (el === "circle") {
+        const cx = 250, cy = 190, r = 26;
+        guide(cx, 10, cx, cy); guide(10, cy, cx, cy);
+        svg.append("circle").attr("cx", cx).attr("cy", cy).attr("r", r).style("fill", ink);
+        guide(cx - r, cy + r + 10, cx + r, cy + r + 10);
+        label(cx + 12, 46, "cy"); label(60, cy - 12, "cx"); label(cx, cy + r + 38, "r", "middle");
+    }
+    if (el === "rect" || el === "rectr") {
+        const x = 190, y = 170, w = 120, h = 60, rx = el === "rectr" ? 30 : 0;
+        guide(x, 10, x, y); guide(10, y, x, y);
+        svg.append("rect").attr("x", x).attr("y", y).attr("width", w).attr("height", h).attr("rx", rx).attr("ry", rx).style("fill", ink);
+        label(x + 12, 60, "y"); label(80, y - 12, "x");
+        if (el === "rect") {
+            guide(x, y + h + 10, x + w, y + h + 10); guide(x + w + 10, y, x + w + 10, y + h);
+            label(x + w / 2, y + h + 38, "width", "middle"); label(x + w + 18, y + h / 2 + 8, "height");
+        } else {
+            guide(x, y + h + 10, x + rx, y + h + 10); guide(x - 10, y + h - rx, x - 10, y + h);
+            label(x + rx / 2, y + h + 38, "rx", "middle"); label(x - 46, y + h - 6, "ry");
+        }
+    }
+    fig.append(svg.node());
+</script>

@@ -1,0 +1,45 @@
+<!doctype html>
+<link rel="stylesheet" href="lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    // Re-encoding with a transition: iris drawn as sepal length × sepal width, then animated to
+    // petal length × petal width, running the code on the slide (replays when the slide is shown).
+    import { d3, canvasFill, onShow, addButton } from "./lib/common.js";
+    import { SPECIES, speciesColor } from "../composition/lib/chart.js";
+
+    let play = () => {};
+    onShow(() => play());
+
+    const data = await d3.json("data/iris.json");
+    const width = 600, height = 400, m = 20;
+    const root = d3.create("svg").attr("viewBox", [0, 0, width, height]).attr("width", width).attr("height", height);
+    root.append("rect").attr("width", width).attr("height", height).style("fill", canvasFill);
+    const scatter_svg = root.append("g"); // the slide's code draws into `scatter_svg`
+    const scale = (key, range) => d3.scaleLinear().domain(d3.extent(data, (d) => d[key])).nice().range(range);
+    const x_scale_sepal_length = scale("sepalLength", [m, width - m]);
+    const y_scale_sepal_width = scale("sepalWidth", [height - m, m]);
+    const x_scale_petal_length = scale("petalLength", [m, width - m]);
+    const y_scale_petal_width = scale("petalWidth", [height - m, m]);
+    const color = d3.scaleOrdinal(SPECIES, SPECIES.map(speciesColor)); // the course's species colors
+
+    play = () => {
+        scatter_svg.selectAll("*").remove();
+        scatter_svg
+            .append("g")
+            .selectAll("circle")
+            .data(data)
+            .join("circle")
+            .attr("r", 5)
+            .attr("cx", (d) => x_scale_sepal_length(d.sepalLength))
+            .attr("cy", (d) => y_scale_sepal_width(d.sepalWidth))
+            .attr("fill", (d) => color(d.species))
+            .transition()
+            .duration(5000)
+            .attr("cx", (d) => x_scale_petal_length(d.petalLength))
+            .attr("cy", (d) => y_scale_petal_width(d.petalWidth));
+    };
+
+    fig.append(root.node());
+    addButton("Replay", play);
+    play();
+</script>

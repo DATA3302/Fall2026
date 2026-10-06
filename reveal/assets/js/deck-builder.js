@@ -1069,13 +1069,18 @@ window.DeckBuilder = (() => {
       // The highlight plugin reads data-trim/data-line-numbers off the <code> element itself
       // (it walks "pre code"), not the <pre> — setting them on <pre> is silently ignored.
       code.setAttribute("data-trim", "");
-      code.setAttribute("data-line-numbers", "");
+      // An optional Kramdown attribute after the fence, e.g. `{: data-line-numbers="9-17" }`,
+      // lands on the Rouge wrapper and highlights those lines (others are dimmed).
+      code.setAttribute("data-line-numbers", wrapper?.dataset.lineNumbers || "");
       pre.removeAttribute("class");
       // Reveal's default `pre` auto-animate match requires identical text, so a code block
       // that gains or loses a line won't match its previous slide on its own. A `data-id`
       // (e.g. via Kramdown's `{: data-id="..." }` right after the fence, which lands on this
       // Rouge wrapper) opts it back in and unlocks per-line diffing between the two versions.
       if (wrapper?.dataset.id) pre.setAttribute("data-id", wrapper.dataset.id);
+      // `{: data-scroll="true" }` makes the block fill its column and scroll, for code that is
+      // longer than the slide (see `pre[data-scroll]` in deck.css).
+      if (wrapper?.dataset.scroll) pre.setAttribute("data-scroll", "");
       if (wrapper) wrapper.replaceWith(pre);
     });
   }
@@ -1259,8 +1264,11 @@ window.DeckBuilder = (() => {
     };
   }
 
+  let colorboxTextPairs = [];
+
   function autoAnimateMatcher(from, to) {
     const pairs = [];
+    colorboxTextPairs = [];
     findAutoAnimateMatches(pairs, from, to, "[data-id]", (el) => `${el.nodeName}:::${el.getAttribute("data-id")}`);
     findAutoAnimateMatches(pairs, from, to, autoAnimateHeadingSelector, (el) => `${el.nodeName}:::${el.innerText}`);
     findAutoAnimateMatches(pairs, from, to, "img, video, iframe", (el) => `${el.nodeName}:::${el.getAttribute("src") || el.getAttribute("data-src")}`);
@@ -1283,8 +1291,19 @@ window.DeckBuilder = (() => {
     // state. With nothing to compare, Reveal never writes any CSS for the pair at all.
     const handedOff = { scale: false, translate: false, styles: [] };
     pairs.forEach((pair) => {
-      if (pair.from.matches(autoAnimateHeadingSelector) || isHeadingTitleSpan(pair.from)) {
+      if (pair.from.matches(autoAnimateHeadingSelector) && pair.from.closest(".colorbox") && pair.to.closest(".colorbox")) {
+        // Text inside a colorbox is FLIPped by animateColorboxTransition (a uniform scale + translate)
+        // rather than by a font-size transition, which reflows the box's lines and makes them jump.
+        pair.options = handedOff;
+        colorboxTextPairs.push(pair);
+      } else if (pair.from.matches(autoAnimateHeadingSelector) || isHeadingTitleSpan(pair.from)) {
         pair.options = { scale: false };
+      } else if (pair.from.matches(".colorbox")) {
+        // Any transform on the box would also move the text inside it, which is FLIPped on its own
+        // (font-size + translate), so the two motions stacked and the contents visibly jumped.
+        // The box's border is animated separately (animateColorboxTransition) and its children
+        // are left to move themselves.
+        pair.options = handedOff;
       } else if (pair.from.matches("pre")) {
         pair.options = { scale: false, styles: ["width", "height"] };
         findAutoAnimateMatches(pairs, pair.from, pair.to, ".hljs .hljs-ln-code", (el) => el.textContent,
@@ -2197,7 +2216,44 @@ window.DeckBuilder = (() => {
     });
   }
 
+  // A colorbox's border is drawn by its ::before (see .colorbox in deck.css), so it can be
+  // grown or shrunk from the matched box's old rectangle to the new one without moving the box
+  // itself — and therefore without touching the text inside, which Reveal FLIPs on its own.
+  function animateColorboxTransition({ fromSlide, toSlide }) {
+    if (!fromSlide || !toSlide) return;
+    const fromBoxes = new Map();
+    fromSlide.querySelectorAll(".colorbox[data-id]").forEach((box) => fromBoxes.set(box.getAttribute("data-id"), box));
+    if (!fromBoxes.size) return;
+    const config = Reveal.getConfig();
+    const scale = Reveal.getScale() || 1;
+    const duration = (config.autoAnimateDuration || 1) * 1000;
+    const easing = config.autoAnimateEasing || "ease";
+    colorboxTextPairs.forEach(({ from, to }) => {
+      if (!to.hasAttribute("data-auto-animate-target")) return;
+      const a = from.getBoundingClientRect(), b = to.getBoundingClientRect();
+      const ratio = parseFloat(getComputedStyle(from).fontSize) / parseFloat(getComputedStyle(to).fontSize);
+      if (!Number.isFinite(ratio) || !b.width) return;
+      to.animate([
+        { transformOrigin: "0 0", transform: `translate(${(a.left - b.left) / scale}px, ${(a.top - b.top) / scale}px) scale(${ratio})` },
+        { transformOrigin: "0 0", transform: "none" },
+      ], { duration, easing, fill: "backwards" });
+    });
+    toSlide.querySelectorAll(".colorbox[data-id]").forEach((box) => {
+      const fromBox = fromBoxes.get(box.getAttribute("data-id"));
+      if (!fromBox || !box.hasAttribute("data-auto-animate-target")) return;
+      const a = fromBox.getBoundingClientRect(), b = box.getBoundingClientRect();
+      const inset = `${(a.top - b.top) / scale}px ${(b.right - a.right) / scale}px ${(b.bottom - a.bottom) / scale}px ${(a.left - b.left) / scale}px`;
+      box.animate([{ inset }, { inset: "0px" }], {
+        pseudoElement: "::before",
+        duration: (config.autoAnimateDuration || 1) * 1000,
+        easing: config.autoAnimateEasing || "ease",
+        fill: "backwards",
+      });
+    });
+  }
+
   function handleAutoAnimate({ fromSlide, toSlide }) {
+    animateColorboxTransition({ fromSlide, toSlide });
     animateDiagramTransition({ fromSlide, toSlide });
     animateImageTransition({ fromSlide, toSlide });
     animateIframeTransition({ fromSlide, toSlide });

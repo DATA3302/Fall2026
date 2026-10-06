@@ -1,0 +1,86 @@
+<!doctype html>
+<link rel="stylesheet" href="lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    // The reference's eight-slide "Design Space" build as one figure; arrow keys step through it:
+    // 0 empty space · 1 your design among others · 2 interactive design · 3 its possible states
+    // 4 an interactive other design enclosing the other designs · 5 a second one reaching from them into your interaction space · 6 cognitive load / effort · 7 unexpected behavior
+    import { d3, ink, muted, serif, orange, green, stepper } from "./lib/common.js";
+
+    const step = stepper(8);
+    const width = 880, height = 580;
+    const C = [330, 300], R = 250;
+    const svg = d3.create("svg").attr("viewBox", [0, 0, width, height]).attr("width", width).attr("height", height)
+        .style("font-family", serif);
+    const fs = (sel, size) => sel.style("font-size", `${size}px`);
+
+    svg.append("circle").attr("cx", C[0]).attr("cy", C[1]).attr("r", R)
+        .style("fill", "none").style("stroke", orange).style("stroke-width", 4);
+    fs(svg.append("text").attr("x", 470).attr("y", 50).style("fill", orange), 30).text("Design Space");
+
+    // Other designs (gray dots), and the gray "interactive other design" disc of steps 4–5.
+    const others = [[290, 455], [355, 420]];
+    // Step 4: one disc enclosing both other designs. Step 5: a second disc that overlaps both
+    // that disc and the green interaction space.
+    const disc = (cx, cy, r) => svg.append("circle").attr("r", r).style("fill", muted).style("fill-opacity", 0.35)
+        .style("stroke", muted).style("stroke-width", 3).attr("cx", cx).attr("cy", cy).style("opacity", 0);
+    const otherDisc = disc(322, 437, 62);
+    const otherDisc2 = disc(335, 335, 62);
+    const otherDots = svg.selectAll("g.other").data(others).join("g").attr("class", "other")
+        .attr("transform", (d) => `translate(${d})`);
+    otherDots.append("circle").attr("r", 5).style("fill", muted);
+    fs(otherDots.append("text").attr("x", 10).attr("y", 24).style("fill", muted).style("paint-order", "stroke").style("stroke", "var(--slide-background, #faf9f6)").style("stroke-width", "4px"), 21).text("Other Design");
+
+    // Your design: a dot that becomes an interactive region with possible states.
+    const you = [300, 200];
+    const region = svg.append("circle").attr("cx", 360).attr("cy", 250).attr("r", 0).style("fill", green);
+    const youDot = svg.append("circle").attr("cx", you[0]).attr("cy", you[1]).attr("r", 6).style("fill", ink);
+    const youLabel = fs(svg.append("text").attr("x", 310).attr("y", 190).style("fill", ink), 22);
+    const states = [[352, 222], [372, 240], [344, 278]];
+    const stateDots = svg.selectAll("circle.state").data(states).join("circle").attr("class", "state")
+        .attr("cx", (d) => d[0]).attr("cy", (d) => d[1]).attr("r", 0).style("fill", ink);
+    const statesLabel = fs(svg.append("text").attr("x", 430).attr("y", 232).style("fill", ink), 22);
+    statesLabel.append("tspan").attr("x", 430).text("Possible");
+    statesLabel.append("tspan").attr("x", 430).attr("dy", "1.15em").text("States");
+    const spaceLabel = fs(svg.append("text").attr("x", 570).attr("y", 540).style("fill", green), 28).text("Interaction Space");
+
+    // Step 6: an effortful path between states; step 7: a squiggle of unexpected behavior.
+    const loadPath = svg.append("line").attr("x1", 344).attr("y1", 278).attr("x2", 368).attr("y2", 246)
+        .style("stroke", ink).style("stroke-width", 4).style("stroke-dasharray", "6 4");
+    const loadLabel = fs(svg.append("text").attr("x", 240).attr("y", 350).style("font-style", "italic").style("fill", ink), 24);
+    loadLabel.append("tspan").attr("x", 240).text("Cognitive Load");
+    loadLabel.append("tspan").attr("x", 240).attr("dy", "1.15em").text("Effort");
+    const squiggle = svg.append("path")
+        .attr("d", "M344,278 C330,250 360,230 352,222 C346,214 330,236 356,250 C380,262 396,226 372,240")
+        .style("fill", "none").style("stroke", ink).style("stroke-width", 3);
+    const surprise = fs(svg.append("text").attr("x", 240).attr("y", 350).style("font-style", "italic").style("fill", ink), 24)
+        .text("Unexpected behavior");
+
+    function render(s, animate) {
+        const t = (sel) => (animate ? sel.transition().duration(500) : sel);
+        const show = (sel, on) => t(sel).style("opacity", on ? 1 : 0);
+        show(youDot, s === 1);
+        youLabel.text("");
+        if (s === 1) youLabel.text("Your Design");
+        if (s >= 2) {
+            youLabel.append("tspan").text("Your ");
+            youLabel.append("tspan").style("font-style", "italic").style("fill", green).text("Interactive");
+            youLabel.append("tspan").text(" Design");
+        }
+        show(youLabel, s >= 1);
+        t(region).attr("r", s >= 2 ? 52 : 0);
+        t(stateDots).attr("r", s >= 3 ? 6 : 0);
+        show(statesLabel, s >= 3);
+        show(spaceLabel, s >= 3);
+        show(otherDots, s >= 1 && s <= 5);
+        show(otherDisc, s === 4 || s === 5);
+        show(otherDisc2, s === 5);
+        show(loadPath, s === 6);
+        show(loadLabel, s === 6);
+        show(squiggle, s === 7);
+        show(surprise, s === 7);
+    }
+
+    fig.append(svg.node());
+    step.set(render);
+</script>

@@ -1,0 +1,69 @@
+<!doctype html>
+<link rel="stylesheet" href="lib/figure.css" />
+<style>
+    #fig { justify-content: center; padding: 0 12px; }
+    .row { position: relative; display: flex; align-items: center; gap: 50px; }
+    .dom { font: 12px/1.7 ui-monospace, "SF Mono", Menlo, Consolas, monospace; background: #1e1e1e; color: #9cdcfe;
+           padding: 8px 16px; border: 3px solid var(--slide-orange, #c47c16); }
+    .dom div { white-space: pre; }
+    .dom .tag { color: #569cd6; } .dom .attr { color: #9cdcfe; } .dom .val { color: #ce9178; }
+    .data { font: 20px/1.7 ui-monospace, "SF Mono", Menlo, Consolas, monospace; color: var(--slide-ink, #282722); }
+    .data div { white-space: pre; }
+    svg.links { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+</style>
+<div id="fig"><div class="row" id="row"></div></div>
+<script type="module">
+    // The DOM that the slides' bar-chart code actually produces, read back from the live <svg>
+    // (what the browser's element inspector shows). ?arrows=1 adds the data array on the left with
+    // a line from each datum to the <rect> element it is bound to, measured from the rendered rows.
+    import { d3, orange, params } from "./lib/common.js";
+
+    const w = 70;
+    const h = 70;
+    const svg = d3.create("svg").attr("width", w).attr("height", h).style("border", "1px solid white");
+    const bar_data = [1, 1.2, 1.7, 1.5, 0.7];
+    svg.selectAll("rect")
+        .data(bar_data)
+        .join("rect")
+        .style("fill", "steelblue")
+        .attr("x", (_, i) => i * 11.5)
+        .attr("y", (d) => h - d * 40)
+        .attr("width", 10)
+        .attr("height", (d) => d * 40);
+
+    const attrs = (el) => [...el.attributes].map((a) => ` <span class="attr">${a.name}</span>=<span class="val">"${a.value}"</span>`).join("");
+    const node = svg.node();
+    const dom = document.createElement("div");
+    dom.className = "dom";
+    const line = (html) => { const d = document.createElement("div"); d.innerHTML = html; dom.append(d); return d; };
+    line(`<span class="tag">&lt;svg</span>${attrs(node)}<span class="tag">&gt;</span>`);
+    const rectLines = [...node.children].map((r) => line(`  <span class="tag">&lt;rect</span>${attrs(r)}<span class="tag">&gt;&lt;/rect&gt;</span>`));
+    line(`<span class="tag">&lt;/svg&gt;</span>`);
+
+    const row = document.getElementById("row");
+    if (params.get("arrows") !== "1") {
+        row.append(dom);
+    } else {
+        const data = document.createElement("div");
+        data.className = "data";
+        const open = document.createElement("div"); open.textContent = "[";
+        const items = bar_data.map((d) => { const el = document.createElement("div"); el.textContent = `  ${d},`; return el; });
+        const close = document.createElement("div"); close.textContent = "]";
+        data.append(open, ...items, close);
+        row.append(data, dom);
+
+        // Draw each binding once the text has laid out: datum's right edge -> its <rect> line.
+        const links = d3.select(row).append("svg").attr("class", "links");
+        const draw = () => {
+            const box = row.getBoundingClientRect();
+            links.selectAll("line").data(items).join("line")
+                .attr("x1", (el) => el.getBoundingClientRect().right - box.left + 6)
+                .attr("y1", (el) => el.getBoundingClientRect().top + el.offsetHeight / 2 - box.top)
+                .attr("x2", (el, i) => rectLines[i].getBoundingClientRect().left - box.left - 4)
+                .attr("y2", (el, i) => rectLines[i].getBoundingClientRect().top + rectLines[i].offsetHeight / 2 - box.top)
+                .style("stroke", orange).style("stroke-width", 3);
+        };
+        draw();
+        addEventListener("resize", draw);
+    }
+</script>

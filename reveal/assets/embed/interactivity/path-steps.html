@@ -1,0 +1,41 @@
+<!doctype html>
+<link rel="stylesheet" href="lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    // How an SVG <path> draws a line, one command at a time (arrow keys step):
+    // 0 the line · 1 the pen starts at the origin · 2 "M x,y" moves to the first point
+    // 3..9 each "L x,y" draws one segment · 10 the finished path.
+    // The path's `d` attribute so far is written under the canvas.
+    import { d3, ink, blue, orange, canvasFill, mono, stepper } from "./lib/common.js";
+
+    const step = stepper(11);
+    const W = 360, H = 300, pad = 20;
+    const width = W + 2 * pad, height = H + 2 * pad + 80;
+    const pts = [[22, 262], [62, 226], [104, 120], [128, 142], [196, 80], [244, 136], [292, 150], [348, 82]];
+    const svg = d3.create("svg").attr("viewBox", [0, 0, width, height]).attr("width", width).attr("height", height);
+    const g = svg.append("g").attr("transform", `translate(${pad},${pad})`);
+    g.append("rect").attr("width", W).attr("height", H).style("fill", canvasFill);
+    const full = g.append("path").attr("d", d3.line()(pts)).style("fill", "none").style("stroke", blue).style("stroke-width", 4);
+    const drawn = g.append("path").style("fill", "none").style("stroke", orange).style("stroke-width", 4);
+    const pen = g.append("circle").attr("r", 9).style("fill", orange);
+    const code = svg.append("text").attr("x", pad).attr("y", H + 2 * pad + 20)
+        .style("font-family", mono).style("font-size", "12px").style("fill", ink);
+
+    function render(s, animate) {
+        const t = (sel) => (animate ? sel.transition().duration(400) : sel);
+        // Number of points the pen has visited (0 = still at the origin).
+        const k = s <= 1 ? 0 : Math.min(pts.length, s - 1);
+        const at = s === 1 ? [0, 0] : pts[Math.max(0, k - 1)];
+        t(pen).attr("cx", at[0]).attr("cy", at[1]).style("opacity", s >= 1 && s <= 9 ? 1 : 0);
+        drawn.attr("d", k >= 2 ? d3.line()(pts.slice(0, k)) : null);
+        if (s === 10) drawn.attr("d", d3.line()(pts));
+        const cmds = pts.slice(0, s === 10 ? pts.length : k).map((p, i) => `${i ? "L" : "M"}${p[0]},${p[1]}`);
+        code.selectAll("tspan").remove();
+        const chunks = d3.range(0, cmds.length, 4).map((i) => cmds.slice(i, i + 4).join(" "));
+        if (s > 0) chunks.forEach((c, i) => code.append("tspan").attr("x", pad).attr("dy", i ? "1.35em" : 0)
+            .text((i === 0 ? 'd="' : "   ") + c + (i === chunks.length - 1 ? '"' : "")));
+    }
+
+    fig.append(svg.node());
+    step.set(render);
+</script>

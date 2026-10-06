@@ -1,0 +1,56 @@
+<!doctype html>
+<link rel="stylesheet" href="lib/figure.css" />
+<style>
+    /* The code on the slides builds plain HTML and SVG, so the page styles those elements to match
+       the deck's other figures instead of the code having to. */
+    body { margin: 0; min-height: 100vh; display: flex; align-items: center; }
+    #fig {
+        display: block; /* the shared figure.css makes #fig a flex row, which put controls beside the chart */
+        width: 100%;
+        box-sizing: border-box;
+        padding: 8px 10px;
+        font-family: var(--slide-serif, "EB Garamond", Garamond, Georgia, serif);
+        font-size: 26px;
+        color: var(--slide-ink, #282722);
+    }
+    #fig input[type="range"] { width: 12em; vertical-align: middle; }
+    #fig button, #fig select, #fig input { font: inherit; color: inherit; accent-color: var(--slide-blue, #345a94); }
+    #fig button { background: var(--slide-background, #faf9f6); border: 1.5px solid var(--slide-muted, #817d72); border-radius: 6px; padding: 0.1em 0.7em; cursor: pointer; }
+    #fig button:hover { background: var(--slide-box-blue, #f2f5fa); }
+    #fig pre { margin: 0.4em 0; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 0.8em; }
+    #fig svg { display: block; max-width: 100%; }
+    #fig svg:not([width]) { width: 100%; height: auto; }
+    #fig > svg:not([viewBox]) { width: auto; height: auto; }
+    /* Fixed-size canvases (no viewBox) are drawn as the reference's flat gray square. */
+    #fig svg:not([viewBox]) { background: color-mix(in srgb, var(--slide-muted, #817d72) 28%, var(--slide-background, #faf9f6)); }
+    #fig svg text { font-family: inherit; fill: var(--slide-ink, #282722); }
+    #fig svg .domain, #fig svg .tick line { stroke: var(--slide-muted, #817d72); }
+    #fig svg .tick text { fill: var(--slide-muted, #817d72); font-size: 12px; }
+    #fig svg .selection { fill: var(--slide-blue, #345a94); fill-opacity: 0.2; stroke: var(--slide-blue, #345a94); }
+</style>
+<div id="fig"></div>
+<script type="module">
+    // Runs the code of one interaction slide, unchanged. The slide's code is the file
+    // examples/<ex>.js; it receives `d3`, `fig` (a d3 selection of the page's container <div>) and
+    // `width` (that container's width in pixels), and is run inside a block so it can declare its
+    // own `width` or `height` if it wants to.
+    //   ?ex=viz-input
+    //   &css=1        also load examples/<ex>.css
+    //   &autoplay=1   re-run the example (reload the page) each time its slide is shown, for examples
+    //                 that animate on load
+    import { d3, params, onShow } from "./lib/common.js";
+
+    const ex = params.get("ex");
+    const code = await (await fetch(`examples/${ex}.js`)).text();
+    if (params.get("css")) {
+        const css = await (await fetch(`examples/${ex}.css`)).text();
+        document.head.append(Object.assign(document.createElement("style"), { textContent: css }));
+    }
+
+    const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
+    const run = new AsyncFunction("d3", "fig", "width", `{\n${code}\n}`);
+    const fig = d3.select("#fig");
+    await run(d3, fig, Math.floor(fig.node().clientWidth - 20));
+
+    if (params.get("autoplay")) onShow(() => location.reload());
+</script>

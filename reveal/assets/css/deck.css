@@ -186,6 +186,34 @@ body,
   line-height: 1.35;
 }
 
+/* A line-numbered block is an hljs-ln <table> inside the <code>, so the generic table-centering rule
+   below would otherwise match it and center (and clip) the code; keep code block-level. */
+.reveal pre code.hljs:has(> table) { display: block; }
+
+/* A scrolling block (`{: data-scroll="true" }` after the fence) takes the whole height of its column and
+   scrolls inside it, in both directions, so a full program can sit beside its live figure. Reveal's own
+   `pre code { max-height: 400px }` is lifted; a highlighted line range scrolls into view. */
+.reveal pre[data-scroll] {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  margin: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.reveal pre[data-scroll] code.hljs,
+.reveal pre[data-scroll] code:not(.hljs) {
+  height: 100%;
+  max-height: none;
+  box-sizing: border-box;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+
+/* Non-highlighted lines in a block with highlighted lines were too faint to read when projected. */
+.reveal .hljs[data-line-numbers].has-highlights tr:not(.highlight-line) { opacity: 0.55; }
+
 /* Whatever actually holds a table (.slide-content, .slide-column, a
 , ...) becomes a
    centered flex column, so the table centers both ways within that container instead of
@@ -393,12 +421,22 @@ body,
 .colorbox {
   --box-color: var(--slide-blue);
   margin: 0.65em 0;
-  padding: 5px 5px 25px 15px;
+  padding: 7px 5px 27px 17px;
   border: 0;
+  box-shadow: none;
+  position: relative;
+}
+
+/* The rule and rounded corner are drawn by a pseudo-element so a matched box can animate its
+   outline between two slides (animateColorboxTransition) without moving its text. */
+.colorbox::before {
+  content: "";
+  position: absolute;
+  inset: 0;
   border-left: 2px solid var(--box-color);
   border-top: 2px solid var(--box-color);
   border-radius: 15pt;
-  box-shadow: none;
+  pointer-events: none;
 }
 
 .colorbox-green { --box-color: var(--slide-green); }

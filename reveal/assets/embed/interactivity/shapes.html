@@ -1,0 +1,69 @@
+<!doctype html>
+<link rel="stylesheet" href="lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    // d3.line and d3.area, running the code on the slides.
+    //   ?mode=line      d3.line, stroked, no fill
+    //   ?mode=linefill  the same d3.line path with fill: a line path is closed straight back to its start
+    //   ?mode=area      d3.area from a baseline (y0 = the minimum) up to the data (y1)
+    //   ?mode=band      d3.area between a lower and an upper series
+    import { d3, canvasFill, params } from "./lib/common.js";
+    const mode = params.get("mode") ?? "line";
+
+    const width = 360, height = 360;
+    const svg = d3.create("svg").attr("viewBox", [0, 0, width, height]).attr("width", width).attr("height", height);
+    svg.append("rect").attr("width", width).attr("height", height).style("fill", canvasFill);
+
+    const data = [0.6, 1.3, 3.5, 3.0, 4.4, 3.2, 2.9, 4.4];
+    const x_scale = d3.scaleLinear().domain([0, data.length - 1]).range([20, width - 20]);
+    const y_scale = d3.scaleLinear().domain([0, 5]).range([height - 20, 20]);
+
+    if (mode === "line" || mode === "linefill") {
+        const line = d3
+            .line()
+            .x((d, i) => x_scale(i))
+            .y((d) => y_scale(d));
+
+        const linechart = svg
+            .append("path")
+            .datum(data)
+            .attr("d", line)
+            .style("stroke", "orange")
+            .style("stroke-width", 1.5)
+            .style("fill", mode === "linefill" ? "orange" : "none");
+    }
+
+    if (mode === "area") {
+        const area = d3
+            .area()
+            .x((d, i) => x_scale(i))
+            .y0(y_scale(d3.min(data)))
+            .y1((d) => y_scale(d));
+
+        const areachart = svg
+            .append("path")
+            .datum(data)
+            .attr("d", area)
+            .style("stroke", "orange")
+            .style("stroke-width", 1.5)
+            .style("fill", "orange");
+    }
+
+    if (mode === "band") {
+        const band = data.map((v, i) => ({ time: i, lower: Math.max(0.2, v - 1.3 - 0.3 * Math.sin(i)), upper: v }));
+        const area = d3
+            .area()
+            .x((d) => x_scale(d.time))
+            .y0((d) => y_scale(d.lower))
+            .y1((d) => y_scale(d.upper));
+
+        const areachart = svg
+            .append("path")
+            .datum(band)
+            .attr("d", area)
+            .style("stroke", "orange")
+            .style("stroke-width", 1.5)
+            .style("fill", "orange");
+    }
+    fig.append(svg.node());
+</script>

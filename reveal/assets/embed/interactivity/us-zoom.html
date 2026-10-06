@@ -1,0 +1,52 @@
+<!doctype html>
+<link rel="stylesheet" href="lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    // (Data: us-atlas states-albers-10m, vendored in data/.) Unconstrained vs constrained navigation.
+    //   ?mode=free         d3-zoom: any scale, and the map can be dragged entirely out of view
+    //   ?mode=constrained  click a state to zoom to it (the state is highlighted); click anywhere outside the selected state to return
+    // Either way, nothing is drawn outside the canvas (the map layer is clipped to the frame).
+    import { d3, ink, paper, blue } from "./lib/common.js";
+    import * as topojson from "./lib/topojson-client.js";
+
+    const constrained = new URLSearchParams(location.search).get("mode") === "constrained";
+    const width = 975, height = 610;
+    const us = await d3.json("data/states-albers-10m.json");
+    const path = d3.geoPath(); // the atlas is pre-projected to 975 x 610
+
+    const svg = d3.create("svg").attr("viewBox", [0, 0, width, height]).attr("width", width).attr("height", height);
+    svg.append("clipPath").attr("id", "canvas").append("rect").attr("width", width).attr("height", height);
+    const background = svg.append("rect").attr("width", width).attr("height", height).style("fill", paper);
+    const g = svg.append("g").attr("clip-path", "url(#canvas)").append("g");
+    const states = g.append("g").selectAll("path").data(topojson.feature(us, us.objects.states).features).join("path")
+        .attr("d", path).style("fill", "#444");
+    g.append("path").datum(topojson.mesh(us, us.objects.states, (a, b) => a !== b)).attr("d", path)
+        .style("fill", "none").style("stroke", "#bbb").style("stroke-width", 0.8).style("vector-effect", "non-scaling-stroke").style("pointer-events", "none");
+    svg.append("rect").attr("width", width).attr("height", height)
+        .style("fill", "none").style("stroke", ink).style("stroke-width", 3).style("pointer-events", "none");
+
+    if (constrained) {
+        let selected = null;
+        const reset = () => {
+            selected = null;
+            states.style("fill", "#444");
+            g.transition().duration(750).attr("transform", "");
+        };
+        states.style("cursor", "pointer").on("click", (event, d) => {
+            event.stopPropagation();
+            if (selected) { if (d !== selected) reset(); return; } // any click outside the selected state returns
+            selected = d;
+            const [[x0, y0], [x1, y1]] = path.bounds(d);
+            const k = Math.min(8, 0.9 / Math.max((x1 - x0) / width, (y1 - y0) / height));
+            const t = d3.zoomIdentity.translate(width / 2, height / 2).scale(k)
+                .translate(-(x0 + x1) / 2, -(y0 + y1) / 2);
+            states.style("fill", (s) => (s === d ? blue : "#444"));
+            g.transition().duration(750).attr("transform", t.toString());
+        });
+        background.on("click", reset);
+    } else {
+        const zoom = d3.zoom().scaleExtent([0.1, 40]).on("zoom", (e) => g.attr("transform", e.transform));
+        svg.call(zoom);
+    }
+    fig.append(svg.node());
+</script>

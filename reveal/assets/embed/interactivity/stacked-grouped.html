@@ -1,0 +1,97 @@
+<!doctype html>
+<link rel="stylesheet" href="lib/figure.css" />
+<div id="fig">
+    <div class="fig-controls">
+        <label><input type="radio" name="layout" value="stacked" checked />Stacked</label>
+        <label><input type="radio" name="layout" value="grouped" />Grouped</label>
+    </div>
+</div>
+<script type="module">
+    // Rebuilt from Mike Bostock's "Stacked-to-Grouped Bars" (observablehq.com/@d3/stacked-to-grouped-bars):
+    // four series of random "bumps" drawn as stacked bars; the radio buttons (or the arrow keys
+    // in the deck) re-encode the same marks as grouped bars with a staged transition.
+    import { d3, mulberry32, stepper } from "./lib/common.js";
+
+    const step = stepper(2);
+    const rand = mulberry32(7);
+
+    function bumps(m) {
+        const values = [];
+        for (let i = 0; i < m; ++i) values[i] = 0.1 + 0.1 * rand();
+        for (let j = 0; j < 5; ++j) {
+            const x = 1 / (0.1 + rand());
+            const y = 2 * rand() - 0.5;
+            const z = 10 / (0.1 + rand());
+            for (let i = 0; i < m; i++) {
+                const w = (i / m - y) * z;
+                values[i] += x * Math.exp(-w * w);
+            }
+        }
+        for (let i = 0; i < m; ++i) values[i] = Math.max(0, values[i]);
+        return values;
+    }
+
+    const n = 4, m = 58;
+    const width = 1100, height = 560;
+    const margin = { top: 50, right: 10, bottom: 20, left: 10 };
+    const yz = d3.range(n).map(() => bumps(m));
+    const xz = d3.range(m);
+    const y01z = d3.stack().keys(d3.range(n))(d3.transpose(yz)).map((data, i) => data.map(([y0, y1]) => [y0, y1, i]));
+    const yMax = d3.max(yz, (y) => d3.max(y));
+    const y1Max = d3.max(y01z, (y) => d3.max(y, (d) => d[1]));
+
+    const x = d3.scaleBand().domain(xz).rangeRound([margin.left, width - margin.right]).padding(0.08);
+    const y = d3.scaleLinear().domain([0, y1Max]).range([height - margin.bottom, margin.top]);
+    const z = d3.scaleSequential(d3.interpolateBlues).domain([-0.5 * n, 1.5 * n]);
+
+    const svg = d3.create("svg").attr("viewBox", [0, 0, width, height]).attr("width", width).attr("height", height);
+
+    const rect = svg.selectAll("g")
+        .data(y01z)
+        .join("g")
+        .attr("fill", (d, i) => z(i))
+        .selectAll("rect")
+        .data((d) => d)
+        .join("rect")
+        .attr("x", (d, i) => x(i))
+        .attr("y", height - margin.bottom)
+        .attr("width", x.bandwidth())
+        .attr("height", 0);
+
+    svg.append("g")
+        .attr("transform", `translate(0,${height - margin.bottom})`)
+        .call(d3.axisBottom(x).tickSizeOuter(0).tickFormat(() => ""));
+
+    function transitionGrouped() {
+        y.domain([0, yMax]);
+        rect.transition()
+            .duration(500)
+            .delay((d, i) => i * 20)
+            .attr("x", (d, i) => x(i) + (x.bandwidth() / n) * d[2])
+            .attr("width", x.bandwidth() / n)
+            .transition()
+            .attr("y", (d) => y(d[1] - d[0]))
+            .attr("height", (d) => y(0) - y(d[1] - d[0]));
+    }
+
+    function transitionStacked() {
+        y.domain([0, y1Max]);
+        rect.transition()
+            .duration(500)
+            .delay((d, i) => i * 20)
+            .attr("y", (d) => y(d[1]))
+            .attr("height", (d) => y(d[0]) - y(d[1]))
+            .transition()
+            .attr("x", (d, i) => x(i))
+            .attr("width", x.bandwidth());
+    }
+
+    fig.append(svg.node());
+    const inputs = document.querySelectorAll("input[name=layout]");
+    const update = (layout) => {
+        inputs.forEach((el) => (el.checked = el.value === layout));
+        layout === "grouped" ? transitionGrouped() : transitionStacked();
+    };
+    inputs.forEach((el) => el.addEventListener("change", () => update(el.value)));
+    step.set((state) => update(state === 1 ? "grouped" : "stacked"));
+</script>

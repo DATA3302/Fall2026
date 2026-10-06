@@ -1,0 +1,37 @@
+<!doctype html>
+<link rel="stylesheet" href="lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    // An animated line chart: the line draws itself across time each time the slide is shown
+    // (AAPL closing price, 2007–2012, the data from Mike Bostock's classic D3 line chart).
+    import { d3, svgRoot, drawAxis, chartFrame, blue, onShow, addButton } from "./lib/common.js";
+
+    let play = () => {};
+    onShow(() => play());
+
+    const parse = d3.timeParse("%d-%b-%y");
+    const data = await d3.tsv("data/aapl.tsv", (d) => ({ date: parse(d.date), close: +d.close }));
+
+    const width = 1100, height = 420, m = { top: 20, right: 20, bottom: 40, left: 60 };
+    const svg = svgRoot(width, height);
+    const x = d3.scaleUtc().domain(d3.extent(data, (d) => d.date)).range([m.left, width - m.right]);
+    const y = d3.scaleLinear().domain([0, 650]).range([height - m.bottom, m.top]);
+    chartFrame(svg, x, y);
+    drawAxis(svg, d3.axisBottom(x).ticks(10), `translate(0,${height - m.bottom})`);
+    drawAxis(svg, d3.axisLeft(y).ticks(6), `translate(${m.left},0)`);
+
+    const path = svg.append("path").datum(data)
+        .attr("d", d3.line().x((d) => x(d.date)).y((d) => y(d.close)))
+        .style("fill", "none").style("stroke", blue).style("stroke-width", 2.5);
+    const length = path.node().getTotalLength();
+
+    play = () => path
+        .attr("stroke-dasharray", `${length} ${length}`)
+        .attr("stroke-dashoffset", length)
+        .transition().duration(5000).ease(d3.easeLinear)
+        .attr("stroke-dashoffset", 0);
+
+    fig.append(svg.node());
+    addButton("Replay", () => play());
+    play();
+</script>

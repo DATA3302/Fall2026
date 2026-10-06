@@ -1,0 +1,43 @@
+<!doctype html>
+<link rel="stylesheet" href="lib/figure.css" />
+<style>
+    #fig > svg { width: 100%; height: auto; max-height: 100vh; background: var(--canvas); }
+</style>
+<div id="fig"></div>
+<script type="module">
+    // The reference's rect example, running the code shown on the slides (w = h = 70, five bars).
+    //   ?mode=y0   y = 0            -> bars hang down from the top edge (SVG's y points down)
+    //   ?mode=yh   y = h - d * 40   -> bars stand on the bottom edge
+    //   ?mode=hl   as yh, with bar i = 2 (d = 1.7) outlined
+    import { d3, orange, canvasFill, params } from "./lib/common.js";
+    document.documentElement.style.setProperty("--canvas", canvasFill);
+    const mode = params.get("mode") ?? "yh";
+
+    const w = 70;
+    const h = 70;
+
+    const svg = d3
+        .create("svg")
+        .attr("width", w)
+        .attr("height", h)
+        .style("border", "1px solid white")
+        .attr("viewBox", [0, 0, w, h]);
+
+    const bar_data = [1, 1.2, 1.7, 1.5, 0.7];
+
+    const bar_chart = svg
+        .selectAll("rect")
+        .data(bar_data)
+        .join("rect")
+        .style("fill", "steelblue")
+        .attr("x", (_, i) => i * 11.5)
+        .attr("y", mode === "y0" ? 0 : (d) => h - d * 40)
+        .attr("width", 10)
+        .attr("height", (d) => d * 40);
+
+    if (mode === "hl") {
+        svg.append("rect").attr("x", 2 * 11.5 - 0.6).attr("y", 0.6).attr("width", 11.2).attr("height", h - 1.2)
+            .style("fill", "none").style("stroke", orange).style("stroke-width", 1.2);
+    }
+    fig.append(svg.node());
+</script>
