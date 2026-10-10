@@ -44,33 +44,6 @@ permalink: /
   </div>
 </dl>
 
-## Course schedule
-
-The schedule is tentative. Pay attention to course announcements and emails for updates.
-
-<div class="schedule-table" role="region" aria-label="Week-by-week course schedule" tabindex="0">
-  <table>
-    <thead>
-      <tr>
-        <th scope="col">Week</th>
-        <th scope="col">Dates</th>
-        <th scope="col">Lecture</th>
-        <th scope="col">Lab</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for item in site.data.schedule %}
-      <tr class="schedule-row" data-start="{{ item.start | date: '%Y-%m-%d' }}" data-end="{{ item.end | date: '%Y-%m-%d' }}">
-        <th scope="row"><span class="week-label">{{ item.label }}</span></th>
-        <td>{{ item.dates }}</td>
-        <td>{{ item.lecture }}</td>
-        <td>{{ item.lab | default: '—' }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
-
 ## Quick links
 
 - [Syllabus]({{ '/content/syllabus/00-Syllabus.pdf' | relative_url }})
