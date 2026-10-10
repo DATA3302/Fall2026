@@ -10,17 +10,22 @@ assignments:
     url: /content/assignments/02-Explanatory-Visualization.pdf
     description: Go through the design process of sketching, implementation, and refinement to design an effective explanatory static visualization.
   - title: "Assignment 3: Deceptive Visualization"
-    status: Coming soon
+    status: Released
     due:
-    url:
+    url: /content/assignments/03-Deceptive-Visualization.pdf
     description: Explore how design choices can distort data and mislead audiences.
   - title: "Assignment 4: Interactive Explorations"
-    status: Coming soon
+    status: Released
     due:
-    url:
+    url: /content/assignments/04-Interactive-Explorations.pdf
     description: Build an interactive visualization that supports exploration of data.
   - title: "Assignment 5: Data Storytelling"
-    status: Coming soon
+    status: Released
     due:
-    url:
+    url: /content/assignments/05-Data-Storytelling.pdf
     description: Use the design skills you have developed in the class so far to tell a compelling narrative.
+  - title: "Final Project"
+    status: Released
+    due:
+    url: /content/assignments/06-Final-Project.pdf
+    description: ""

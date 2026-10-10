@@ -86,7 +86,7 @@ Throughout the course there will be five out of class individual assignments com
 
 == Final Project
 
-The most interesting single thing you will do in this course will be your final project. In this project you will have substantial freedom to choose what you work on, and more details will be forthcoming later in the quarter. You will complete the final project in teams of 2-4 students, and so I highly recommend you get to know the other students in the class, find anyone with similar interests, and get started as early as possible. Throughout the course there will be many check-in meetings scheduled during lab sessions to help get feedback and keep on pace, as well as intermediate deliverables.
+The most interesting single thing you will do in this course will be your final project. In this project you will systematically revise and synthesize your previous assignments into a new design, informed by a user study and by current visualization research, and more details will be forthcoming later in the quarter. You may complete the final project either individually or in a team of up to 3 students, revising and combining your own and your partners' work, and so I highly recommend you get to know the other students in the class, find anyone with similar interests, and get started as early as possible. Throughout the course there will be many check-in meetings scheduled during lab sessions to help get feedback and keep on pace, as well as intermediate deliverables.
 
 == Final Grade
 
@@ -118,10 +118,7 @@ Finally, your final project will determine any plus and minus modifiers as well 
       columns: 4,
       align: left,
       table.header([*Week*], [*Dates*], [*Lecture*], [*Lab*]),
-      [1],
-      [August 24, 26, 28],
-      [Course Introduction,  History of Visualization],
-      [Course Onboarding],
+      [1], [August 24, 26, 28], [History of Visualization], [Course Onboarding],
 
       [2],
       [August 31,  September 2, 4],
@@ -141,26 +138,27 @@ Finally, your final project will determine any plus and minus modifiers as well 
       [9],
       [October 19, 21, 23],
       [Ethics and Deception],
-      [Clarification and Obfuscation],
+      [Assignment/Project Studio],
 
       [10],
       [October 26, 28, 30],
       [Spatiotemporal Visualization],
-      [Maps and Animations],
+      [Assignment/Project Studio],
 
-      [11], [November 2, 4, 6 ], [Advanced Visualizations], [Midterm 2],
+      [11],
+      [November 2, 4, 6 ],
+      [Storytelling and Narrative],
+      [Research Literature Review],
+
       [12], [November 9, 13], [VIS 2026], [Paper Seminars],
       [13],
       [November 16, 18, 20],
-      [Storytelling and Narrative],
-      [Scrollytelling],
+      [Advanced Visualizations],
+      [Assignment/Project Studio],
 
       [Fall Break], [November 23, 25, 27], [], [],
-      [14], [November 30,  December 2, 4], [Accessibility], [Project Studio],
-      [15],
-      [December 7, 9, 11],
-      [Special Topics],
-      [ Project Studio, Makeup Exams],
+      [14], [November 30,  December 2, 4], [Accessibility], [Midterm 2],
+      [15], [December 7, 9, 11], [Makeup Exams], [Makeup Exams],
 
       [Finals], [December  14 1:00PM-3:30PM], [Project Colloquium], [],
     )
