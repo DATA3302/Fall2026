@@ -15,7 +15,3 @@ permalink: /assignments/
   <p>{{ assignment.description }}</p>
 </div>
 {% endfor %}
-
-## Final project
-
-More detail about the final project will be posted soon
