@@ -1,0 +1,66 @@
+<!doctype html>
+<link rel="stylesheet" href="../composition/lib/figure.css" />
+<div id="fig">
+    <div class="fig-controls">
+        <label for="base">Truncated axis starts at</label>
+        <div id="base-out"></div>
+        <input id="base" type="range" min="0" max="58" step="1" value="50" />
+    </div>
+</div>
+<script type="module">
+    // Two ways a visual encoding can exaggerate a difference. Bars encode value by length, so a baseline
+    // that is not zero multiplies the apparent ratio (drag the slider back to 0 to see the honest one);
+    // circles encode value by radius or by area, and a radius-coded circle's *area* grows with the square.
+    import { d3, svgRoot, drawAxis, ink, muted, blue, orange, serif } from "../composition/lib/chart.js";
+
+    const A = 60, B = 84; // the two values being compared
+
+    const W = 1600, H = 900;
+    const svg = svgRoot(W, H);
+    const text = (g, s, x, y, o = {}) => g.append("text").attr("x", x).attr("y", y).attr("text-anchor", o.anchor ?? "start")
+        .style("font-family", serif).style("font-size", `${o.size ?? 34}px`).style("fill", o.fill ?? ink)
+        .style("font-style", o.italic ? "italic" : "normal").text(s);
+
+    // --- bars -----------------------------------------------------------------------------------------
+    function bars(g, y0, base, label) {
+        g.selectAll("*").remove();
+        const h = 330, left = 90, plotW = 300;
+        const y = d3.scaleLinear().domain([base, 100]).range([y0 + h, y0]);
+        const x = d3.scaleBand().domain(["a", "b"]).range([left, left + plotW]).padding(0.22);
+        g.append("g").selectAll("rect").data([["a", A], ["b", B]]).join("rect")
+            .attr("x", ([k]) => x(k)).attr("width", x.bandwidth()).attr("y", ([, v]) => y(v))
+            .attr("height", ([, v]) => y(base) - y(v)).style("fill", ink);
+        g.append("line").attr("x1", left).attr("x2", left + plotW).attr("y1", y(base)).attr("y2", y(base)).style("stroke", ink).style("stroke-width", 2);
+        g.append("line").attr("x1", left).attr("x2", left).attr("y1", y0).attr("y2", y(base)).style("stroke", ink).style("stroke-width", 2);
+        [base, 100].forEach((t) => text(g, t, left - 14, y(t) + 8, { anchor: "end", size: 28 }));
+        [["a", A], ["b", B]].forEach(([k, v]) => {
+            g.append("line").attr("x1", left - 6).attr("x2", x(k)).attr("y1", y(v)).attr("y2", y(v)).style("stroke", muted).style("stroke-dasharray", "2 5");
+            text(g, k, left - 14, y(v) + 8, { anchor: "end", size: 28 });
+        });
+        text(g, label, left + plotW + 60, y0 + h / 2 + 12);
+        const ratio = (B - base) / (A - base);
+        text(g, `b looks ${ratio.toFixed(1)}× a`, left + plotW + 60, y0 + h / 2 + 56, { size: 26, italic: true, fill: orange });
+    }
+    const top = svg.append("g"), bottom = svg.append("g");
+    bars(top, 60, 0, "Absolute axis");
+    const base = d3.select("#base");
+    const draw = () => { const b = +base.property("value"); d3.select("#base-out").text(b); bars(bottom, 500, b, "Truncated axis"); };
+    base.on("input", draw); draw();
+
+    // --- circles --------------------------------------------------------------------------------------
+    const cx0 = 900, rA = 56;
+    function circles(cy, label, radiusOf, note) {
+        const g = svg.append("g");
+        const ra = radiusOf(A), rb = radiusOf(B);
+        [["a", ra, cx0], ["b", rb, cx0 + 230]].forEach(([k, r, cx]) => {
+            g.append("circle").attr("cx", cx).attr("cy", cy).attr("r", r).style("fill", ink);
+            text(g, k, cx, cy + 12, { anchor: "middle", fill: "#fff", size: 34 });
+        });
+        text(g, label, cx0 + 370, cy - 6);
+        text(g, note, cx0 + 370, cy + 36, { size: 26, italic: true, fill: orange });
+    }
+    // Area channel: area ∝ value. Radius channel: radius ∝ value, so area ∝ value².
+    circles(260, "Area channel", (v) => rA * Math.sqrt(v / A), `b has ${(B / A).toFixed(1)}× the area`);
+    circles(650, "Radius channel", (v) => rA * (v / A), `b has ${((B / A) ** 2).toFixed(1)}× the area`);
+    fig.append(svg.node());
+</script>

@@ -1,0 +1,32 @@
+<!doctype html>
+<link rel="stylesheet" href="../composition/lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    // "Yearly CO₂ concentration": one record, two y-axes. Drawn from zero the monthly Mauna Loa series is
+    // a nearly flat line; drawn on a tight range the same numbers show the seasonal cycle and the climb.
+    // Data: NOAA Global Monitoring Laboratory, Mauna Loa monthly mean CO₂ (ppm), 1958–1982.
+    import { d3, svgRoot, drawAxis, chartFrame, axisTitle, ink, muted, serif } from "../composition/lib/chart.js";
+
+    const data = (await d3.csv("data/co2-mauna-loa-monthly.csv", (d) => ({ t: +d.decimal, v: +d.average })))
+        .filter((d) => d.t >= 1958 && d.t < 1982 && d.v > 0);
+    const W = 1500, H = 640;
+    const svg = svgRoot(W, H);
+
+    function panel(g, x0, w, domain, ticks) {
+        const m = { top: 20, bottom: 70, left: 84, right: 20 };
+        const x = d3.scaleLinear().domain([1958, 1982]).range([x0 + m.left, x0 + w - m.right]);
+        const y = d3.scaleLinear().domain(domain).range([H - 50 - m.bottom, m.top]);
+        g.append("path").attr("d", d3.line().x((d) => x(d.t)).y((d) => y(d.v))(data)).style("fill", "none")
+            .style("stroke", ink).style("stroke-width", 2);
+        chartFrame(g, x, y);
+        drawAxis(g, d3.axisBottom(x).tickValues([1960, 1965, 1970, 1975, 1980]).tickFormat(d3.format("d")), `translate(0,${H - 50 - m.bottom})`, { size: 20 });
+        drawAxis(g, d3.axisLeft(y).tickValues(ticks), `translate(${x0 + m.left},0)`, { size: 20 });
+        axisTitle(g, "Year", { x: (x0 + m.left + x0 + w - m.right) / 2, y: H - 62 });
+        axisTitle(g, "CO₂ concentration (ppm)", { x: x0 + 22, y: (m.top + H - 50 - m.bottom) / 2, rotate: -90 });
+    }
+    panel(svg.append("g"), 0, 720, [0, 350], [0, 100, 200, 300]);
+    panel(svg.append("g"), 780, 720, [310, 345], [315, 320, 325, 330, 335, 340]);
+    svg.append("text").attr("x", W / 2).attr("y", H - 10).attr("text-anchor", "middle").style("font-family", serif)
+        .style("font-size", "26px").style("fill", ink).text("Yearly CO₂ concentration");
+    fig.append(svg.node());
+</script>

@@ -1,0 +1,53 @@
+<!doctype html>
+<link rel="stylesheet" href="../composition/lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    // Misinformation as weak inductive reasoning: two specific premises are combined into a general
+    // conclusion. Top row is the schema; bottom row instantiates it with two small charts (a rising
+    // curve, a marked start date) that the eye combines into "the vaccine caused the rise".
+    // After Lisnic, Polychronis, Lex & Kogan (CHI 2023).
+    import { d3, svgRoot, ink, muted, serif } from "../composition/lib/chart.js";
+
+    const W = 1500, H = 640, bw = 330, bh = 230, gapX = 120;
+    const svg = svgRoot(W, H);
+    const fill = "color-mix(in srgb, var(--slide-muted, #817d72) 14%, var(--slide-background, #ffffff))";
+    const xs = [60, 60 + bw + gapX, 60 + 2 * (bw + gapX)];
+    const label = (g, s, x, y, o = {}) => g.append("text").attr("x", x).attr("y", y).attr("text-anchor", "middle")
+        .style("font-family", serif).style("font-size", `${o.size ?? 30}px`).style("fill", ink).text(s);
+    const box = (x, y, h) => svg.append("rect").attr("x", x).attr("y", y).attr("width", bw).attr("height", h).attr("rx", 12).style("fill", fill);
+
+    // Row 1 — the schema.
+    const y1 = 30, h1 = 150;
+    [["Specific", "premise 1"], ["Specific", "premise 2"], ["General", "conclusion"]].forEach((lines, i) => {
+        box(xs[i], y1, h1);
+        lines.forEach((line, j) => label(svg, line, xs[i] + bw / 2, y1 + 66 + j * 38));
+    });
+    for (const [i, op] of [[0, "+"], [1, "="]]) label(svg, op, xs[i] + bw + gapX / 2, y1 + h1 / 2 + 22, { size: 72 });
+
+    // Row 2 — the instance, each box a title over a small chart.
+    const y2 = 280, h2 = 300;
+    const titles = ["Increase in cases", "Vaccination start", "Vaccines cause\nCovid-19"];
+    titles.forEach((s, i) => {
+        box(xs[i], y2, h2);
+        s.split("\n").forEach((line, j, a) => label(svg, line, xs[i] + bw / 2, y2 + 42 + j * 32 - (a.length - 1) * 0, { size: 28 }));
+    });
+    for (const [i, op] of [[0, "+"], [1, "="]]) label(svg, op, xs[i] + bw + gapX / 2, y2 + h2 / 2 + 22, { size: 72 });
+
+    function mini(i, { curve, mark }) {
+        const x0 = xs[i] + 36, x1 = xs[i] + bw - 36, yb = y2 + h2 - 34, yt = y2 + 110;
+        const g = svg.append("g").style("fill", "none").style("stroke", ink).style("stroke-width", 2.5);
+        g.append("path").attr("d", `M${x0},${yt - 10} V${yb} H${x1}`).style("stroke-linecap", "round");
+        if (curve) {
+            const t = d3.scaleLinear().domain([0, 1]).range([x0 + 2, x1]), v = d3.scaleLinear().domain([0, 1]).range([yb - 2, yt]);
+            g.append("path").attr("d", d3.line().x((d) => t(d)).y((d) => v((Math.exp(3.2 * d) - 1) / (Math.exp(3.2) - 1)))(d3.range(0, 1.001, 0.02)))
+                .style("stroke", muted);
+        }
+        if (mark) {
+            const mx = x0 + (x1 - x0) * mark;
+            g.append("line").attr("x1", mx).attr("x2", mx).attr("y1", yt - 6).attr("y2", yb).style("stroke-dasharray", "5 5").style("stroke", muted);
+            g.append("path").attr("d", `M${mx + 22},${yb - 8} L${mx + 4},${yb - 22} M${mx + 4},${yb - 22} l12 2 M${mx + 4},${yb - 22} l2 12`);
+        }
+    }
+    mini(0, { curve: true }); mini(1, { mark: 0.45 }); mini(2, { curve: true, mark: 0.45 });
+    fig.append(svg.node());
+</script>

@@ -1,0 +1,66 @@
+<!doctype html>
+<link rel="stylesheet" href="../composition/lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    // The same global temperature record at different aspect ratios. A line's apparent steepness is set
+    // by the shape of the frame as much as by the data, so stretching the frame one way flattens the
+    // warming into noise and stretching it the other makes it look like a cliff. `?step=0` has a slider
+    // for the chart's aspect ratio; `?step=1` shows a wide and a tall frame side by side.
+    // Data: HadCRUT5 global monthly anomaly relative to 1961–1990, with its 95% confidence limits.
+    import { d3, svgRoot, drawAxis, chartFrame, axisTitle, ink, muted, red, serif } from "../composition/lib/chart.js";
+
+    const parse = d3.utcParse("%Y-%m");
+    const data = (await d3.csv("data/hadcrut-monthly.csv", (d) => ({ t: parse(d.time), m: +d.anomaly, lo: +d.lower, hi: +d.upper })));
+    const step = +new URLSearchParams(location.search).get("step") || 0;
+
+    function chart(g, w, h, { title = true } = {}) {
+        g.selectAll("*").remove();
+        const m = { top: title ? 78 : 20, right: 130, bottom: 56, left: 70 };
+        const x = d3.scaleUtc().domain(d3.extent(data, (d) => d.t)).range([m.left, w - m.right]);
+        const y = d3.scaleLinear().domain([-1, 1.7]).range([h - m.bottom, m.top]);
+        const line = (key) => d3.line().x((d) => x(d.t)).y((d) => y(d[key]))(data);
+        if (title) {
+            g.append("text").attr("x", m.left).attr("y", 30).style("font-family", serif).style("font-size", "26px").style("fill", ink)
+                .text("Average temperature anomaly, Global");
+            g.append("text").attr("x", m.left).attr("y", 56).style("font-family", serif).style("font-size", "17px").style("fill", muted)
+                .text("Global average land-sea temperature anomaly relative to the 1961–1990 average, °C; red is the median, grey the 95% limits.");
+        }
+        g.append("path").attr("d", line("hi")).style("fill", "none").style("stroke", muted).style("stroke-opacity", 0.55).style("stroke-width", 1.2);
+        g.append("path").attr("d", line("lo")).style("fill", "none").style("stroke", muted).style("stroke-opacity", 0.55).style("stroke-width", 1.2);
+        g.append("path").attr("d", line("m")).style("fill", "none").style("stroke", red).style("stroke-width", 1.8);
+        g.append("line").attr("x1", m.left).attr("x2", w - m.right).attr("y1", y(0)).attr("y2", y(0)).style("stroke", muted).style("stroke-opacity", 0.6);
+        chartFrame(g, x, y);
+        drawAxis(g, d3.axisBottom(x).ticks(Math.max(3, Math.round((w - m.left - m.right) / 110))), `translate(0,${h - m.bottom})`);
+        drawAxis(g, d3.axisLeft(y).ticks(Math.max(4, Math.round((h - m.top - m.bottom) / 60))), `translate(${m.left},0)`);
+        [["Upper", "hi", muted], ["Median", "m", red], ["Lower", "lo", muted]].forEach(([s, k, c]) =>
+            g.append("text").attr("x", w - m.right + 10).attr("y", y(data.at(-1)[k]) + (k === "hi" ? -4 : k === "lo" ? 14 : 5))
+                .style("font-family", serif).style("font-size", "17px").style("fill", c).text(s));
+        if (title)
+            g.append("text").attr("x", w - m.right).attr("y", h - 12).attr("text-anchor", "end").style("font-family", serif)
+                .style("font-size", "15px").style("fill", muted).text("Source: Met Office Hadley Centre / UEA CRU, HadCRUT5");
+    }
+
+    if (step === 1) {
+        const svg = svgRoot(1440, 720);
+        chart(svg.append("g").attr("transform", "translate(0,190)"), 980, 340);
+        chart(svg.append("g").attr("transform", "translate(1010,0)"), 430, 720, { title: false });
+        fig.append(svg.node());
+    } else {
+        const svg = svgRoot(1000, 500);
+        const g = svg.append("g");
+        const box = d3.select(fig).append("div").attr("class", "fig-controls");
+        box.append("label").attr("for", "aspect").text("Chart width ÷ height");
+        const out = box.append("div");
+        box.append("input").attr("id", "aspect").attr("type", "range").attr("min", -1).attr("max", 1).attr("step", 0.01).attr("value", 0.3);
+        const redraw = () => {
+            const r = 2 ** (+d3.select("#aspect").property("value") * 2.2) * 1.6;
+            out.text(r.toFixed(2));
+            const h = 520, w = Math.round(h * r);
+            svg.attr("viewBox", [0, 0, w, h]).attr("width", w).attr("height", h);
+            chart(g, w, h);
+        };
+        d3.select("#aspect").on("input", redraw);
+        redraw();
+        fig.append(svg.node());
+    }
+</script>

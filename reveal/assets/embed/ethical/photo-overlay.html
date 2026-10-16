@@ -1,0 +1,52 @@
+<!doctype html>
+<link rel="stylesheet" href="../composition/lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    // Full-slide photographs with the original slide's text set over them in the deck's own serif,
+    // instead of baked into a flattened picture. Everything is placed in the original 1920×1080
+    // slide's coordinates (`panel` = a picture clipped to a rectangle of the slide, `text` = a line
+    // of overlaid type), so each line lands where the original put it. `?scene=…` picks the slide.
+    import { d3, svgRoot, serif } from "../composition/lib/chart.js";
+
+    const IMG = "../../images/";
+    const scenes = {
+        portraits: {
+            panels: [
+                { href: IMG + "ethical/ann/bentham.jpg", clip: [0, 0, 904, 1080], at: [-11, -102, 915, 1242] },
+                { href: IMG + "ethical/ann/kant.jpg", clip: [904, 0, 1920, 1080], at: [890, -9, 1049, 1168] },
+            ],
+            text: [
+                { s: "Never Lie", x: 923, y: 138 },
+                { s: "Consequences", x: 57, y: 905 },
+                { s: "Matter", x: 503, y: 1019 },
+            ],
+        },
+        abstraction: {
+            panels: [
+                { href: IMG + "uncertainty/ann/bach.jpg", clip: [0, 0, 960, 1080], at: [0, 0, 960, 1080] },
+                { href: IMG + "uncertainty/ann/daftpunk.jpg", clip: [960, 0, 1920, 1080], at: [960, 0, 960, 1080] },
+            ],
+            text: [{ s: "Abstraction vs Experience", x: 233, y: 112 }],
+            credit: "Johann Sebastian Bach, E. G. Haussmann, 1746 (public domain). Daft Punk in 2013, Sony Music Entertainment, CC BY 4.0.",
+        },
+    };
+
+    const scene = scenes[new URLSearchParams(location.search).get("scene")];
+    const svg = svgRoot(1920, 1080);
+    scene.panels.forEach((p, i) => {
+        const [cx, cy, cw, ch] = p.clip, [x, y, w, h] = p.at;
+        svg.append("clipPath").attr("id", `clip${i}`).append("rect")
+            .attr("x", cx).attr("y", cy).attr("width", cw).attr("height", ch);
+        svg.append("image").attr("href", p.href).attr("x", x).attr("y", y).attr("width", w).attr("height", h)
+            .attr("preserveAspectRatio", "xMidYMid slice").attr("clip-path", `url(#clip${i})`);
+    });
+    svg.append("g").style("font-family", serif).style("font-style", "italic").style("font-size", "112px")
+        .style("fill", "#fff").style("paint-order", "stroke").style("stroke", "rgba(0,0,0,0.55)")
+        .style("stroke-width", 10).style("stroke-linejoin", "round")
+        .selectAll("text").data(scene.text).join("text").attr("x", (d) => d.x).attr("y", (d) => d.y).text((d) => d.s);
+    if (scene.credit)
+        svg.append("text").attr("x", 1904).attr("y", 1064).attr("text-anchor", "end")
+            .style("font-family", serif).style("font-size", "20px").style("fill", "#fff")
+            .style("opacity", 0.85).text(scene.credit);
+    fig.append(svg.node());
+</script>

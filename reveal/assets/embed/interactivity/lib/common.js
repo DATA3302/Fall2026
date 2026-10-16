@@ -6,7 +6,7 @@ export {
 } from "../../composition/lib/chart.js";
 
 // The reference slides draw every SVG canvas as a flat light-gray square.
-export const canvasFill = "color-mix(in srgb, var(--slide-muted, #817d72) 28%, var(--slide-background, #faf9f6))";
+export const canvasFill = "color-mix(in srgb, var(--slide-muted, #817d72) 28%, var(--slide-background, #ffffff))";
 export const mono = "ui-monospace, 'SF Mono', Menlo, Consolas, monospace";
 
 // URL query parameters, so one figure file can serve several slides (?mode=..., ?step=...).

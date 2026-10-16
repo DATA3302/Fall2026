@@ -1,0 +1,73 @@
+<!doctype html>
+<link rel="stylesheet" href="../composition/lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    // The broadcast chart "If Bush tax cuts expire": a 35% → 39.6% increase drawn on an axis that starts
+    // at 34, so the second bar is almost six times the first. `?step=0` redraws it (the circle marks where
+    // the axis begins) with a slider that moves the baseline down to zero; `?step=1` sets it against the
+    // history of the top US marginal income-tax rate, 1913–2021 (Tax Foundation).
+    import { d3, svgRoot, drawAxis, chartFrame, axisTitle, ink, muted, blue, gold, orange, serif } from "../composition/lib/chart.js";
+
+    const step = +new URLSearchParams(location.search).get("step") || 0;
+    const svg = svgRoot(1200, 760);
+    const text = (g, s, x, y, o = {}) => g.append("text").attr("x", x).attr("y", y).attr("text-anchor", o.anchor ?? "start")
+        .style("font-family", serif).style("font-size", `${o.size ?? 28}px`).style("fill", o.fill ?? ink)
+        .style("font-weight", o.weight ?? 400).style("font-style", o.italic ? "italic" : "normal").text(o.t ?? s);
+
+    // The two-bar chart, drawn into `g` at (x0, y0) with size w × h. `base` is the value where the bars start.
+    function bars(g, x0, y0, w, h, base, { small = false, circle = true } = {}) {
+        g.selectAll("*").remove();
+        const k = small ? 0.42 : 1;
+        const left = x0 + (small ? 6 : 36), right = x0 + w - (small ? 56 : 120);
+        const x = d3.scaleBand().domain(["NOW", "JAN. 1, 2013"]).range([left, right]).padding(0.3);
+        const y = d3.scaleLinear().domain([base, 42]).range([y0 + h, y0]);
+        g.append("g").selectAll("rect").data([["NOW", 35], ["JAN. 1, 2013", 39.6]]).join("rect")
+            .attr("x", ([k]) => x(k)).attr("width", x.bandwidth()).attr("y", ([, v]) => y(v)).attr("height", ([, v]) => y(base) - y(v)).style("fill", gold);
+        g.append("g").selectAll("text.v").data([["NOW", 35], ["JAN. 1, 2013", 39.6]]).join("text")
+            .attr("x", ([k]) => x(k) + x.bandwidth() / 2).attr("y", ([, v]) => y(v) - 8 * k).attr("text-anchor", "middle")
+            .style("font-family", serif).style("font-size", `${24 * k}px`).style("fill", ink).text(([, v]) => `${v}%`);
+        g.append("g").selectAll("text.k").data(["NOW", "JAN. 1, 2013"]).join("text")
+            .attr("x", (d) => x(d) + x.bandwidth() / 2).attr("y", y0 + h + 30 * k).attr("text-anchor", "middle")
+            .style("font-family", serif).style("font-size", `${24 * k}px`).style("font-weight", 600).style("fill", ink).text((d) => d);
+        g.append("line").attr("x1", left).attr("x2", right + 10).attr("y1", y(base)).attr("y2", y(base)).style("stroke", ink).style("stroke-width", 2 * Math.max(k, 0.6));
+        const ticks = d3.ticks(base, 42, base < 20 ? 8 : 4).filter((t) => t >= base);
+        ticks.forEach((t) => text(g, t, right + (small ? 14 : 40), y(t) + 8 * k, { size: 22 * k, anchor: "start", fill: muted }));
+        if (circle && base === 34)
+            g.append("circle").attr("cx", right + (small ? 24 : 58)).attr("cy", y(34)).attr("r", 30 * k + 6)
+                .style("fill", "none").style("stroke", orange).style("stroke-width", 6 * Math.max(k, 0.55));
+    }
+
+    if (step === 0) {
+        const g = svg.append("g");
+        text(svg, "IF BUSH TAX CUTS EXPIRE", 40, 50, { size: 42, weight: 600 });
+        text(svg, "TOP TAX RATE", 40, 96, { size: 28, fill: muted });
+        const box = d3.select(fig).append("div").attr("class", "fig-controls");
+        box.append("label").attr("for", "base").text("Axis starts at");
+        const out = box.append("div");
+        box.append("input").attr("id", "base").attr("type", "range").attr("min", 0).attr("max", 34).attr("step", 1).attr("value", 34);
+        const redraw = () => { const b = +d3.select("#base").property("value"); out.text(`${b}%`); bars(g, 40, 130, 1060, 500, b); };
+        d3.select("#base").on("input", redraw);
+        redraw();
+    } else {
+        const data = await d3.json("data/top-marginal-rate.json");
+        const m = { top: 30, right: 30, bottom: 70, left: 100 };
+        const x = d3.scaleLinear().domain([1910, 2022]).range([m.left, 1200 - m.right]);
+        const y = d3.scaleLinear().domain([0, 1]).range([760 - m.bottom, m.top]);
+        svg.append("path").attr("d", d3.line().curve(d3.curveStepAfter).x((d) => x(d.year)).y((d) => y(d.rate))(data))
+            .style("fill", "none").style("stroke", blue).style("stroke-width", 4);
+        chartFrame(svg, x, y);
+        drawAxis(svg, d3.axisBottom(x).tickValues(d3.range(1910, 2021, 10)).tickFormat(d3.format("d")), `translate(0,${760 - m.bottom})`, { size: 22 });
+        drawAxis(svg, d3.axisLeft(y).ticks(10), `translate(${m.left},0)`, { size: 22 });
+        axisTitle(svg, "Year", { x: (m.left + 1200 - m.right) / 2, y: 760 - 18, size: 22 });
+        axisTitle(svg, "Top Marginal Rate", { x: 30, y: (m.top + 760 - m.bottom) / 2, rotate: -90, size: 22 });
+        // Inset: the broadcast chart, with an arrow to the 2013 rate it was about.
+        const ix = x(2013), iy = y(0.396);
+        const inset = svg.append("g");
+        bars(inset, 860, 250, 260, 120, 34, { small: true, circle: false });
+        svg.append("rect").attr("x", 850).attr("y", 235).attr("width", 280).attr("height", 175).attr("rx", 6)
+            .style("fill", "none").style("stroke", muted).style("stroke-opacity", 0.6);
+        svg.append("path").attr("d", `M${ix},${410} L${ix},${iy - 8}`).style("stroke", ink).style("stroke-width", 3);
+        svg.append("path").attr("d", `M${ix - 9},${iy + 6} L${ix},${iy - 10} L${ix + 9},${iy + 6} z`).style("fill", ink);
+    }
+    fig.append(svg.node());
+</script>

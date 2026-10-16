@@ -32,7 +32,7 @@
   font: inherit;
   font-size: 0.8em;
   color: var(--slide-ink, #282722);
-  background: var(--slide-background, #faf9f6);
+  background: var(--slide-background, #ffffff);
   border: 1.5px solid var(--slide-muted, #817d72);
   border-radius: 6px;
   padding: 0.1em 0.7em;

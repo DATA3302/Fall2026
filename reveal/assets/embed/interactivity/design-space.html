@@ -29,7 +29,7 @@
     const otherDots = svg.selectAll("g.other").data(others).join("g").attr("class", "other")
         .attr("transform", (d) => `translate(${d})`);
     otherDots.append("circle").attr("r", 5).style("fill", muted);
-    fs(otherDots.append("text").attr("x", 10).attr("y", 24).style("fill", muted).style("paint-order", "stroke").style("stroke", "var(--slide-background, #faf9f6)").style("stroke-width", "4px"), 21).text("Other Design");
+    fs(otherDots.append("text").attr("x", 10).attr("y", 24).style("fill", muted).style("paint-order", "stroke").style("stroke", "var(--slide-background, #ffffff)").style("stroke-width", "4px"), 21).text("Other Design");
 
     // Your design: a dot that becomes an interactive region with possible states.
     const you = [300, 200];

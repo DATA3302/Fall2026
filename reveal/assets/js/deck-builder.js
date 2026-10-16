@@ -8,7 +8,7 @@ window.DeckBuilder = (() => {
   const calloutPattern = /^\[!(green|gold|blue|orange|magenta|ink|muted|margin)\](?:\s+(.*))?$/i;
   const presenterNotesPattern = /^\[!notes\]\s*/i;
   const autoAnimatePattern = /^\[!auto-animate\]\s*$/i;
-  const textKeyword = "lead|muted|accent|small|center|big|vcenter";
+  const textKeyword = "lead|muted|accent|small|center|hcenter|left|right|big|vcenter";
   const textPattern = new RegExp(`^\\[((?:${textKeyword})(?:\\s+(?:${textKeyword}))*)\\]\\s*`, "i");
   const themeVariables = {
     background: "--slide-background",
@@ -22,7 +22,7 @@ window.DeckBuilder = (() => {
     orange: "--slide-orange"
   };
   const defaultDesign = {
-      background: "#fbfaf3",
+      background: "#ffffff",
       ink: "#282722",
       muted: "#817d72",
       accent: "#176b52",
@@ -249,6 +249,11 @@ window.DeckBuilder = (() => {
           svg.removeAttribute("height");
           if (!svg.getAttribute("preserveAspectRatio")) svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
           if (img.alt) svg.setAttribute("aria-label", img.alt);
+          // Relative <image href>s were written against the SVG file, not the page it is now inlined into.
+          svg.querySelectorAll("image").forEach((node) => {
+            const href = node.getAttribute("href") ?? node.getAttribute("xlink:href");
+            if (href && !/^(?:[a-z]+:|\/|#)/i.test(href)) node.setAttribute("href", new URL(href, src).href);
+          });
           svg.dataset.id = `static-svg:${src}`;
           svg.querySelectorAll("[id]").forEach((el) => { el.dataset.id = el.id; });
           img.replaceWith(svg);
@@ -1373,7 +1378,46 @@ window.DeckBuilder = (() => {
     // recognize that span as "part of a heading match" rather than unrelated content, and needs
     // the same treatment here.
     const hasNonHeadingMatch = filtered.some((pair) => !isHeading(pair.to) && !isHeadingTitleSpan(pair.to));
-    return hasNonHeadingMatch ? filtered : [];
+    // Matching alone doesn't earn an animation either: a pair that persists in the same place, at the
+    // same size and in the same colors has nothing to animate, so a transition is only worth running
+    // when at least one persistent element moves, resizes or changes color. Otherwise the slide cuts
+    // instantly, the same way an unrelated pair does.
+    if (!hasNonHeadingMatch || !filtered.some((pair) => pairChanged(pair, from, to))) {
+      colorboxTextPairs = [];
+      return [];
+    }
+    return filtered;
+  }
+
+  // Whether a matched pair's element changes position, size or color between the two slides.
+  // Geometry is measured relative to its own slide so the two slides' shared coordinate origin (and
+  // Reveal's scale) cancel out; sub-pixel differences are layout rounding, not movement. Color
+  // covers text, background and border colors for HTML, fill and stroke for SVG shapes, and a
+  // colorbox's own `--box-color` (which paints its rule and label from a pseudo-element).
+  const AUTO_ANIMATE_MOVE_TOLERANCE = 1;
+  const AUTO_ANIMATE_COLOR_PROPERTIES = ["color", "background-color", "border-top-color", "border-left-color", "fill", "stroke"];
+
+  function pairColorChanged(pair) {
+    const before = getComputedStyle(pair.from);
+    const after = getComputedStyle(pair.to);
+    return AUTO_ANIMATE_COLOR_PROPERTIES.some((name) => before.getPropertyValue(name) !== after.getPropertyValue(name))
+      || before.getPropertyValue("--box-color") !== after.getPropertyValue("--box-color");
+  }
+
+  function pairChanged(pair, fromRoot, toRoot) {
+    if (pairColorChanged(pair)) return true;
+    const fromRoots = fromRoot.getBoundingClientRect();
+    const toRoots = toRoot.getBoundingClientRect();
+    // A slide that isn't laid out can't be measured; treat that as "changed" and animate as before.
+    if (!fromRoots.width || !toRoots.width) return true;
+    const a = pair.from.getBoundingClientRect();
+    const b = pair.to.getBoundingClientRect();
+    return [
+      [a.left - fromRoots.left, b.left - toRoots.left],
+      [a.top - fromRoots.top, b.top - toRoots.top],
+      [a.width, b.width],
+      [a.height, b.height]
+    ].some(([before, after]) => Math.abs(before - after) > AUTO_ANIMATE_MOVE_TOLERANCE);
   }
 
   // Reveal's own Auto-Animate can't reach inside our diagrams: it measures matched elements
@@ -2175,6 +2219,10 @@ window.DeckBuilder = (() => {
   function getUnmatchedAutoAnimateElements(container) {
     return Array.from(container.children).reduce((unmatched, child) => {
       if (child.classList.contains("slide-footer")) return unmatched;
+      // An inlined SVG whose root matched is the same figure on both slides: everything inside it
+      // (text outlines, shapes with no id of their own) rides the root's FLIP, so none of it is new
+      // content. Recursing into it would fade each of those unmatched pieces in after the move.
+      if (child.matches("svg.static-figure-svg") && child.hasAttribute("data-auto-animate-target")) return unmatched;
       const hasMatchedDescendant = child.querySelector("[data-auto-animate-target]");
       if (!child.hasAttribute("data-auto-animate-target") && !hasMatchedDescendant) unmatched.push(child);
       else if (hasMatchedDescendant) unmatched.push(...getUnmatchedAutoAnimateElements(child));

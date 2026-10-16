@@ -1,0 +1,74 @@
+<!doctype html>
+<link rel="stylesheet" href="../composition/lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    // Cherry picking: the same national case curve, read through two hand-picked 45-day windows. Side by
+    // side, "last year" (a decline) and "this year" (a steep rise) look like opposite stories even though
+    // they are two slices of one series. `?step=0` shows just the two windows; `?step=1` shows the whole
+    // series with the two windows drawn on it, and the windows can be dragged to see how easily the
+    // story changes. Data: Johns Hopkins CSSE, United States, 7-day average of new confirmed cases.
+    import { d3, svgRoot, drawAxis, chartFrame, ink, muted, blue, gold, orange, serif } from "../composition/lib/chart.js";
+
+    const parse = d3.utcParse("%Y-%m-%d");
+    const all = (await d3.json("data/us-covid-cases.json")).map((d) => ({ t: parse(d.date), v: d.avg }));
+    const END = parse("2021-08-15");
+    const data = all.filter((d) => d.t <= END);
+    const DAY = 864e5, LEN = 45;
+    const step = +new URLSearchParams(location.search).get("step") || 0;
+
+    const wins = [
+        { label: "Same period, previous year", start: parse("2020-07-03"), color: gold },
+        { label: "This year", start: parse("2021-07-02"), color: orange },
+    ];
+    const W = 1500, H = step === 0 ? 700 : 900;
+    const svg = svgRoot(W, H);
+    const fmt = d3.utcFormat("%b %-d, %Y");
+
+    function panel(g, x0, y0, w, h, win) {
+        g.selectAll("*").remove();
+        const m = { top: 40, left: 96, right: 20, bottom: 52 };
+        const seg = data.filter((d) => d.t >= win.start && d.t <= new Date(+win.start + LEN * DAY));
+        const x = d3.scaleUtc().domain([win.start, new Date(+win.start + LEN * DAY)]).range([x0 + m.left, x0 + w - m.right]);
+        const y = d3.scaleLinear().domain([0, d3.max(seg, (d) => d.v) * 1.1]).nice().range([y0 + h - m.bottom, y0 + m.top]);
+        g.append("text").attr("x", x0 + m.left).attr("y", y0 + 24).style("font-family", serif).style("font-size", "24px").style("fill", ink)
+            .text(`${win.label}: ${fmt(win.start)} – ${fmt(new Date(+win.start + LEN * DAY))}`);
+        g.append("path").attr("d", d3.line().x((d) => x(d.t)).y((d) => y(d.v))(seg)).style("fill", "none").style("stroke", blue).style("stroke-width", 3);
+        chartFrame(g, x, y);
+        drawAxis(g, d3.axisBottom(x).ticks(4).tickFormat(d3.utcFormat("%b %-d")), `translate(0,${y0 + h - m.bottom})`, { size: 18 });
+        drawAxis(g, d3.axisLeft(y).ticks(5).tickFormat(d3.format(".2s")), `translate(${x0 + m.left},0)`, { size: 18 });
+    }
+
+    const pa = svg.append("g"), pb = svg.append("g");
+    const drawPanels = () => {
+        const y0 = step === 0 ? 20 : 560, h = step === 0 ? 640 : 330;
+        panel(pa, 0, y0, 730, h, wins[0]);
+        panel(pb, 770, y0, 730, h, wins[1]);
+    };
+    drawPanels();
+
+    if (step === 1) {
+        const m = { top: 40, left: 96, right: 20, bottom: 46 }, h = 480;
+        const x = d3.scaleUtc().domain(d3.extent(data, (d) => d.t)).range([m.left, W - m.right]);
+        const y = d3.scaleLinear().domain([0, d3.max(data, (d) => d.v)]).nice().range([h - m.bottom, m.top]);
+        const g = svg.append("g");
+        svg.append("text").attr("x", m.left).attr("y", 26).style("font-family", serif).style("font-size", "26px").style("fill", ink)
+            .text("Daily new confirmed COVID-19 cases, Jan 22, 2020 to Aug 15, 2021 (7-day average, United States)");
+        const bands = g.selectAll("rect.win").data(wins).join("rect").attr("class", "win").attr("y", m.top).attr("height", h - m.top - m.bottom)
+            .style("fill", (d) => d.color).style("fill-opacity", 0.35).style("cursor", "ew-resize");
+        const place = () => bands.attr("x", (d) => x(d.start)).attr("width", x(new Date(+wins[0].start + LEN * DAY)) - x(wins[0].start));
+        place();
+        g.append("path").attr("d", d3.line().x((d) => x(d.t)).y((d) => y(d.v))(data)).style("fill", "none").style("stroke", blue).style("stroke-width", 3)
+            .style("pointer-events", "none");
+        chartFrame(g, x, y);
+        drawAxis(g, d3.axisBottom(x).ticks(8).tickFormat(d3.utcFormat("%b %Y")), `translate(0,${h - m.bottom})`, { size: 18 });
+        drawAxis(g, d3.axisLeft(y).ticks(5).tickFormat(d3.format(".2s")), `translate(${m.left},0)`, { size: 18 });
+        bands.call(d3.drag().on("drag", (event, d) => {
+            const t = x.invert(x(d.start) + event.dx);
+            d.start = new Date(Math.min(Math.max(+t, +data[0].t), +END - LEN * DAY));
+            place(); drawPanels();
+        }));
+        svg.append("text").attr("x", W - m.right).attr("y", 26).attr("text-anchor", "end").style("font-family", serif).style("font-size", "18px")
+            .style("font-style", "italic").style("fill", muted).text("drag a shaded window");
+    }
+    fig.append(svg.node());
+</script>

@@ -1,0 +1,96 @@
+<!doctype html>
+<link rel="stylesheet" href="../composition/lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    // "The only #climatechange chart you need to see": global average temperature drawn against an axis
+    // that runs from 0 °F to 120 °F, so the whole record is a flat line in the middle of a mostly empty
+    // frame. `?step=0` is that chart with the question "what does all that space represent?"; `?step=1`
+    // fills the empty space with what it stands for (the heat and the cold a 0–120 axis implies);
+    // `?step=2` is the plain chart with a slider that truncates the y-axis down to the data.
+    // Data: HadCRUT5 annual global mean anomaly (1961–1990 baseline) added to a 14 °C absolute mean.
+    import { d3, svgRoot, drawAxis, chartFrame, axisTitle, ink, muted, red, blue, orange, serif } from "../composition/lib/chart.js";
+
+    const monthly = await d3.csv("data/hadcrut-monthly.csv", (d) => ({ year: +d.time.slice(0, 4), a: +d.anomaly }));
+    const years = d3.rollups(monthly.filter((d) => d.year >= 1880 && d.year <= 2015), (v) => d3.mean(v, (d) => d.a), (d) => d.year)
+        .map(([year, a]) => ({ year, f: (a + 14) * 9 / 5 + 32 }));
+    const step = +new URLSearchParams(location.search).get("step") || 0;
+
+    const W = step === 2 ? 1100 : 1400, H = 700, m = { top: 70, right: step === 2 ? 30 : 330, bottom: 60, left: 70 };
+    const plotR = W - m.right;
+    const svg = svgRoot(W, H);
+    const x = d3.scaleLinear().domain([1880, 2015]).range([m.left, plotR]);
+    const y = d3.scaleLinear().range([H - m.bottom, m.top]);
+    const g = svg.append("g");
+
+    function skull(g, cx, cy, r) {
+        const s = g.append("g").attr("transform", `translate(${cx},${cy})`);
+        s.append("circle").attr("r", r).style("fill", "#fff").style("stroke", ink).style("stroke-width", 2);
+        s.append("rect").attr("x", -r * 0.45).attr("y", r * 0.55).attr("width", r * 0.9).attr("height", r * 0.55).attr("rx", 4)
+            .style("fill", "#fff").style("stroke", ink).style("stroke-width", 2);
+        for (const sx of [-0.38, 0.38]) s.append("circle").attr("cx", r * sx).attr("cy", -r * 0.05).attr("r", r * 0.27).style("fill", ink);
+        s.append("path").attr("d", `M0 ${r * 0.2} l${-r * 0.1} ${r * 0.28} h${r * 0.2} z`).style("fill", ink);
+    }
+    function flame(g, cx, cy, r) {
+        g.append("path").attr("transform", `translate(${cx},${cy}) scale(${r / 30})`)
+            .attr("d", "M0,-40 C14,-22 34,-12 28,12 C24,32 8,40 -4,36 C-24,32 -34,10 -22,-8 C-16,-2 -12,-6 -10,-12 C-8,-24 -6,-32 0,-40 Z")
+            .style("fill", orange).style("stroke", "none");
+    }
+    function snow(g, cx, cy, r) {
+        const s = g.append("g").attr("transform", `translate(${cx},${cy})`).style("stroke", blue).style("stroke-width", 4).style("stroke-linecap", "round");
+        for (const a of [0, 60, 120]) s.append("line").attr("x1", -r).attr("x2", r).attr("transform", `rotate(${a})`);
+    }
+
+    function draw(lo, hi) {
+        y.domain([lo, hi]);
+        g.selectAll("*").remove();
+        g.append("text").attr("x", (m.left + plotR) / 2).attr("y", 26).attr("text-anchor", "middle").style("font-family", serif)
+            .style("font-size", "24px").style("font-weight", 600).style("fill", ink).text("Average Annual Global Temperature in Fahrenheit");
+        g.append("text").attr("x", (m.left + plotR) / 2).attr("y", 52).attr("text-anchor", "middle").style("font-family", serif)
+            .style("font-size", "20px").style("fill", muted).text("1880–2015");
+        if (step === 1) {
+            const defs = g.append("defs");
+            const grad = (id, c, up) => {
+                const lg = defs.append("linearGradient").attr("id", id).attr("x1", 0).attr("x2", 0).attr("y1", up ? 0 : 1).attr("y2", up ? 1 : 0);
+                lg.append("stop").attr("offset", 0).attr("stop-color", c).attr("stop-opacity", 0.95);
+                lg.append("stop").attr("offset", 1).attr("stop-color", c).attr("stop-opacity", 0);
+            };
+            grad("hot", red, true); grad("cold", blue, false);
+            const mid = y(d3.mean(years, (d) => d.f));
+            g.append("rect").attr("x", m.left).attr("y", m.top).attr("width", plotR - m.left).attr("height", mid - m.top - 8).style("fill", "url(#hot)");
+            g.append("rect").attr("x", m.left).attr("y", mid + 8).attr("width", plotR - m.left).attr("height", H - m.bottom - mid - 8).style("fill", "url(#cold)").attr("transform", "");
+        }
+        g.append("path").attr("d", d3.line().x((d) => x(d.year)).y((d) => y(d.f))(years)).style("fill", "none")
+            .style("stroke", orange).style("stroke-width", 3);
+        chartFrame(g, x, y);
+        drawAxis(g, d3.axisBottom(x).tickValues(d3.range(1880, 2016, 5)).tickFormat(d3.format("d")), `translate(0,${H - m.bottom})`, { size: 15 });
+        drawAxis(g, d3.axisLeft(y).ticks(Math.min(12, Math.round(hi - lo))), `translate(${m.left},0)`, { size: 15 });
+        if (step < 2) {
+            for (const [ay, kind] of [[m.top + (H - m.top - m.bottom) * 0.2, "hot"], [m.top + (H - m.top - m.bottom) * 0.8, "cold"]]) {
+                if (step === 1) {
+                    const cx = plotR - 80;
+                    if (kind === "hot") { flame(g, cx - 40, ay, 38); skull(g, cx, ay, 26); } else { snow(g, cx - 44, ay, 26); skull(g, cx, ay, 26); }
+                }
+                g.append("line").attr("x1", plotR + 300).attr("x2", plotR - (step === 1 ? 40 : 30) + 4).attr("y1", ay).attr("y2", ay)
+                    .style("stroke", ink).style("stroke-width", 5);
+                g.append("path").attr("d", `M${plotR - 34},${ay} l22 -18 v36 z`).style("fill", ink).attr("transform", `translate(${step === 1 ? 6 : 0},0)`);
+            }
+        }
+    }
+
+    if (step === 2) {
+        const lo0 = 0, hi0 = 120, lo1 = d3.min(years, (d) => d.f) - 0.3, hi1 = d3.max(years, (d) => d.f) + 0.3;
+        const box = d3.select(fig).append("div").attr("class", "fig-controls");
+        box.append("label").attr("for", "trunc").text("Truncate the y-axis");
+        const out = box.append("div");
+        box.append("input").attr("id", "trunc").attr("type", "range").attr("min", 0).attr("max", 1).attr("step", 0.005).attr("value", 0);
+        const redraw = () => {
+            const t = +d3.select("#trunc").property("value");
+            const lo = lo0 + (lo1 - lo0) * t, hi = hi0 + (hi1 - hi0) * t;
+            out.text(`${lo.toFixed(0)}–${hi.toFixed(0)} °F`);
+            draw(lo, hi);
+        };
+        d3.select("#trunc").on("input", redraw);
+        redraw();
+    } else draw(0, 120);
+    fig.append(svg.node());
+</script>

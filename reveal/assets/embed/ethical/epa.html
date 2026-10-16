@@ -1,0 +1,80 @@
+<!doctype html>
+<link rel="stylesheet" href="../composition/lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    // "Find the deception": EPA fuel-economy ratings drawn as bars that do not start at zero. The bars'
+    // left edge sits at a value well below the first tick, so a bar's length is not proportional to its
+    // value (the Bolt's 128 is drawn only ~1.8× the Volt's 43, not 3×). `?step=0` is the chart as
+    // published; `?step=1` adds the true zero as a static rule; `?step=2` sets it
+    // beside the same ratings drawn from zero. Values are the ones printed on the original chart.
+    import { d3, svgRoot, drawAxis, ink, muted, blue, orange, serif, hairline, paper } from "../composition/lib/chart.js";
+
+    const cars = [
+        { name: "2017 Chevrolet Bolt EV", note: "200-hp permanent-magnet synchronous AC electric motor, 1-speed direct drive, FWD", unit: "MPGe", v: [128, 119, 110], hue: blue },
+        { name: "Kia Soul EV", note: "109-hp permanent-magnet synchronous AC electric motor, 1-speed direct drive, FWD", unit: "MPGe", v: [120, 105, 92] },
+        { name: "Toyota Prius Prime", note: "121-hp* 1.8L inline-4 + permanent-magnet synchronous AC motors, CVT, FWD", unit: "MPG", v: [55, 54, 53] },
+        { name: "Chevrolet Volt", note: "149-hp* 1.5L inline-4 + permanent-magnet synchronous AC motors, CVT, FWD", unit: "MPG", v: [43, 42, 42] },
+        { name: "Ford C-Max Energi", note: "188-hp* 2.0L inline-4 + permanent-magnet synchronous AC motors, CVT, FWD", unit: "MPG", v: [41, 39, 38] },
+    ];
+    const kinds = ["CITY", "COMBINED", "HIGHWAY"];
+    const shade = [1, 0.62, 0.34];
+    const PUBLISHED_BASELINE = -68.6;
+
+    const params = new URLSearchParams(location.search);
+    const step = +params.get("step") || 0;
+
+    const W = 840, H = 1000;
+    const svg = svgRoot(step === 2 ? W * 2 + 40 : W, H);
+
+    // One panel: bars start at `base`; ticks are the labelled values; `zero` draws the true-zero rule.
+    function panel(g, { base, ticks, zero, title }) {
+        const left = 20, right = 800, top = 96, bottom = 940;
+        const x = d3.scaleLinear().domain([base, 130]).range([left, right]);
+        g.selectAll("*").remove();
+        g.append("text").attr("x", left).attr("y", 36).style("font-family", serif).style("font-size", "30px").style("fill", ink).text(title);
+        const grid = g.append("g");
+        ticks.forEach((t) => grid.append("line").attr("x1", x(t)).attr("x2", x(t)).attr("y1", top).attr("y2", bottom)
+            .style("stroke", muted).style("stroke-dasharray", "2 4").style("stroke-opacity", 0.55));
+        for (const y of [78, bottom + 30]) {
+            ticks.forEach((t) => g.append("text").attr("x", x(t)).attr("y", y).attr("text-anchor", "middle")
+                .style("font-family", serif).style("font-size", "24px").style("font-style", "italic").style("fill", muted).text(t));
+        }
+        const blockH = (bottom - top) / cars.length;
+        cars.forEach((car, ci) => {
+            const y0 = top + ci * blockH;
+            const hue = car.hue || ink;
+            g.append("text").attr("x", left).attr("y", y0 + 36).style("font-family", serif).style("font-size", "30px")
+                .style("font-weight", 600).style("fill", hue).text(car.name);
+            g.append("text").attr("x", left).attr("y", y0 + 64).style("font-family", serif).style("font-size", "17px")
+                .style("fill", muted).text(car.note);
+            car.v.forEach((v, i) => {
+                const by = y0 + 80 + i * 28, bh = 25;
+                g.append("rect").attr("x", left).attr("y", by).attr("width", right - left).attr("height", bh)
+                    .style("fill", hairline).style("fill-opacity", 0.35);
+                g.append("rect").attr("x", left).attr("y", by).attr("width", x(v) - left).attr("height", bh)
+                    .style("fill", hue).style("fill-opacity", shade[i]);
+                g.append("text").attr("x", left + 8).attr("y", by + 18).style("font-family", serif).style("font-size", "16px")
+                    .style("letter-spacing", "0.06em").style("fill", "#fff").text(`${kinds[i]} (${car.unit})`);
+                g.append("text").attr("x", x(v) - 8).attr("y", by + 18).attr("text-anchor", "end").style("font-family", serif)
+                    .style("font-size", "19px").style("font-weight", 600).style("fill", "#fff").text(v);
+            });
+        });
+        if (zero && base < 0) {
+            g.append("line").attr("x1", x(0)).attr("x2", x(0)).attr("y1", top - 10).attr("y2", bottom + 10)
+                .style("stroke", orange).style("stroke-width", 5);
+            for (const y of [66, bottom + 50])
+                g.append("text").attr("x", x(0)).attr("y", y).attr("text-anchor", "middle").style("font-family", serif)
+                    .style("font-size", "34px").style("font-style", "italic").style("fill", orange).text("0");
+        }
+    }
+
+    const left = svg.append("g"), right = svg.append("g").attr("transform", `translate(${W + 40},0)`);
+    if (step === 2) {
+        panel(left, { base: 0, ticks: [0, 50, 100], zero: false, title: "Bars start at zero" });
+        panel(right, { base: PUBLISHED_BASELINE, ticks: [30, 80, 130], zero: true, title: "EPA Ratings" });
+    } else {
+        panel(left, { base: PUBLISHED_BASELINE, ticks: [30, 80, 130], zero: step === 1, title: "EPA Ratings" });
+    }
+    fig.append(svg.node());
+
+</script>

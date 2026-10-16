@@ -31,7 +31,7 @@
 }
 
 :root {
-  --slide-background: #faf9f6;
+  --slide-background: #ffffff;
   --slide-ink: #282722;
   --slide-muted: #817d72;
   --slide-rule: #d8d5ca;
@@ -659,7 +659,6 @@ svg {
 
 .reveal .text-lead { max-width: 31em; line-height: 1.2; }
 .reveal .text-accent { font-style: italic; }
-.reveal .text-center { text-align: center; }
 
 /* font-size and color live here instead of on the plain `.reveal .text-X` rules above: those
    are two classes (0,2,0), while the base paragraph rule they need to beat —
@@ -700,16 +699,39 @@ svg {
   text-align: left;
 }
 
+/* Horizontal alignment controls. `[left]`, `[right]` and `[hcenter]` (`[center]` is the older spelling of
+   `[hcenter]`) override whatever alignment a treatment or container would otherwise give a paragraph,
+   `[big]`'s centering and a colorbox's forced left alignment included. They repeat the treatment rules'
+   own selector prefix so they outrank `.text-big` (0,3,0), and the colorbox variants outrank the
+   colorbox's `:is(p, li, ...)` rule (0,3,1) by adding the `:is()` argument's class. */
+.reveal .slide-content .text-left,
+.reveal .slide-column .text-left { text-align: left; }
+.reveal .slide-content .text-right,
+.reveal .slide-column .text-right { text-align: right; }
+.reveal .slide-content .text-hcenter,
+.reveal .slide-column .text-hcenter,
+.reveal .slide-content .text-center,
+.reveal .slide-column .text-center { text-align: center; }
+
+.reveal .slide-content .colorbox :is(.text-left, .colorbox-label.text-left),
+.reveal .slide-column .colorbox :is(.text-left, .colorbox-label.text-left) { text-align: left; }
+.reveal .slide-content .colorbox .text-right,
+.reveal .slide-column .colorbox .text-right { text-align: right; }
+.reveal .slide-content .colorbox :is(.text-hcenter, .text-center),
+.reveal .slide-column .colorbox :is(.text-hcenter, .text-center) { text-align: center; }
+
 /* `[vcenter]` marks a paragraph whose *container* should center its content vertically rather
-   than sitting at the top — the paragraph itself just carries the flag. If it was only that
+   than sitting at the top — the paragraph itself just carries the flag. `[big]` paragraphs and
+   colorboxes are vertically centered by default, so a container holding either one gets the same
+   treatment without needing the flag. If it was only that
    flag with no other text, replaceTextTreatments leaves an empty <p> behind so :has() below
    still has something to find; :empty here keeps that marker from taking up a phantom line
    of space. */
 .reveal .slide-content p:empty,
 .reveal .slide-column p:empty { display: none; }
 
-.reveal .slide-content:has(> .text-vcenter),
-.reveal .slide-column:has(> .text-vcenter) {
+.reveal .slide-content:has(> :is(.text-vcenter, .text-big, .colorbox)),
+.reveal .slide-column:has(> :is(.text-vcenter, .text-big, .colorbox)) {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -718,10 +740,10 @@ svg {
 /* justify-content: center centers the flex children's margin boxes, not their border boxes —
    a paragraph's own trailing margin (from the base `.slide-content p` rule) would otherwise
    count as content and visibly push the centered text above true center. */
-.reveal .slide-content:has(> .text-vcenter) > :first-child,
-.reveal .slide-column:has(> .text-vcenter) > :first-child { margin-top: 0; }
-.reveal .slide-content:has(> .text-vcenter) > :last-child,
-.reveal .slide-column:has(> .text-vcenter) > :last-child { margin-bottom: 0; }
+.reveal .slide-content:has(> :is(.text-vcenter, .text-big, .colorbox)) > :first-child,
+.reveal .slide-column:has(> :is(.text-vcenter, .text-big, .colorbox)) > :first-child { margin-top: 0; }
+.reveal .slide-content:has(> :is(.text-vcenter, .text-big, .colorbox)) > :last-child,
+.reveal .slide-column:has(> :is(.text-vcenter, .text-big, .colorbox)) > :last-child { margin-bottom: 0; }
 
 /* The diagram itself is an <svg class="simple-diagram">; see deck-builder.js for the node/edge
    language that builds it. It carries its own viewBox, so it only needs to fill its slot. */
@@ -815,7 +837,7 @@ svg {
   width: fit-content;
   max-width: 84%;
   padding: 0.28em 0.48em;
-  background: rgb(251 250 243 / 88%);
+  background: rgb(255 255 255 / 88%);
 }
 
 .reveal .progress { height: 2px; color: var(--slide-accent); }
@@ -829,3 +851,35 @@ svg {
   .slide-footer-note { display: none; }
   .colorbox-margin { max-width: 100%; }
 }
+
+/* `.formula` — a display equation set in the deck's own serif instead of an image of one. A fraction is
+   a `.frac` holding a numerator and a denominator <span>, stacked with a rule between them; `.sqrt`
+   draws the overbar of a radicand. Variables are italic by default, as in the Computer Modern set the
+   reference decks used. */
+.reveal .formula {
+  margin: 0.4em 0;
+  font-size: 2.6em;
+  font-style: italic;
+  line-height: 1.25;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.reveal .formula .frac {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: middle;
+  margin: 0 0.15em;
+}
+
+.reveal .formula .frac > span:first-child {
+  padding: 0 0.2em 0.05em;
+  border-bottom: 0.05em solid currentColor;
+}
+
+.reveal .formula .frac > span:last-child { padding: 0.05em 0.2em 0; }
+
+.reveal .formula .sqrt { white-space: nowrap; }
+.reveal .formula .sqrt > span { padding: 0 0.1em; border-top: 0.05em solid currentColor; }
+.reveal .formula sub { font-size: 0.6em; line-height: 0; }

@@ -1,0 +1,56 @@
+<!doctype html>
+<link rel="stylesheet" href="../composition/lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    // A plain image with the original slide's annotations (circles, rules, an overlaid logo) redrawn
+    // on top in the theme's orange, instead of baked into the picture. `box` is the picture's extent
+    // in the original 1920×1080 slide's coordinates, and every shape uses those same coordinates, so
+    // each annotation lands exactly where the original put it. `?scene=…&step=n` picks the build.
+    import { d3, svgRoot, orange } from "../composition/lib/chart.js";
+
+    const circle = (cx, cy, r) => ({ type: "circle", cx, cy, r });
+    const line = (x1, y1, x2, y2) => ({ type: "line", x1, y1, x2, y2 });
+    const image = (href, cx, cy, r) => ({ type: "image", href, x: cx - r, y: cy - r, size: 2 * r });
+
+    const scenes = {
+        unemployment: {
+            href: "../../images/ethical/ann/unemployment.jpg",
+            box: [82, 103, 1838, 1016],
+            pad: [0, 0, 70, 0], // the circle overhangs the picture's right edge, as in the original
+            steps: [[], [line(237, 540, 1754, 540), circle(1786.5, 540, 93.5)]],
+        },
+        ithaca: {
+            href: "../../images/ethical/ann/ithaca.jpg",
+            box: [901, 35, 1763, 1045],
+            steps: [[], [circle(1574, 733.5, 79)], [circle(1574, 733.5, 79), circle(1506, 567, 79)]],
+        },
+        books: {
+            href: "../../images/ethical/ann/books.png",
+            box: [95, 295, 672, 1035],
+            steps: [[], [image("../../images/ethical/ann/chatgpt-logo.png", 537, 501, 155)]],
+        },
+    };
+
+    const params = new URLSearchParams(location.search);
+    const scene = scenes[params.get("scene")];
+    const step = Math.min(+params.get("step") || 0, scene.steps.length - 1);
+    const [x0, y0, x1, y1] = scene.box;
+    const width = x1 - x0, height = y1 - y0;
+    const [pl, pt, pr, pb] = scene.pad ?? [0, 0, 0, 0];
+
+    const svg = svgRoot(width + pl + pr, height + pt + pb)
+        .attr("viewBox", [x0 - pl, y0 - pt, width + pl + pr, height + pt + pb]);
+    svg.append("image").attr("href", scene.href).attr("x", x0).attr("y", y0)
+        .attr("width", width).attr("height", height).attr("preserveAspectRatio", "none");
+
+    const marks = svg.append("g").style("fill", "none").style("stroke", orange)
+        .style("stroke-width", 14).style("stroke-linecap", "round");
+    for (const s of scene.steps[step]) {
+        if (s.type === "circle") marks.append("circle").attr("cx", s.cx).attr("cy", s.cy).attr("r", s.r);
+        else if (s.type === "line") marks.append("line").attr("x1", s.x1).attr("y1", s.y1).attr("x2", s.x2).attr("y2", s.y2);
+        else if (s.type === "image")
+            svg.append("image").attr("href", s.href).attr("x", s.x).attr("y", s.y)
+                .attr("width", s.size).attr("height", s.size);
+    }
+    fig.append(svg.node());
+</script>

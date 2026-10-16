@@ -54,7 +54,7 @@ body {
   fill: none;
   stroke: var(
     --chart-axis-color,
-    color-mix(in srgb, var(--slide-muted, #817d72) 50%, var(--slide-background, #fbfaf3) 50%)
+    color-mix(in srgb, var(--slide-muted, #817d72) 50%, var(--slide-background, #ffffff) 50%)
   );
   stroke-width: 3px;
   stroke-opacity: 1;

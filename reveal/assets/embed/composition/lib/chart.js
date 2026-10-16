@@ -12,9 +12,9 @@ export const muted = "var(--slide-muted, #817d72)";
 // wants, distinct from text or data. `.chart-frame` in lib/figure.css computes this same mix as
 // its own default; this export exists for the rarer case of overriding one side of a frame in JS
 // (see chartFrame's `sideColors`) and needing to fall back to it explicitly.
-export const mutedLight = "color-mix(in srgb, var(--slide-muted, #817d72) 50%, var(--slide-background, #fbfaf3) 50%)";
+export const mutedLight = "color-mix(in srgb, var(--slide-muted, #817d72) 50%, var(--slide-background, #ffffff) 50%)";
 export const hairline = "var(--slide-rule, #d8d5ca)";
-export const paper = "var(--slide-background, #fbfaf3)";
+export const paper = "var(--slide-background, #ffffff)";
 export const serif = "var(--slide-serif, 'EB Garamond', Garamond, Georgia, serif)";
 
 export const blue = "var(--slide-blue, #345a94)";

@@ -73,7 +73,9 @@ The compiler applies these conventions:
 | `![figure scrollable](https://…)` | Scrollable embedded page |
 | `![background no-scroll](https://…)` | Non-scrolling background page |
 | `[Button](action:buttonId)` | Button with the specified DOM ID |
-| `[lead]`, `[muted]`, `[accent]`, `[small]`, `[center]`, `[big]` | Paragraph text treatments |
+| `[lead]`, `[muted]`, `[accent]`, `[small]`, `[big]` | Paragraph text treatments. `[big]` paragraphs and colorboxes are vertically centered in their column by default |
+| `[left]`, `[right]`, `[hcenter]` | Horizontal alignment override for a paragraph (`[center]` is the older spelling of `[hcenter]`). `[big]` defaults to centered and text in a colorbox to left; these override either |
+| `[vcenter]` | Vertically center a column holding other content (implied by `[big]` and colorboxes) |
 | `> [!green-box]`, `> [!gold-box]`, `> [!note]` | Tufte-style colorboxes |
 | Standard `![Caption](/images/my-talk/figure.png "Source")` | Static figure with caption (inlined and auto-animated if it's an `.svg`) |
 | A fenced `diagram` block | Node/edge diagram, rendered to SVG |
@@ -89,6 +91,8 @@ gets `{{ site.baseurl }}/reveal/assets` prepended automatically by
 `_layouts/deck.html` at build time, so a deck never has to spell out either
 one and stays correct on the deployed GitHub Pages project site. An absolute
 (`http(s)://`) reference is left untouched.
+
+Auto-Animate only runs when a persistent (matched) element moves or resizes between two slides; if everything that carries over stays put at the same size, the slides cut instantly. The slide background is plain white (`--slide-background`).
 
 For Auto-Animate details and deck front-matter options (`course`, `design`,
 `reveal`), see the source repo this was ported from. The diagram language and
