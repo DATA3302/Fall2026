@@ -1,0 +1,51 @@
+<!doctype html>
+<link rel="stylesheet" href="../composition/lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    // Uncertainty as a modifier of an existing channel. Each cell has a value (shown by color) and an
+    // uncertainty about it. `?channel=fuzziness` blurs a cell in proportion to its uncertainty; `?channel=size`
+    // shrinks it. Hover a cell to read its value and uncertainty (add `&controls` for a slider that scales how
+    // much uncertainty is shown). Values are synthetic (a fixed pseudo-random grid) — the point is the encoding.
+    import { d3, svgRoot, serif, ink, muted } from "../composition/lib/chart.js";
+
+    const channel = new URLSearchParams(location.search).get("channel") || "fuzziness";
+    const N = 5, cell = 120, W = N * cell, H = N * cell;
+    const rand = d3.randomLcg(7);
+    const cells = d3.cross(d3.range(N), d3.range(N)).map(([r, c]) => ({ r, c, v: rand(), u: rand() }));
+    const color = d3.scaleSequential(d3.interpolateBlues).domain([-0.15, 1.1]);
+
+    const svg = svgRoot(W, H);
+    const defs = svg.append("defs");
+    const g = svg.append("g");
+    const tip = svg.append("text").attr("x", W / 2).attr("y", H - 6).attr("text-anchor", "middle").style("font-family", serif)
+        .style("font-size", "20px").style("fill", ink).style("opacity", 0);
+
+    let scale = 1;
+    function draw() {
+        defs.selectAll("*").remove();
+        g.selectAll("*").remove();
+        cells.forEach((d, i) => {
+            const u = d.u * scale;
+            if (channel === "fuzziness") {
+                defs.append("filter").attr("id", `b${i}`).attr("x", "-40%").attr("y", "-40%").attr("width", "180%").attr("height", "180%")
+                    .append("feGaussianBlur").attr("stdDeviation", u * 18);
+                g.append("rect").attr("x", d.c * cell + 8).attr("y", d.r * cell + 8).attr("width", cell - 16).attr("height", cell - 16)
+                    .attr("rx", 14 * (1 - u)).style("fill", color(d.v)).attr("filter", `url(#b${i})`).datum(d);
+            } else {
+                const s = (cell - 16) * (1 - 0.92 * u);
+                g.append("rect").attr("x", d.c * cell + (cell - s) / 2).attr("y", d.r * cell + (cell - s) / 2).attr("width", s).attr("height", s)
+                    .style("fill", color(d.v)).datum(d);
+            }
+        });
+        g.selectAll("rect").on("mouseenter", (e, d) => tip.style("opacity", 1).text(`value ${d.v.toFixed(2)}, uncertainty ${d.u.toFixed(2)}`))
+            .on("mouseleave", () => tip.style("opacity", 0));
+    }
+    draw();
+    if (new URLSearchParams(location.search).has("controls")) {
+        const box = d3.select(fig).append("div").attr("class", "fig-controls");
+        box.append("label").attr("for", "sc").text("Uncertainty shown");
+        box.append("input").attr("id", "sc").attr("type", "range").attr("min", 0).attr("max", 1).attr("step", 0.01).attr("value", 1)
+            .on("input", function () { scale = +this.value; draw(); });
+    }
+    fig.append(svg.node());
+</script>

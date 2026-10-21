@@ -1,0 +1,62 @@
+<!doctype html>
+<link rel="stylesheet" href="../composition/lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    // "Are the differences reliable?" Two bars with error bars; whether a difference is believable depends on
+    // the error bars, not on the bars. `?step=0` is the single comparison (with sliders for the treatment
+    // mean and the error-bar size), `?step=1` redraws it in washed-out bars with red error bars, `?step=2`
+    // is four comparisons, and `?step=3` labels them Reliable / Unreliable.
+    import { d3, svgRoot, ink, muted, blue, orange, red, serif } from "../composition/lib/chart.js";
+
+    const step = +new URLSearchParams(location.search).get("step") || 0;
+    const text = (g, s, x, y, o = {}) => g.append("text").attr("x", x).attr("y", y).attr("text-anchor", o.anchor ?? "middle")
+        .style("font-family", serif).style("font-size", `${o.size ?? 30}px`).style("fill", o.fill ?? ink)
+        .style("font-weight", o.weight ?? 400).text(s);
+
+    // One comparison drawn into `g` within a w × h box; errors are half-widths of the interval.
+    function compare(g, w, h, c, t, { light = false, label = null } = {}) {
+        g.selectAll("*").remove();
+        const left = 50, bottom = h - 60, top = 20;
+        const y = d3.scaleLinear().domain([0, 10]).range([bottom, top]);
+        const bx = [w * 0.28, w * 0.7], bwid = w * 0.18;
+        [[c, blue, "Control"], [t, orange, "Treatment"]].forEach(([d, col, name], i) => {
+            g.append("rect").attr("x", bx[i] - bwid / 2).attr("width", bwid).attr("y", y(d.m)).attr("height", y(0) - y(d.m)).style("fill", col)
+                .style("fill-opacity", light ? 0.45 : 1);
+            const stroke = light ? red : ink;
+            g.append("line").attr("x1", bx[i]).attr("x2", bx[i]).attr("y1", y(Math.min(10, d.m + d.e))).attr("y2", y(d.m - d.e)).style("stroke", stroke).style("stroke-width", 4);
+            for (const v of [d.m + d.e, d.m - d.e]) g.append("line").attr("x1", bx[i] - bwid * 0.22).attr("x2", bx[i] + bwid * 0.22).attr("y1", y(Math.min(10, v))).attr("y2", y(Math.min(10, v)))
+                .style("stroke", stroke).style("stroke-width", 4);
+            text(g, name, bx[i], bottom + 38, { size: 28 });
+        });
+        g.append("path").attr("d", `M${left},${top} V${bottom} H${w - 20}`).style("fill", "none").style("stroke", ink).style("stroke-width", 3);
+        if (label) text(g, label, w * 0.5, top + 34, { size: 34, weight: 600, fill: red });
+    }
+
+    if (step <= 1) {
+        const state = { c: { m: 8.2, e: 1.2 }, t: { m: 6.4, e: 2.3 } };
+        const svg = svgRoot(700, 760);
+        const g = svg.append("g");
+        const redraw = () => compare(g, 700, 760, state.c, state.t, { light: step === 1 });
+        redraw();
+        const box = d3.select(fig).append("div").attr("class", "fig-controls");
+        box.append("label").attr("for", "tm").text("Treatment mean");
+        box.append("input").attr("id", "tm").attr("type", "range").attr("min", 1).attr("max", 9).attr("step", 0.1).attr("value", state.t.m)
+            .on("input", function () { state.t.m = +this.value; redraw(); });
+        box.append("br");
+        box.append("label").attr("for", "er").text("Error bar size");
+        box.append("input").attr("id", "er").attr("type", "range").attr("min", 0.1).attr("max", 3).attr("step", 0.05).attr("value", 1.7)
+            .on("input", function () { const k = +this.value / 1.7; state.c.e = 1.2 * k; state.t.e = 2.3 * k; redraw(); });
+        fig.append(svg.node());
+    } else {
+        const cells = [
+            [{ m: 8.7, e: 0.3 }, { m: 3.2, e: 0.5 }, "Reliable"], [{ m: 8.9, e: 2.4 }, { m: 3.8, e: 2.0 }, "Reliable"],
+            [{ m: 5.4, e: 1.9 }, { m: 4.6, e: 1.8 }, "Unreliable"], [{ m: 6.1, e: 0.15 }, { m: 5.8, e: 0.15 }, "Unreliable"],
+        ];
+        const svg = svgRoot(1500, 820);
+        cells.forEach(([c, t, lab], i) => {
+            const g = svg.append("g").attr("transform", `translate(${(i % 2) * 760},${Math.floor(i / 2) * 410})`);
+            compare(g, 700, 400, c, t, { label: step === 3 ? lab : null });
+        });
+        fig.append(svg.node());
+    }
+</script>

@@ -1,0 +1,43 @@
+<!doctype html>
+<link rel="stylesheet" href="../composition/lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    // The sample approach: show the individual observations, not a summary. Movies' IMDB ratings by genre are
+    // dots, spread vertically by random jitter so overlapping values stay visible — normally distributed jitter
+    // on the left, uniformly distributed jitter on the right. The slider sets the jitter width and Resample
+    // draws fresh jitter, showing that the vertical position carries no information.
+    // Data: vega-datasets movies.
+    import { d3, svgRoot, drawAxis, chartFrame, axisTitle, serif, ink, muted } from "../composition/lib/chart.js";
+
+    const movies = (await d3.json("data/movies.json")).filter((d) => d.imdb != null && d.genre);
+    const genres = [...new Set(movies.map((d) => d.genre))].sort(d3.ascending);
+    const color = d3.scaleOrdinal(genres, d3.schemeTableau10.concat(["#999"]));
+    const W = 1500, H = 640, m = { left: 190, right: 14, top: 40, bottom: 70 };
+    const svg = svgRoot(W, H);
+    const rand = d3.randomNormal(0, 1);
+    let width = 0.32, noise = movies.map(() => [rand(), Math.random() * 2 - 1]);
+
+    function panel(g, x0, w, mode, title) {
+        g.selectAll("*").remove();
+        const x = d3.scaleLinear().domain([0, 10]).range([x0 + (x0 ? 20 : m.left), x0 + w - m.right]);
+        const y = d3.scalePoint().domain(genres).range([m.top + 20, H - m.bottom - 20]).padding(0.5);
+        const band = y.step() * width;
+        g.append("text").attr("x", (x(0) + x(10)) / 2).attr("y", 24).attr("text-anchor", "middle").style("font-family", serif).style("font-size", "22px").style("font-weight", 600).style("fill", ink).text(title);
+        g.append("g").selectAll("circle").data(movies).join("circle").attr("cx", (d) => x(d.imdb))
+            .attr("cy", (d, i) => y(d.genre) + (mode === 0 ? noise[i][0] * band * 0.5 : noise[i][1] * band)).attr("r", 2.6).style("fill", (d) => color(d.genre)).style("fill-opacity", 0.55);
+        chartFrame(g, x, d3.scaleLinear().range([H - m.bottom, m.top]));
+        drawAxis(g, d3.axisBottom(x).ticks(10), `translate(0,${H - m.bottom})`, { size: 17 });
+        if (!x0) drawAxis(g, d3.axisLeft(y), `translate(${x(0)},0)`, { size: 17 }).select(".domain").remove();
+        axisTitle(g, "IMDB_Rating", { x: (x(0) + x(10)) / 2, y: H - 22, size: 19 });
+    }
+    const a = svg.append("g"), b = svg.append("g");
+    const redraw = () => { panel(a, 0, 780, 0, "Normally distributed jitter"); panel(b, 780, 720, 1, "Uniformly distributed jitter"); };
+    redraw();
+    const box = d3.select(fig).append("div").attr("class", "fig-controls");
+    box.append("label").attr("for", "jw").text("Jitter width");
+    box.append("input").attr("id", "jw").attr("type", "range").attr("min", 0.05).attr("max", 0.9).attr("step", 0.01).attr("value", width)
+        .on("input", function () { width = +this.value; redraw(); });
+    box.append("br");
+    box.append("button").text("Resample").on("click", () => { noise = movies.map(() => [rand(), Math.random() * 2 - 1]); redraw(); });
+    fig.append(svg.node());
+</script>

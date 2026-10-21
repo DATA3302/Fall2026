@@ -1,0 +1,246 @@
+{
+"data": [
+"#ffb000",
+"#fd8500",
+"#e95800",
+"#c93313"
+],
+"error": [
+"#212121",
+"#696969",
+"#b1b1b1",
+"#ececec"
+],
+"bivariate": [
+[
+"#ffb200",
+"#fd8500",
+"#e85800",
+"#c93313"
+],
+[
+"#ffc546",
+"#ffa246",
+"#fa8242",
+"#e26549"
+],
+[
+"#ffd686",
+"#ffbf80",
+"#ffa87c",
+"#f4957f"
+],
+[
+"#ffe9c0",
+"#ffdebd",
+"#ffd1bd",
+"#ffc9be"
+]
+],
+"states": {
+"Alabama": [
+3,
+1
+],
+"Alaska": [
+2,
+3
+],
+"Arizona": [
+2,
+1
+],
+"Colorado": [
+1,
+1
+],
+"Florida": [
+3,
+0
+],
+"Georgia": [
+3,
+1
+],
+"Indiana": [
+2,
+1
+],
+"Kansas": [
+1,
+1
+],
+"Maine": [
+3,
+2
+],
+"Massachusetts": [
+2,
+1
+],
+"Minnesota": [
+1,
+0
+],
+"New Jersey": [
+1,
+1
+],
+"North Carolina": [
+3,
+1
+],
+"North Dakota": [
+1,
+2
+],
+"Oklahoma": [
+3,
+1
+],
+"Pennsylvania": [
+3,
+0
+],
+"South Dakota": [
+1,
+2
+],
+"Texas": [
+2,
+0
+],
+"Wyoming": [
+0,
+3
+],
+"Connecticut": [
+3,
+1
+],
+"Missouri": [
+2,
+1
+],
+"West Virginia": [
+3,
+2
+],
+"Illinois": [
+3,
+0
+],
+"New Mexico": [
+3,
+2
+],
+"Arkansas": [
+2,
+1
+],
+"California": [
+1,
+0
+],
+"Delaware": [
+1,
+3
+],
+"District of Columbia": [
+1,
+3
+],
+"Hawaii": [
+2,
+3
+],
+"Iowa": [
+2,
+1
+],
+"Kentucky": [
+3,
+1
+],
+"Maryland": [
+2,
+1
+],
+"Michigan": [
+3,
+0
+],
+"Mississippi": [
+3,
+1
+],
+"Montana": [
+2,
+3
+],
+"New Hampshire": [
+1,
+2
+],
+"New York": [
+3,
+0
+],
+"Ohio": [
+3,
+0
+],
+"Oregon": [
+3,
+2
+],
+"Tennessee": [
+3,
+1
+],
+"Utah": [
+1,
+1
+],
+"Virginia": [
+1,
+1
+],
+"Washington": [
+2,
+1
+],
+"Wisconsin": [
+2,
+1
+],
+"Nebraska": [
+1,
+2
+],
+"South Carolina": [
+3,
+1
+],
+"Idaho": [
+2,
+3
+],
+"Nevada": [
+3,
+2
+],
+"Vermont": [
+2,
+3
+],
+"Louisiana": [
+3,
+1
+],
+"Rhode Island": [
+3,
+3
+]
+}
+}

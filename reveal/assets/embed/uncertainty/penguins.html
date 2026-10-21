@@ -1,0 +1,65 @@
+<!doctype html>
+<link rel="stylesheet" href="../composition/lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    // "Uncertainty is only as good as your modeling": a regression line with its 95% confidence band can be
+    // tight and still wrong. Pooling all penguins gives a downward trend; fitting each species separately
+    // gives three upward ones (Simpson's paradox). `?step=0` is the pooled fit; `?step=1` shows the pooled and the per-species fits side by side.
+    // Data: Palmer penguins (Horst, Hill & Gorman 2020), via vega-datasets.
+    import { d3, svgRoot, drawAxis, chartFrame, axisTitle, ink, muted, blue, orange, green, serif } from "../composition/lib/chart.js";
+
+    const step = +new URLSearchParams(location.search).get("step") || 0;
+    const raw = (await d3.json("data/penguins.json")).filter((d) => d["Beak Length (mm)"] != null && d["Beak Depth (mm)"] != null)
+        .map((d) => ({ x: d["Beak Length (mm)"], y: d["Beak Depth (mm)"], s: d.Species }));
+    const color = d3.scaleOrdinal(["Adelie", "Chinstrap", "Gentoo"], [blue, orange, green]);
+
+    const T = 1.96;
+    function fit(pts) {
+        const n = pts.length, mx = d3.mean(pts, (p) => p.x), my = d3.mean(pts, (p) => p.y);
+        const sxx = d3.sum(pts, (p) => (p.x - mx) ** 2), b = d3.sum(pts, (p) => (p.x - mx) * (p.y - my)) / sxx, a = my - b * mx;
+        const s = Math.sqrt(d3.sum(pts, (p) => (p.y - a - b * p.x) ** 2) / (n - 2));
+        const t = T + (T ** 3 + T) / (4 * (n - 2));
+        return (x) => { const e = t * s * Math.sqrt(1 / n + (x - mx) ** 2 / sxx); return [a + b * x - e, a + b * x, a + b * x + e]; };
+    }
+
+    function chart(g, x0, w, h, bySpecies, legend) {
+        g.selectAll("*").remove();
+        const m = { left: 74, right: 16, top: 16, bottom: 64 };
+        const x = d3.scaleLinear().domain([30, 62]).range([x0 + m.left, x0 + w - m.right]);
+        const y = d3.scaleLinear().domain([12, 22]).range([h - m.bottom, m.top]);
+        const groups = bySpecies ? [...d3.group(raw, (d) => d.s)] : [[null, raw]];
+        for (const [name, pts] of groups) {
+            const f = fit(pts), xs = d3.extent(pts, (p) => p.x), col = name ? color(name) : blue;
+            g.append("path").attr("d", d3.area().x((v) => x(v)).y0((v) => y(f(v)[0])).y1((v) => y(f(v)[2]))(d3.range(xs[0], xs[1] + 0.01, 0.5)))
+                .style("fill", col).style("fill-opacity", 0.2);
+            g.append("path").attr("d", d3.line().x((v) => x(v)).y((v) => y(f(v)[1]))(xs)).style("fill", "none").style("stroke", col).style("stroke-width", 3);
+        }
+        g.append("g").selectAll("circle").data(raw).join("circle").attr("cx", (d) => x(d.x)).attr("cy", (d) => y(d.y)).attr("r", 4.5)
+            .style("fill", (d) => (bySpecies ? color(d.s) : blue)).style("fill-opacity", 0.85);
+        chartFrame(g, x, y);
+        drawAxis(g, d3.axisBottom(x).ticks(6), `translate(0,${h - m.bottom})`, { size: 18 });
+        drawAxis(g, d3.axisLeft(y).ticks(6), `translate(${x0 + m.left},0)`, { size: 18 });
+        axisTitle(g, "Snoot length (mm)", { x: (x0 + m.left + x0 + w - m.right) / 2, y: h - 18, size: 20 });
+        axisTitle(g, "Snoot depth (mm)", { x: x0 + 24, y: (m.top + h - m.bottom) / 2, rotate: -90, size: 20 });
+        if (legend && bySpecies) {
+            const lg = g.append("g").attr("transform", `translate(${x0 + m.left + 14},${h - m.bottom - 112})`);
+            lg.append("rect").attr("x", -8).attr("y", -10).attr("width", 150).attr("height", 106).style("fill", "var(--slide-background, #fff)").style("fill-opacity", 0.9);
+            lg.append("text").attr("y", 8).style("font-family", serif).style("font-size", "17px").style("fill", ink).text("species");
+            color.domain().forEach((n, i) => {
+                lg.append("circle").attr("cx", 6).attr("cy", 30 + i * 22).attr("r", 5).style("fill", color(n));
+                lg.append("text").attr("x", 20).attr("y", 36 + i * 22).style("font-family", serif).style("font-size", "17px").style("fill", ink).text(n);
+            });
+        }
+    }
+
+    if (step === 0) {
+        const svg = svgRoot(900, 700); const g = svg.append("g");
+        chart(g, 0, 900, 700, false, true);
+        fig.append(svg.node());
+    } else {
+        const svg = svgRoot(1500, 700);
+        chart(svg.append("g"), 0, 740, 700, false, false);
+        chart(svg.append("g"), 760, 740, 700, true, true);
+        fig.append(svg.node());
+    }
+</script>

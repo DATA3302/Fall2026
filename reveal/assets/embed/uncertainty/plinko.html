@@ -1,0 +1,105 @@
+<!doctype html>
+<link rel="stylesheet" href="../interactivity/lib/figure.css" />
+<style>
+    /* the canvas fills the slot below the Replay strip */
+    #fig { align-items: flex-end; }
+    canvas { display: block; width: auto; height: auto; max-width: 100%; max-height: calc(100vh - 8vh); }
+</style>
+<div id="fig"></div>
+<script type="module">
+    // A Galton board / plinko simulation: balls are released one at a time at the top, fall under gravity
+    // (a real rigid-body simulation — Matter.js — not a scripted path), bounce off the pegs, and come to
+    // rest in the lanes at the bottom. No curve is drawn; the heights of the stacks of balls ARE the
+    // distribution. Each ball takes many roughly-independent left/right bounces, so the stacks pile up
+    // into a bell curve even though no single ball's path is predictable. "Replay" empties the lanes
+    // and drops a fresh batch.
+    import Matter from "https://cdn.jsdelivr.net/npm/matter-js@0.19.0/+esm";
+    import { onShow, addButton } from "../interactivity/lib/common.js";
+
+    const { Engine, Bodies, Body, Composite, Sleeping } = Matter;
+    const css = (v, d) => getComputedStyle(document.documentElement).getPropertyValue(v).trim() || d;
+
+    const W = 760, H = 1000;
+    const ROWS = 11, DX = 52, DY = 40, PIN = 4.5, BALL = 9.5, LANES = ROWS + 1;
+    const cx = W / 2, top = 170, laneTop = top + ROWS * DY + 24, floor = H - 20;
+    const N = 160, DROP_MS = 55;
+
+    const canvas = document.createElement("canvas");
+    canvas.width = W; canvas.height = H;
+    document.getElementById("fig").append(canvas);
+    const ctx = canvas.getContext("2d");
+
+    const guides = () => [-1, 1].map((sd) => ({ x0: cx + sd * 46, y0: top - 150, x1: cx + sd * (LANES * DX) / 2, y1: laneTop }));
+    let engine, balls, pins, pending, timer, running;
+
+    function build() {
+        engine = Engine.create({ gravity: { y: 0.7 }, enableSleeping: true });
+        const statics = [];
+        pins = [];
+        for (let r = 0; r < ROWS; r++)
+            for (let k = 0; k <= r; k++) {
+                const x = cx + (k - r / 2) * DX, y = top + r * DY;
+                pins.push({ x, y });
+                statics.push(Bodies.circle(x, y, PIN, { isStatic: true, restitution: 0.2, friction: 0 }));
+            }
+        // lane dividers and outer walls
+        const half = (LANES * DX) / 2;
+        for (let i = 0; i <= LANES; i++) {
+            const x = cx - half + i * DX;
+            statics.push(Bodies.rectangle(x, (laneTop + floor) / 2, 3, floor - laneTop, { isStatic: true, restitution: 0.2 }));
+        }
+        statics.push(Bodies.rectangle(cx, floor + 10, W, 20, { isStatic: true, friction: 0.8 }));
+        // diagonal guides from the release point out to the outer lane walls keep balls inside the board
+        for (const s of guides()) {
+            const mx = (s.x0 + s.x1) / 2, my = (s.y0 + s.y1) / 2, len = Math.hypot(s.x1 - s.x0, s.y1 - s.y0);
+            statics.push(Bodies.rectangle(mx, my, len, 3, { isStatic: true, angle: Math.atan2(s.y1 - s.y0, s.x1 - s.x0), restitution: 0.3, friction: 0 }));
+        }
+        Composite.add(engine.world, statics);
+        balls = [];
+    }
+
+    function release() {
+        const b = Bodies.circle(cx + (Math.random() - 0.5) * 2, top - 55, BALL, { restitution: 0.2, friction: 0.02, frictionAir: 0.05, sleepThreshold: 40 });
+        Body.setVelocity(b, { x: (Math.random() - 0.5) * 0.2, y: 0 });
+        Composite.add(engine.world, b);
+        balls.push(b);
+    }
+
+    window.plinko = { lanes: () => { const c = Array(LANES).fill(0); balls.forEach((b) => { const k = Math.floor((b.position.x - (cx - LANES * DX / 2)) / DX); if (b.position.y > laneTop && k >= 0 && k < LANES) c[k]++; }); return c; } };
+
+    function replay() {
+        clearInterval(timer);
+        build();
+        pending = N;
+        timer = setInterval(() => { if (pending-- > 0) release(); else clearInterval(timer); }, DROP_MS);
+        if (!running) { running = true; requestAnimationFrame(loop); }
+    }
+
+    function draw() {
+        const ink = css("--slide-ink", "#282722"), muted = css("--slide-muted", "#817d72"), blue = css("--slide-blue", "#345a94");
+        const paper = css("--slide-background", "#ffffff");
+        ctx.fillStyle = paper; ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = muted;
+        for (const p of pins) { ctx.beginPath(); ctx.arc(p.x, p.y, PIN, 0, 7); ctx.fill(); }
+        ctx.strokeStyle = muted; ctx.lineWidth = 3; ctx.lineCap = "round";
+        const half = (LANES * DX) / 2;
+        for (let i = 0; i <= LANES; i++) { const x = cx - half + i * DX; ctx.beginPath(); ctx.moveTo(x, laneTop); ctx.lineTo(x, floor); ctx.stroke(); }
+        ctx.beginPath(); ctx.moveTo(cx - half, floor); ctx.lineTo(cx + half, floor); ctx.stroke();
+        for (const s of guides()) { ctx.beginPath(); ctx.moveTo(s.x0, s.y0); ctx.lineTo(s.x1, s.y1); ctx.stroke(); }
+        ctx.fillStyle = blue; ctx.globalAlpha = 0.9;
+        for (const b of balls) { ctx.beginPath(); ctx.arc(b.position.x, b.position.y, BALL, 0, 7); ctx.fill(); }
+        ctx.globalAlpha = 1;
+    }
+
+    let last = 0;
+    function loop(now) {
+        const dt = Math.min(now - last || 16.7, 33); last = now;
+        Engine.update(engine, dt / 2); Engine.update(engine, dt / 2);
+        draw();
+        requestAnimationFrame(loop);
+    }
+
+    addButton("Replay", replay);
+    onShow(replay);
+    replay();
+</script>

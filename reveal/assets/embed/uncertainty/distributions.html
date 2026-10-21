@@ -1,0 +1,117 @@
+<!doctype html>
+<link rel="stylesheet" href="../composition/lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    // Visual-distribution marks: boxes, violins, overlaid histograms, ridgelines and a binned 2-D heatmap, all
+    // showing a spread of values rather than a single summary. `?view=overview` is the four-panel
+    // overview (population by age across years, mileage by region of origin, three overlaid measurement
+    // histograms, and IMDB against Rotten Tomatoes ratings); `?view=trio` is histograms, violins and a ridgeline
+    // of Seattle's daily high temperatures by month. The measurement trials are synthetic (seeded normals);
+    // the rest is vega-datasets: population, cars, movies and seattle-weather.
+    import { d3, svgRoot, drawAxis, chartFrame, axisTitle, ink, muted, blue, orange, magenta, serif } from "../composition/lib/chart.js";
+
+    const view = new URLSearchParams(location.search).get("view") || "overview";
+    const cars = (await d3.json("data/cars.json")).filter((d) => d.Miles_per_Gallon != null);
+    const movies = (await d3.json("data/movies.json")).filter((d) => d.imdb != null && d.rt != null);
+    const pop = await d3.json("../composition/data/population.json");
+    const weather = await d3.csv("../composition/data/seattle-weather.csv", (d) => ({ m: +d.date.slice(5, 7) - 1, t: +d.temp_max }));
+    const rand = d3.randomNormal.source(d3.randomLcg(11));
+    const trials = [["Trial A", -1.2, 0.8, orange], ["Trial B", 0.2, 0.55, blue], ["Trial C", 3, 1.1, magenta]]
+        .map(([name, mu, sd, color]) => ({ name, color, v: d3.range(400).map(rand(mu, sd)) }));
+    const origins = [["Europe", blue], ["Japan", orange], ["USA", magenta]];
+
+    const label = (g, s, x, y, o = {}) => g.append("text").attr("x", x).attr("y", y).attr("text-anchor", o.anchor ?? "middle")
+        .style("font-family", serif).style("font-size", `${o.size ?? 15}px`).style("fill", o.fill ?? muted).style("font-weight", o.weight ?? 400)
+        .attr("transform", o.rotate ? `rotate(${o.rotate},${x},${y})` : null).text(s);
+    const frame = (g, x, y, x0, y0, w, h, xt, yt, ticksX, ticksY) => {
+        chartFrame(g, x, y);
+        drawAxis(g, ticksX ?? d3.axisBottom(x), `translate(0,${y0 + h})`, { size: 14 });
+        if (ticksY) drawAxis(g, ticksY, `translate(${x0},0)`, { size: 14 });
+        if (xt) axisTitle(g, xt, { x: (x0 + x0 + w) / 2, y: y0 + h + 44, size: 16 });
+        if (yt) axisTitle(g, yt, { x: x0 - 52, y: y0 + h / 2, rotate: -90, size: 16 });
+    };
+
+    function boxes(g, x0, y0, w, h) {
+        const ages = d3.range(0, 91, 5);
+        const x = d3.scaleBand().domain(ages).range([x0, x0 + w]).padding(0.25);
+        const y = d3.scaleLinear().domain([0, 12e6]).range([y0 + h, y0]);
+        for (const a of ages) {
+            const v = pop.filter((d) => d.age === a).map((d) => d.people).sort(d3.ascending);
+            const q1 = d3.quantile(v, 0.25), q2 = d3.quantile(v, 0.5), q3 = d3.quantile(v, 0.75), lo = d3.min(v), hi = d3.max(v), cx = x(a) + x.bandwidth() / 2;
+            g.append("line").attr("x1", cx).attr("x2", cx).attr("y1", y(lo)).attr("y2", y(hi)).style("stroke", blue);
+            g.append("rect").attr("x", x(a)).attr("width", x.bandwidth()).attr("y", y(q3)).attr("height", y(q1) - y(q3)).style("fill", blue);
+            g.append("line").attr("x1", x(a)).attr("x2", x(a) + x.bandwidth()).attr("y1", y(q2)).attr("y2", y(q2)).style("stroke", "#fff").style("stroke-width", 2);
+        }
+        frame(g, x, y, x0, y0, w, h, "age", "people", d3.axisBottom(x).tickValues(ages.filter((_, i) => i % 2 === 0)), d3.axisLeft(y).ticks(6).tickFormat(d3.format(".2s")));
+    }
+    function violins(g, x0, y0, w, h) {
+        const x = d3.scaleBand().domain(origins.map((d) => d[0])).range([x0, x0 + w]).padding(0.1);
+        const y = d3.scaleLinear().domain([0, 50]).range([y0 + h, y0]);
+        const grid = d3.range(0, 50.1, 0.5);
+        for (const [name, col] of origins) {
+            const v = cars.filter((d) => d.Origin === name).map((d) => d.Miles_per_Gallon), bw = 2.2;
+            const f = (t) => d3.mean(v, (p) => Math.exp(-0.5 * ((t - p) / bw) ** 2) / (bw * Math.sqrt(2 * Math.PI)));
+            const k = x.bandwidth() / 2 / d3.max(grid, f), cx = x(name) + x.bandwidth() / 2;
+            g.append("path").attr("d", d3.area().x0((t) => cx - f(t) * k).x1((t) => cx + f(t) * k).y((t) => y(t))(grid)).style("fill", col);
+        }
+        frame(g, x, y, x0, y0, w, h, "Origin", "Miles_per_Gallon", d3.axisBottom(x), d3.axisLeft(y).ticks(6));
+    }
+    function histograms(g, x0, y0, w, h) {
+        const x = d3.scaleLinear().domain([-4, 8]).range([x0, x0 + w]);
+        const bins = d3.bin().domain([-4, 8]).thresholds(d3.range(-4, 8.01, 0.2));
+        const data = trials.map((t) => ({ ...t, b: bins(t.v) }));
+        const y = d3.scaleLinear().domain([0, d3.max(data, (t) => d3.max(t.b, (b) => b.length))]).nice().range([y0 + h, y0]);
+        for (const t of data)
+            g.append("g").selectAll("rect").data(t.b).join("rect").attr("x", (b) => x(b.x0)).attr("width", (b) => Math.max(1, x(b.x1) - x(b.x0) - 1))
+                .attr("y", (b) => y(b.length)).attr("height", (b) => y(0) - y(b.length)).style("fill", t.color).style("fill-opacity", 0.55);
+        frame(g, x, y, x0, y0, w, h, "Measurement (binned)", "Count of Records", d3.axisBottom(x).ticks(8), d3.axisLeft(y).ticks(5));
+        data.forEach((t, i) => { g.append("rect").attr("x", x0 + w - 110).attr("y", y0 + 8 + i * 20).attr("width", 12).attr("height", 12).style("fill", t.color).style("fill-opacity", 0.7);
+            label(g, t.name, x0 + w - 92, y0 + 19 + i * 20, { anchor: "start", fill: ink }); });
+    }
+    function heatmap(g, x0, y0, w, h) {
+        const x = d3.scaleLinear().domain([1, 10]).range([x0, x0 + w]), y = d3.scaleLinear().domain([0, 100]).range([y0 + h, y0]);
+        const nx = 36, ny = 36, cell = new Map();
+        for (const d of movies) { const i = Math.min(nx - 1, Math.floor((d.imdb - 1) / 9 * nx)), j = Math.min(ny - 1, Math.floor(d.rt / 100 * ny)); const k = i * 100 + j; cell.set(k, (cell.get(k) || 0) + 1); }
+        const color = d3.scaleSequential(d3.interpolateGnBu).domain([0, d3.max(cell.values())]);
+        for (const [k, n] of cell) { const i = Math.floor(k / 100), j = k % 100;
+            g.append("rect").attr("x", x(1 + i * 9 / nx)).attr("y", y((j + 1) * 100 / ny)).attr("width", w / nx + 0.5).attr("height", h / ny + 0.5).style("fill", color(n)); }
+        frame(g, x, y, x0, y0, w, h, "IMDB Rating", "Rotten Tomatoes Rating", d3.axisBottom(x).ticks(9), d3.axisLeft(y).ticks(5));
+    }
+    function ridgeline(g, x0, y0, w, h) {
+        const months = d3.range(12), names = d3.timeFormat("%B");
+        const x = d3.scaleLinear().domain([-5, 40]).range([x0, x0 + w]), grid = d3.range(-5, 40.1, 0.5);
+        // Each ridge may rise OVERLAP rows above its baseline. The first baseline sits OVERLAP rows below the
+        // top of the frame, so the tallest peak ends exactly at the frame's edge and the whole view fits inside it.
+        const OVERLAP = 2.2, step = h / (months.length - 1 + OVERLAP);
+        const kde = (v, bw = 1.6) => (t) => d3.mean(v, (p) => Math.exp(-0.5 * ((t - p) / bw) ** 2) / (bw * Math.sqrt(2 * Math.PI)));
+        const dens = months.map((m) => kde(weather.filter((d) => d.m === m).map((d) => d.t)));
+        const ymax = d3.max(dens, (f) => d3.max(grid, f));
+        const color = d3.scaleSequential(d3.interpolateRdYlBu).domain([0, 11]);
+        // Cold months blue, hot months red (the score below is distance from midsummer, so summer is 0).
+        // Drawn top to bottom, so each lower ridge fully covers whatever of the one behind it it overlaps.
+        months.forEach((m) => {
+            const base = y0 + step * (OVERLAP + m), f = dens[m];
+            g.append("path").attr("d", d3.area().x((t) => x(t)).y0(base).y1((t) => base - (f(t) / ymax) * step * OVERLAP)(grid))
+                .style("fill", color(Math.abs(m - 5.5) * 2 - 0.5)).style("fill-opacity", 1).style("stroke", "#fff").style("stroke-width", 1);
+            label(g, names(new Date(2012, m, 1)), x0 - 8, base - 3, { anchor: "end", size: 14 });
+        });
+        chartFrame(g, x, d3.scaleLinear().range([y0 + h, y0]));
+        drawAxis(g, d3.axisBottom(x).ticks(9), `translate(0,${y0 + h})`, { size: 14 });
+        axisTitle(g, "Maximum Daily Temperature (C)", { x: x0 + w / 2, y: y0 + h + 44, size: 16 });
+    }
+
+    if (view === "trio") {
+        const svg = svgRoot(1600, 620);
+        histograms(svg.append("g"), 90, 30, 480, 450);
+        violins(svg.append("g"), 700, 30, 330, 450);
+        ridgeline(svg.append("g"), 1180, 30, 380, 450);
+        fig.append(svg.node());
+    } else {
+        const svg = svgRoot(1500, 940);
+        boxes(svg.append("g"), 110, 20, 590, 340);
+        violins(svg.append("g"), 880, 20, 560, 340);
+        histograms(svg.append("g"), 110, 520, 590, 340);
+        heatmap(svg.append("g"), 880, 520, 560, 340);
+        fig.append(svg.node());
+    }
+</script>

@@ -201,11 +201,14 @@ window.DeckBuilder = (() => {
   function replaceStaticFigures(section) {
     section.querySelectorAll("img").forEach((image) => {
       image.src = image.dataset.src;
-      const wrapper = image.parentElement;
-      const replaceTarget = wrapper?.tagName === "P" && wrapper.children.length === 1 ? wrapper : image;
+      // A linked image (`[![alt](src)](url)`) keeps its <a>: the whole link moves into the figure.
+      const unit = image.parentElement?.tagName === "A" && image.parentElement.children.length === 1 ? image.parentElement : image;
+      if (unit !== image) { unit.target = "_blank"; unit.rel = "noopener"; }
+      const wrapper = unit.parentElement;
+      const replaceTarget = wrapper?.tagName === "P" && wrapper.children.length === 1 ? wrapper : unit;
       const figure = document.createElement("figure");
       figure.className = "media-figure static-figure";
-      figure.append(image);
+      figure.append(unit);
       if (image.alt || image.title) {
         const caption = document.createElement("figcaption");
         caption.textContent = [image.alt, image.title].filter(Boolean).join(" — ");

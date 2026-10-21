@@ -1,0 +1,144 @@
+<!doctype html>
+<link rel="stylesheet" href="../composition/lib/figure.css" />
+<style>
+    :root { --serif: var(--slide-serif, "EB Garamond", Garamond, Georgia, serif); }
+    html, body { height: 100%; }
+    #wrap { box-sizing: border-box; height: 100vh; padding: 1.2vh 1.6vw 0.8vh; display: flex; flex-direction: column; justify-content: center; gap: 0.6vh;
+            font-family: var(--serif); color: var(--slide-ink, #282722); }
+    #controls { display: flex; align-items: baseline; justify-content: center; flex-wrap: wrap; gap: 0.5em; font-size: 3.4vh; position: relative; }
+    #controls select { font: inherit; color: inherit; background: var(--slide-background, #fff); border: 0; border-bottom: 2px solid currentColor; border-radius: 0; padding: 0 0.15em; cursor: pointer; }
+    #controls input[type=range] { width: 17vw; accent-color: var(--slide-accent, #176b52); align-self: center; }
+    #controls output { min-width: 1.7em; text-align: center; border-bottom: 2px solid currentColor; }
+    #speed { position: absolute; right: 0; top: 0; display: flex; font-size: 0.55em; }
+    #speed button { font: inherit; color: inherit; background: transparent; border: 1.5px solid var(--slide-muted, #817d72); padding: 0.05em 0.8em; cursor: pointer; }
+    #speed button:first-child { border-radius: 6px 0 0 6px; } #speed button:last-child { border-radius: 0 6px 6px 0; border-left: 0; }
+    #speed button.current { background: var(--slide-ink, #282722); color: var(--slide-background, #fff); }
+    #chart { flex: 0 1 auto; min-height: 0; } #chart svg { width: 100%; height: auto; max-height: 100%; display: block; }
+    #counters { display: grid; grid-template-columns: repeat(6, 1fr); text-align: center; }
+    #counters h2 { grid-column: 1 / -1; margin: 0 0 0.2vh; font-size: 2.6vh; font-weight: 400; font-style: italic; color: var(--slide-ink, #282722); }
+    .countbin { border-left: 1px solid var(--slide-rule, #d8d5ca); padding: 0.2vh 0; } .countbin:last-child { border-right: 1px solid var(--slide-rule, #d8d5ca); }
+    .countbin h3 { margin: 0; font-size: 2.1vh; font-weight: 400; font-style: italic; color: var(--slide-muted, #817d72); }
+    .pct { font-size: 3.6vh; line-height: 1.1; font-variant-numeric: tabular-nums; } .cnt { font-size: 1.9vh; color: var(--slide-muted, #817d72); }
+</style>
+<div id="wrap">
+    <div id="controls">
+        I am <select id="sex"><option value="female">female</option><option value="male">male</option></select>
+        and currently <input id="age" type="range" min="0" max="116" value="27" /> <output id="age-out">27</output> years old.
+        <div id="speed"><button class="current" data-speed="slow">Slow</button><button data-speed="fast">Fast</button></div>
+    </div>
+    <div id="chart"></div>
+    <div id="counters"><h2>Probabilities for Years Left to Live</h2></div>
+</div>
+<script type="module">
+    // "Years You Have Left to Live, Probably" (Nathan Yau, FlowingData, 2015), rebuilt from the original page's source.
+    // The curve is the chance of surviving each next year at a given age and sex (SSA 2011 period life table). A dot
+    // rides the curve one simulated life at a time: each year it either survives or it doesn't, drawn from that year's
+    // death probability, and when it dies it drops to the axis, adds to the strip of death ages and to the tally of
+    // years left, in decades. The tallies converge on the table's own probabilities. Moving the age or sex restarts.
+    import { d3, ink, muted, orange, serif } from "../composition/lib/chart.js";
+
+    const life = (await d3.csv("data/life-table-2011.csv", d3.autoType));
+    const state = { age: 27, sex: "female", ms: 16 };
+    const prob = (a) => life[a][state.sex + "_prob_death"];
+    const survive = (a) => 1 - prob(a);
+
+    // Draw one lifetime: the age at which this simulated person dies, given they have reached `age`.
+    const simOneLife = (age) => { let a = age; while (a < 119 && Math.random() >= prob(a)) a++; return a; };
+
+    const W = 1100, H = 414, m = { top: 38, right: 10, left: 84 };
+    const barsH = 48, barsGap = 58, plotH = H - m.top - barsGap - barsH - 4;
+    const x = d3.scaleLinear().domain([0, 119]).range([0, W - m.left - m.right]);
+    const y = d3.scaleLinear().domain([0, 1]).range([plotH, 0]);
+    const svg = d3.select("#chart").append("svg").attr("viewBox", [0, 0, W, H]).attr("preserveAspectRatio", "xMidYMid meet").style("font-family", serif);
+    const g = svg.append("g").attr("transform", `translate(${m.left},${m.top})`);
+    const txt = (p, s, o = {}) => p.append("text").attr("x", o.x ?? 0).attr("y", o.y ?? 0).attr("text-anchor", o.anchor ?? "start")
+        .style("font-size", `${o.size ?? 17}px`).style("font-style", o.italic === false ? "normal" : "italic").style("fill", o.fill ?? muted).text(s);
+
+    // grid, axes, annotations
+    g.append("g").selectAll("line").data(y.ticks(5)).join("line").attr("x1", 0).attr("x2", x(119)).attr("y1", y).attr("y2", y).style("stroke", muted).style("stroke-opacity", 0.18);
+    y.ticks(5).forEach((t) => txt(g, `${t * 100}%`, { x: -32, y: y(t) + 5, anchor: "end" }));
+    d3.range(0, 120, 10).forEach((t) => txt(g, t, { x: x(t), y: plotH + 22, anchor: "middle" }));
+    txt(g, "Age in years", { x: 0, y: plotH + 48, size: 19 });
+    txt(svg, "Probability of living to next year", { x: 6, y: 22, size: 19 });
+    g.append("rect").attr("class", "frame").attr("width", x(119)).attr("height", plotH).style("fill", "none").style("stroke", muted).style("stroke-opacity", 0.5).style("stroke-width", 2);
+    const highlight = g.append("g");
+    const hiRect = highlight.append("rect").attr("y", 0).attr("height", plotH).style("fill", muted).style("fill-opacity", 0.18);
+    const hiLine = highlight.append("line").attr("y1", 0).attr("y2", plotH).style("stroke", ink).style("stroke-width", 2.5);
+    const hiText = highlight.append("text").style("font-size", "17px").style("fill", ink).style("font-style", "italic").style("font-weight", 500).text("You are here");
+    [[0, "Escape from the womb"], [16, "Driver's license, gimme"], [21, "Beer, gimme"], [67, "Full retirement"], [78.64, "Overall life expectancy"], [119, "Oldest person to die in US"]]
+        .forEach(([a, label]) => {
+            g.append("line").attr("x1", x(a)).attr("x2", x(a)).attr("y1", 0).attr("y2", plotH).style("stroke", muted).style("stroke-opacity", 0.45);
+            g.append("text").attr("transform", `translate(${x(a) - 6},${plotH - 8}) rotate(-90)`).style("font-size", "16px").style("fill", muted).style("font-style", "italic").text(label);
+        });
+    const path = g.append("path").style("fill", "none").style("stroke", orange).style("stroke-width", 4);
+    const line = d3.line().x((d) => x(d.age)).y((d) => y(1 - d[state.sex + "_prob_death"]));
+    const dot = g.append("circle").attr("r", 7).style("fill", ink);
+
+    // strip of death ages
+    const bars = g.append("g").attr("transform", `translate(0,${plotH + barsGap})`);
+    const bx = d3.scaleBand().domain(d3.range(120)).range([0, x(119)]);
+    const by = d3.scaleLinear().range([0, barsH - 8]);
+    let counts, bins, curAge, endAge, carry;
+
+    const countersEl = d3.select("#counters");
+    const labels = ["0 to 9", "10 to 19", "20 to 29", "30 to 39", "40 to 49", "50 or more"];
+    countersEl.selectAll(".countbin").data(labels).join("div").attr("class", "countbin")
+        .html((l) => `<h3>${l}</h3><div class="pct">0%</div><div class="cnt">(0)</div>`);
+
+    function drawBars() {
+        by.domain([0, Math.max(1, d3.max(counts))]);
+        bars.selectAll("rect").data(counts).join("rect").attr("x", (d, i) => bx(i)).attr("width", bx.bandwidth())
+            .attr("y", (d) => barsH - 8 - by(d)).attr("height", (d) => by(d)).style("fill", muted).style("fill-opacity", 0.6);
+    }
+    function drawCounters() {
+        const total = d3.sum(bins);
+        countersEl.selectAll(".countbin").each(function (d, i) {
+            d3.select(this).select(".pct").text(total ? `${Math.round(100 * bins[i] / total)}%` : "0%");
+            d3.select(this).select(".cnt").text(`(${bins[i]})`);
+        });
+    }
+    function placeHighlight() {
+        hiRect.attr("width", x(state.age));
+        hiLine.attr("x1", x(state.age)).attr("x2", x(state.age));
+        hiText.attr("transform", `translate(${x(state.age) - 6},${plotH - 8}) rotate(-90)`);
+        path.attr("d", line(life));
+    }
+    const at = (a) => `translate(${x(life[a].age)},${y(survive(a))})`;
+
+    function restart() {
+        counts = new Array(120).fill(0); bins = new Array(6).fill(0);
+        drawBars(); drawCounters(); placeHighlight();
+        curAge = state.age; carry = 0; endAge = simOneLife(state.age);
+        dot.attr("transform", at(curAge));
+    }
+
+    function die(a) {
+        g.append("circle").attr("r", 7).style("fill", orange).attr("transform", at(a)).transition().duration(800).ease(d3.easeBounceOut)
+            .attr("transform", `translate(${x(a)},${y(0)})`).remove();
+        counts[endAge]++;
+        bins[Math.min(5, Math.floor((endAge - state.age) / 10))]++;
+        drawBars(); drawCounters();
+        endAge = simOneLife(state.age); curAge = state.age;
+    }
+
+    // The dot advances one year per `state.ms` milliseconds (several years a frame in fast mode).
+    let last = performance.now();
+    d3.timer((now) => {
+        carry += Math.min(now - last, 100) / state.ms; last = now;
+        while (carry >= 1) {
+            carry -= 1;
+            if (curAge >= endAge) die(endAge); else curAge++;
+        }
+        dot.attr("transform", at(Math.min(curAge, 119)));
+    });
+
+    const ageIn = d3.select("#age"), ageOut = d3.select("#age-out");
+    ageIn.on("input", function () { state.age = +this.value; ageOut.text(state.age); restart(); });
+    d3.select("#sex").on("change", function () { state.sex = this.value; restart(); });
+    d3.selectAll("#speed button").on("click", function () {
+        state.ms = this.dataset.speed === "fast" ? 1 : 16;
+        d3.selectAll("#speed button").classed("current", false);
+        this.classList.add("current");
+    });
+    restart();
+</script>

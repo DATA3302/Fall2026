@@ -1,0 +1,98 @@
+<!doctype html>
+<link rel="stylesheet" href="../composition/lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    // Smoothing with a kernel density estimate. `?step=0` four observations on a line (drag them);
+    // `?step=1` a kernel centered on each; `?step=2` the kernels summed into one density estimate (the grey
+    // area), with a kernel choice (Gaussian or square), a bandwidth slider and a count of data points; `?step=3` the same estimator on the restaurant-tips `total_bill`
+    // column, under-smoothed and over-smoothed side by side, each with its own bandwidth slider.
+    // Data: the `tips` dataset (Bryant & Smith 1995) shipped with seaborn.
+    import { d3, svgRoot, drawAxis, chartFrame, axisTitle, ink, muted, blue, serif } from "../composition/lib/chart.js";
+
+    const step = +new URLSearchParams(location.search).get("step") || 0;
+    const gauss = (u) => Math.exp(-0.5 * u * u) / Math.sqrt(2 * Math.PI);
+    const kde = (pts, bw) => (x) => d3.mean(pts, (p) => gauss((x - p) / bw) / bw);
+
+    if (step <= 2) {
+        const W = 1500, H = 560, m = { left: 40, right: 40, top: 30, bottom: 90 };
+        const x = d3.scaleLinear().domain([0, 10]).range([m.left, W - m.right]);
+        const base = H - m.bottom;
+        const spare = d3.randomLcg(5);
+        const pts = [1.3, 5.5, 6.0, 7.2].map((v) => ({ v }));
+        const svg = svgRoot(W, H);
+        const g = svg.append("g");
+        let bw = 0.6, kernel = "gaussian";
+        const kernels = { gaussian: gauss, square: (u) => (Math.abs(u) <= 1 ? 0.5 : 0) };
+        const grid = d3.range(0, 10.01, 0.02);
+        const draw = () => {
+            g.selectAll("*").remove();
+            const K = kernels[kernel], n = pts.length, vals = pts.map((p) => p.v);
+            const one = (p) => (xx) => K((xx - p) / bw) / bw / n, f = (xx) => d3.sum(vals, (p) => one(p)(xx));
+            const ymax = d3.max(grid, f) * 1.25, y = d3.scaleLinear().domain([0, ymax]).range([base, m.top]);
+            g.append("line").attr("x1", m.left).attr("x2", W - m.right).attr("y1", base).attr("y2", base).style("stroke", ink).style("stroke-width", 2);
+            const line = d3.line().x((d) => x(d.x)).y((d) => y(d.k)).curve(kernel === "square" ? d3.curveStepAfter : d3.curveLinear);
+            if (step >= 1) for (const p of vals) {
+                const k = one(p);
+                g.append("path").attr("d", line(grid.map((xx) => ({ x: xx, k: k(xx) })))).style("fill", "none").style("stroke", muted).style("stroke-width", 2);
+            }
+            if (step === 2) {
+                g.append("path").attr("d", d3.area().x((xx) => x(xx)).y0(base).y1((xx) => y(f(xx))).curve(kernel === "square" ? d3.curveStepAfter : d3.curveLinear)(grid)).style("fill", muted).style("fill-opacity", 0.3);
+            }
+            const dots = g.append("g").selectAll("g").data(pts).join("g").style("cursor", "ew-resize")
+                .call(d3.drag().on("drag", (event, d) => { d.v = Math.max(0, Math.min(10, x.invert(event.x))); draw(); }));
+            dots.append("circle").attr("cx", (d) => x(d.v)).attr("cy", base + 28).attr("r", 22).style("fill", "transparent");
+            dots.append("circle").attr("cx", (d) => x(d.v)).attr("cy", base + 28).attr("r", 9).style("fill", ink);
+        };
+        draw();
+        if (step === 2) {
+            const box = d3.select(fig).append("div").attr("class", "fig-controls");
+            box.append("label").attr("for", "kernel").text("Kernel");
+            box.append("select").attr("id", "kernel").on("change", function () { kernel = this.value; draw(); })
+                .selectAll("option").data(["gaussian", "square"]).join("option").attr("value", (d) => d).text((d) => d);
+            box.append("br");
+            box.append("label").attr("for", "bw").text("Bandwidth");
+            const out = box.append("div").text(bw.toFixed(2));
+            box.append("input").attr("id", "bw").attr("type", "range").attr("min", 0.15).attr("max", 2.5).attr("step", 0.05).attr("value", bw)
+                .on("input", function () { bw = +this.value; out.text(bw.toFixed(2)); draw(); });
+            box.append("br");
+            box.append("label").attr("for", "np").text("Number of data points");
+            const nout = box.append("div").text(pts.length);
+            box.append("input").attr("id", "np").attr("type", "range").attr("min", 1).attr("max", 12).attr("step", 1).attr("value", pts.length)
+                .on("input", function () {
+                    const n = +this.value;
+                    while (pts.length < n) pts.push({ v: 0.5 + spare() * 9 });
+                    pts.length = n; nout.text(n); draw();
+                });
+        }
+        fig.append(svg.node());
+    } else {
+        const tips = (await d3.csv("data/tips.csv", (d) => +d.total_bill));
+        const W = 1500, H = 560, m = { left: 96, right: 20, top: 24, bottom: 70 };
+        const svg = svgRoot(W, H);
+        const x = d3.scaleLinear().domain([0, 52]).range([0, 1]);
+        const grid = d3.range(2, 52, 0.25);
+        const panels = [{ bw: 0.9, x0: 0 }, { bw: 11, x0: 760 }].map((p) => ({ ...p, g: svg.append("g") }));
+        const draw = (p) => {
+            const w = 740, xs = d3.scaleLinear().domain([2, 52]).range([p.x0 + m.left, p.x0 + w - m.right]);
+            const f = kde(tips, p.bw), ymax = d3.max(grid, f) * 1.1;
+            const y = d3.scaleLinear().domain([0, ymax]).nice().range([H - m.bottom, m.top]);
+            p.g.selectAll("*").remove();
+            p.g.append("path").attr("d", d3.line().x((v) => xs(v)).y((v) => y(f(v)))(grid)).style("fill", "none").style("stroke", blue).style("stroke-width", 3);
+            chartFrame(p.g, xs, y);
+            drawAxis(p.g, d3.axisBottom(xs).ticks(5), `translate(0,${H - m.bottom})`, { size: 20 });
+            drawAxis(p.g, d3.axisLeft(y).ticks(6), `translate(${p.x0 + m.left},0)`, { size: 20 });
+            axisTitle(p.g, "total_bill", { x: (p.x0 + m.left + p.x0 + w - m.right) / 2, y: H - 20, size: 22 });
+            axisTitle(p.g, "Density", { x: p.x0 + 26, y: (m.top + H - m.bottom) / 2, rotate: -90, size: 22 });
+        };
+        panels.forEach(draw);
+        const box = d3.select(fig).append("div").attr("class", "fig-controls");
+        panels.forEach((p, i) => {
+            box.append("label").attr("for", `bw${i}`).text(i ? "Right bandwidth" : "Left bandwidth");
+            const out = box.append("div").text(p.bw.toFixed(1));
+            box.append("input").attr("id", `bw${i}`).attr("type", "range").attr("min", 0.3).attr("max", 14).attr("step", 0.1).attr("value", p.bw)
+                .on("input", function () { p.bw = +this.value; out.text(p.bw.toFixed(1)); draw(p); });
+            if (!i) box.append("br");
+        });
+        fig.append(svg.node());
+    }
+</script>

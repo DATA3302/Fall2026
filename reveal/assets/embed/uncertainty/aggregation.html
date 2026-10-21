@@ -1,0 +1,153 @@
+<!doctype html>
+<link rel="stylesheet" href="../composition/lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    // Aggregation summaries of uncertainty. `?view=ci` draws barley yield by variety (mean ± 95% CI) beside the
+    // mean fuel economy of cars by model year with its CI band. `?view=box` is a Tukey box plot of penguin body
+    // mass by species with controls for the conventions in play (whiskers to min/max or to 1.5×IQR with
+    // outliers shown, a median or mean center line, and Welch t-test comparison marks between boxes);
+    // `?view=marks` shows the interval marks beside the same box plot, mirroring the state chosen on the
+    // `box` slide (shared through localStorage).
+    // Data: vega-datasets barley, cars and penguins (Palmer penguins; Horst, Hill & Gorman 2020).
+    import { d3, svgRoot, drawAxis, chartFrame, axisTitle, ink, muted, blue, red, serif } from "../composition/lib/chart.js";
+
+    const view = new URLSearchParams(location.search).get("view") || "ci";
+    const barley = await d3.json("data/barley.json");
+    const cars = (await d3.json("data/cars.json")).filter((d) => d.Miles_per_Gallon != null);
+    const penguins = (await d3.json("data/penguins.json")).filter((d) => d["Body Mass (g)"] != null).map((d) => ({ group: d.Species, v: d["Body Mass (g)"] }));
+
+    // Two-sided critical value for a confidence level, with a Cornish–Fisher correction toward Student's t.
+    const Z = { 0.5: 0.6745, 0.8: 1.2816, 0.9: 1.6449, 0.95: 1.96, 0.99: 2.5758 };
+    const crit = (level, n) => { const z = Z[level], df = n - 1; return z + (z ** 3 + z) / (4 * df) + (5 * z ** 5 + 16 * z ** 3 + 3 * z) / (96 * df ** 2); };
+    const ci = (values, level) => { const m = d3.mean(values), e = crit(level, values.length) * d3.deviation(values) / Math.sqrt(values.length); return [m, m - e, m + e]; };
+
+    const text = (g, s, x, y, o = {}) => g.append("text").attr("x", x).attr("y", y).attr("text-anchor", o.anchor ?? "start")
+        .style("font-family", serif).style("font-size", `${o.size ?? 20}px`).style("fill", o.fill ?? ink).text(s);
+
+    function varieties(g, x0, y0, w, h, level) {
+        g.selectAll("*").remove();
+        const rows = [...d3.group(barley, (d) => d.variety)].sort((a, b) => d3.ascending(a[0], b[0]))
+            .map(([variety, v]) => ({ variety, s: ci(v.map((d) => d.yield), level) }));
+        const m = { left: 150, right: 20, top: 20, bottom: 60 };
+        const x = d3.scaleLinear().domain([24, 48]).range([x0 + m.left, x0 + w - m.right]);
+        const y = d3.scalePoint().domain(rows.map((d) => d.variety)).range([y0 + m.top + 10, y0 + h - m.bottom - 10]).padding(0.3);
+        g.append("g").selectAll("line").data(rows).join("line").attr("x1", (d) => x(d.s[1])).attr("x2", (d) => x(d.s[2]))
+            .attr("y1", (d) => y(d.variety)).attr("y2", (d) => y(d.variety)).style("stroke", ink).style("stroke-width", 2);
+        g.append("g").selectAll("circle").data(rows).join("circle").attr("cx", (d) => x(d.s[0])).attr("cy", (d) => y(d.variety)).attr("r", 6).style("fill", ink);
+        chartFrame(g, x, d3.scaleLinear().range([y0 + h - m.bottom, y0 + m.top]));
+        drawAxis(g, d3.axisBottom(x).ticks(6), `translate(0,${y0 + h - m.bottom})`, { size: 18 });
+        drawAxis(g, d3.axisLeft(y), `translate(${x0 + m.left},0)`, { size: 18 }).select(".domain").remove();
+        axisTitle(g, "yield", { x: (x0 + m.left + x0 + w - m.right) / 2, y: y0 + h - 16, size: 20 });
+        axisTitle(g, "variety", { x: x0 + 26, y: (y0 + m.top + y0 + h - m.bottom) / 2, rotate: -90, size: 20 });
+    }
+
+    function carsBand(g, x0, y0, w, h, level) {
+        g.selectAll("*").remove();
+        const rows = [...d3.group(cars, (d) => d.Year)].sort((a, b) => d3.ascending(a[0], b[0]))
+            .map(([yr, v]) => ({ t: new Date(yr), s: ci(v.map((d) => d.Miles_per_Gallon), level) }));
+        const m = { left: 80, right: 20, top: 20, bottom: 60 };
+        const x = d3.scaleUtc().domain(d3.extent(rows, (d) => d.t)).range([x0 + m.left, x0 + w - m.right]);
+        const y = d3.scaleLinear().domain([0, 40]).range([y0 + h - m.bottom, y0 + m.top]);
+        g.append("path").attr("d", d3.area().x((d) => x(d.t)).y0((d) => y(d.s[1])).y1((d) => y(d.s[2]))(rows)).style("fill", blue).style("fill-opacity", 0.3);
+        g.append("path").attr("d", d3.line().x((d) => x(d.t)).y((d) => y(d.s[0]))(rows)).style("fill", "none").style("stroke", blue).style("stroke-width", 3);
+        chartFrame(g, x, y);
+        drawAxis(g, d3.axisBottom(x).ticks(d3.utcYear.every(2)).tickFormat(d3.utcFormat("%Y")), `translate(0,${y0 + h - m.bottom})`, { size: 18 });
+        drawAxis(g, d3.axisLeft(y).ticks(8), `translate(${x0 + m.left},0)`, { size: 18 });
+        axisTitle(g, "Year", { x: (x0 + m.left + x0 + w - m.right) / 2, y: y0 + h - 16, size: 20 });
+        axisTitle(g, "Miles/Gallon", { x: x0 + 24, y: (y0 + m.top + y0 + h - m.bottom) / 2, rotate: -90, size: 20 });
+    }
+
+    // --- Tukey box plot with switchable conventions -------------------------------------------------------
+    // The chosen options live in localStorage so the next slide's copy of this figure shows the same state.
+    const KEY = "uncertainty-boxplot-state";
+    const DEFAULTS = { whiskers: "tukey", center: "median", signif: false };
+    const loadState = () => { try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem(KEY) || "{}") }; } catch { return { ...DEFAULTS }; } };
+    const saveState = (st) => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch {} };
+
+    // Two-sided p-value of Welch's t-test (Student's t via the regularized incomplete beta function).
+    function lgamma(z) { const c = [76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5];
+        let y = z, t = z + 5.5; t -= (z + 0.5) * Math.log(t); let ser = 1.000000000190015; for (const k of c) ser += k / ++y; return -t + Math.log(2.5066282746310005 * ser / z); }
+    function betacf(a, b, x) { const FP = 1e-300; let qab = a + b, qap = a + 1, qam = a - 1, c = 1, d = 1 - qab * x / qap; if (Math.abs(d) < FP) d = FP; d = 1 / d; let h = d;
+        for (let m = 1; m <= 200; m++) { const m2 = 2 * m; let aa = m * (b - m) * x / ((qam + m2) * (a + m2)); d = 1 + aa * d; if (Math.abs(d) < FP) d = FP; c = 1 + aa / c; if (Math.abs(c) < FP) c = FP; d = 1 / d; h *= d * c;
+            aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2)); d = 1 + aa * d; if (Math.abs(d) < FP) d = FP; c = 1 + aa / c; if (Math.abs(c) < FP) c = FP; d = 1 / d; const del = d * c; h *= del; if (Math.abs(del - 1) < 3e-12) break; } return h; }
+    function ibeta(a, b, x) { if (x <= 0) return 0; if (x >= 1) return 1; const bt = Math.exp(lgamma(a + b) - lgamma(a) - lgamma(b) + a * Math.log(x) + b * Math.log(1 - x));
+        return x < (a + 1) / (a + b + 2) ? bt * betacf(a, b, x) / a : 1 - bt * betacf(b, a, 1 - x) / b; }
+    function welch(u, v) { const nu = u.length, nv = v.length, su = d3.variance(u) / nu, sv = d3.variance(v) / nv, t = (d3.mean(u) - d3.mean(v)) / Math.sqrt(su + sv);
+        const df = (su + sv) ** 2 / (su ** 2 / (nu - 1) + sv ** 2 / (nv - 1)); return ibeta(df / 2, 0.5, df / (df + t * t)); }
+    const stars = (p) => (p < 0.001 ? "***" : p < 0.01 ? "**" : p < 0.05 ? "*" : "n.s.");
+
+    function boxes(g, x0, y0, w, h, st) {
+        g.selectAll("*").remove();
+        const m = { left: 100, right: 20, top: st.signif ? 110 : 24, bottom: 66 };
+        const groups = [...d3.group(penguins, (d) => d.group)].sort((a, b) => d3.ascending(a[1].length, b[1].length) || d3.ascending(a[0], b[0]));
+        const order = ["Adelie", "Chinstrap", "Gentoo"].filter((k) => groups.some(([n]) => n === k));
+        const data = order.map((k) => ({ k, v: groups.find(([n]) => n === k)[1].map((d) => d.v).sort(d3.ascending) }));
+        const x = d3.scaleBand().domain(order).range([x0 + m.left, x0 + w - m.right]).padding(0.35);
+        const y = d3.scaleLinear().domain([2500, 6500]).range([y0 + h - m.bottom, y0 + m.top]);
+        for (const { k, v } of data) {
+            const q1 = d3.quantile(v, 0.25), q2 = d3.quantile(v, 0.5), q3 = d3.quantile(v, 0.75), cx = x(k) + x.bandwidth() / 2;
+            let lo = d3.min(v), hi = d3.max(v), out = [];
+            if (st.whiskers === "tukey") { lo = d3.min(v.filter((d) => d >= q1 - 1.5 * (q3 - q1))); hi = d3.max(v.filter((d) => d <= q3 + 1.5 * (q3 - q1))); out = v.filter((d) => d < lo || d > hi); }
+            const mid = st.center === "mean" ? d3.mean(v) : q2;
+            g.append("line").attr("x1", cx).attr("x2", cx).attr("y1", y(lo)).attr("y2", y(hi)).style("stroke", ink).style("stroke-dasharray", "3 3");
+            g.append("rect").attr("x", x(k)).attr("width", x.bandwidth()).attr("y", y(q3)).attr("height", y(q1) - y(q3)).style("fill", "none").style("stroke", ink).style("stroke-width", 2);
+            g.append("line").attr("x1", x(k)).attr("x2", x(k) + x.bandwidth()).attr("y1", y(mid)).attr("y2", y(mid)).style("stroke", ink).style("stroke-width", 4);
+            for (const lim of [lo, hi]) g.append("line").attr("x1", cx - x.bandwidth() / 5).attr("x2", cx + x.bandwidth() / 5).attr("y1", y(lim)).attr("y2", y(lim)).style("stroke", ink).style("stroke-width", 2);
+            g.append("g").selectAll("circle").data(out).join("circle").attr("cx", cx).attr("cy", y).attr("r", 4).style("fill", "none").style("stroke", ink);
+        }
+        if (st.signif) {
+            const pairs = [[0, 1], [1, 2], [0, 2]].filter(([i, j]) => data[i] && data[j]);
+            pairs.forEach(([i, j], row) => {
+                const p = welch(data[i].v, data[j].v), xa = x(order[i]) + x.bandwidth() / 2, xb = x(order[j]) + x.bandwidth() / 2;
+                const yy = y0 + m.top - 12 - (j - i === 2 ? 52 : 0) - (j - i === 1 ? (i === 0 ? 0 : 0) : 0), tick = 12;
+                g.append("path").attr("d", `M${xa},${yy + tick} V${yy} H${xb} V${yy + tick}`).style("fill", "none").style("stroke", ink).style("stroke-width", 2);
+                text(g, stars(p), (xa + xb) / 2, yy - 8, { anchor: "middle", size: p < 0.05 ? 28 : 20 });
+            });
+        }
+        chartFrame(g, x, y);
+        drawAxis(g, d3.axisBottom(x), `translate(0,${y0 + h - m.bottom})`, { size: 20 });
+        drawAxis(g, d3.axisLeft(y).ticks(6), `translate(${x0 + m.left},0)`, { size: 18 });
+        axisTitle(g, "Species", { x: (x0 + m.left + x0 + w - m.right) / 2, y: y0 + h - 18, size: 20 });
+        axisTitle(g, "Body mass (g)", { x: x0 + 28, y: (y0 + m.top + y0 + h - m.bottom) / 2, rotate: -90, size: 20 });
+    }
+
+    if (view === "box" || view === "marks") {
+        const marks = view === "marks";
+        const svg = svgRoot(marks ? 1500 : 900, marks ? 640 : 760);
+        if (marks) varieties(svg.append("g"), 0, 0, 780, 640, 0.95);
+        const g = svg.append("g");
+        const draw = () => boxes(g, marks ? 820 : 0, 0, marks ? 680 : 900, marks ? 640 : 760, loadState());
+        draw();
+        fig.append(svg.node());
+        if (marks) {
+            // The box plot on this slide mirrors whatever was chosen on the previous slide's controls.
+            addEventListener("storage", (e) => { if (e.key === KEY) draw(); });
+            document.addEventListener("visibilitychange", draw);
+            addEventListener("focus", draw);
+            window._transitions = [{ index: "onShow", transitionForward: draw, transitionBackward: draw }];
+        } else {
+            const st = loadState();
+            const box = d3.select(fig).append("div").attr("class", "fig-controls");
+            const set = (k, v) => { st[k] = v; saveState(st); draw(); };
+            box.append("label").attr("for", "wh").text("Whiskers");
+            box.append("select").attr("id", "wh").on("change", function () { set("whiskers", this.value); })
+                .selectAll("option").data([["tukey", "Tukey 1.5×IQR"], ["minmax", "Min / max"]]).join("option")
+                .attr("value", (d) => d[0]).property("selected", (d) => d[0] === st.whiskers).text((d) => d[1]);
+            box.append("br");
+            box.append("label").attr("for", "ce").text("Center line");
+            box.append("select").attr("id", "ce").on("change", function () { set("center", this.value); })
+                .selectAll("option").data([["median", "Median"], ["mean", "Mean"]]).join("option")
+                .attr("value", (d) => d[0]).property("selected", (d) => d[0] === st.center).text((d) => d[1]);
+            box.append("br");
+            box.append("label").attr("for", "sg").text("Significance tests");
+            box.append("input").attr("id", "sg").attr("type", "checkbox").property("checked", st.signif)
+                .on("change", function () { set("signif", this.checked); });
+        }
+    } else {
+        const svg = svgRoot(1500, 640);
+        const left = svg.append("g"), right = svg.append("g");
+        varieties(left, 0, 0, 780, 640, 0.95);
+        carsBand(right, 820, 0, 680, 640, 0.95);
+        fig.append(svg.node());
+    }
+</script>

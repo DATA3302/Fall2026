@@ -1,0 +1,81 @@
+<!doctype html>
+<link rel="stylesheet" href="../composition/lib/figure.css" />
+<style>
+    #wrap { display: flex; align-items: center; justify-content: center; gap: 2.5vw; min-height: 100vh; box-sizing: border-box; padding: 2vh 2vw; }
+    #wrap.table-only { justify-content: center; }
+    table { border-collapse: collapse; font-family: var(--slide-serif, "EB Garamond", Garamond, Georgia, serif); color: var(--slide-ink, #282722); }
+    #wrap:not(.table-only) table { font-size: 3.4vh; }
+    #wrap.table-only table { font-size: 6vh; }
+    th { background: var(--slide-ink, #282722); color: var(--slide-background, #fff); text-align: left; font-weight: 400; padding: 0.15em 0.6em; }
+    td { padding: 0.15em 0.6em; border-bottom: 1px solid var(--slide-rule, #d8d5ca); font-style: italic; }
+    td:last-child { font-style: normal; font-variant-numeric: tabular-nums; }
+    #plots svg { max-height: 88vh; }
+</style>
+<div id="wrap">
+    <table id="stats"></table>
+    <div id="plots"></div>
+</div>
+<script type="module">
+    // Anscombe's quartet: four datasets with the same mean, variance, correlation and regression line. The
+    // table is computed live from whichever panel you last touched; drag any point and watch the summary
+    // statistics hold or fall apart while the picture changes. `?step=0` is the table alone; `?step=1`
+    // adds the four scatterplots.
+    import { d3, svgRoot, drawAxis, chartFrame, axisTitle, ink, muted, orange, serif } from "../composition/lib/chart.js";
+
+    const step = +new URLSearchParams(location.search).get("step") || 0;
+    const X123 = [10, 8, 13, 9, 11, 14, 6, 4, 12, 7, 5];
+    const sets = [
+        { x: X123, y: [8.04, 6.95, 7.58, 8.81, 8.33, 9.96, 7.24, 4.26, 10.84, 4.82, 5.68] },
+        { x: X123, y: [9.14, 8.14, 8.74, 8.77, 9.26, 8.1, 6.13, 3.1, 9.13, 7.26, 4.74] },
+        { x: X123, y: [7.46, 6.77, 12.74, 7.11, 7.81, 8.84, 6.08, 5.39, 8.15, 6.42, 5.73] },
+        { x: [8, 8, 8, 8, 8, 8, 8, 19, 8, 8, 8], y: [6.58, 5.76, 7.71, 8.84, 8.47, 7.04, 5.25, 12.5, 5.56, 7.91, 6.89] },
+    ].map((s) => s.x.map((x, i) => ({ x, y: s.y[i] })));
+
+    const stats = (pts) => {
+        const xs = pts.map((p) => p.x), ys = pts.map((p) => p.y), mx = d3.mean(xs), my = d3.mean(ys);
+        const sxy = d3.sum(pts, (p) => (p.x - mx) * (p.y - my)), sxx = d3.sum(xs, (v) => (v - mx) ** 2), syy = d3.sum(ys, (v) => (v - my) ** 2);
+        const b = sxx ? sxy / sxx : NaN, a = my - b * mx;
+        return { mx, vx: sxx / (xs.length - 1), my, vy: syy / (ys.length - 1), r: sxy / Math.sqrt(sxx * syy), a, b };
+    };
+    let active = 0;
+    const f = d3.format(".3~f"), f2 = d3.format(".2~f");
+    function table() {
+        const s = stats(sets[active]);
+        const rows = [["Mean of x", f(s.mx)], ["Variance of x", f(s.vx)], ["Mean of y", f2(s.my)], ["Variance of y", f(s.vy)], ["Correlation", f(s.r)],
+            ["Linear Regression", `y = ${f2(s.b)} x + ${f2(s.a)}`]];
+        const t = d3.select("#stats");
+        t.html("");
+        t.append("tr").selectAll("th").data(["Summary Statistic", "Value"]).join("th").text((d) => d);
+        t.selectAll("tr.r").data(rows).join("tr").attr("class", "r").selectAll("td").data((d) => d).join("td").text((d) => d);
+    }
+
+    d3.select("#wrap").classed("table-only", step === 0);
+    if (step === 1) {
+        const W = 1000, H = 1000, pw = 470, ph = 470;
+        const svg = svgRoot(W, H);
+        const panels = sets.map((pts, i) => {
+            const g = svg.append("g").attr("transform", `translate(${(i % 2) * 520},${Math.floor(i / 2) * 520})`);
+            const x = d3.scaleLinear().domain([3, 20]).range([60, pw - 10]), y = d3.scaleLinear().domain([2, 14]).range([ph - 50, 10]);
+            const draw = () => {
+                g.selectAll("*").remove();
+                g.append("rect").attr("x", 52).attr("y", 4).attr("width", pw - 54).attr("height", ph - 50).style("fill", "none")
+                    .style("stroke", i === active ? orange : "none").style("stroke-width", 4);
+                const s = stats(pts);
+                g.append("line").attr("x1", x(3)).attr("x2", x(20)).attr("y1", y(s.a + s.b * 3)).attr("y2", y(s.a + s.b * 20)).style("stroke", muted).style("stroke-width", 2);
+                g.append("g").selectAll("circle").data(pts).join("circle").attr("cx", (d) => x(d.x)).attr("cy", (d) => y(d.y)).attr("r", 8).style("fill", orange)
+                    .style("cursor", "move").call(d3.drag().on("start", () => { active = i; table(); panels.forEach((p) => p()); }).on("drag", (event, d) => {
+                        d.x = Math.max(3, Math.min(20, x.invert(event.x))); d.y = Math.max(2, Math.min(14, y.invert(event.y))); active = i; table(); draw();
+                    }));
+                chartFrame(g, x, y);
+                drawAxis(g, d3.axisBottom(x).ticks(5), `translate(0,${ph - 50})`, { size: 16 });
+                drawAxis(g, d3.axisLeft(y).ticks(5), `translate(60,0)`, { size: 16 });
+                axisTitle(g, ["x₁", "x₂", "x₃", "x₄"][i], { x: (60 + pw - 10) / 2, y: ph - 14, size: 18 });
+                axisTitle(g, ["y₁", "y₂", "y₃", "y₄"][i], { x: 16, y: ph / 2 - 25, rotate: -90, size: 18 });
+            };
+            draw();
+            return draw;
+        });
+        document.getElementById("plots").append(svg.node());
+    }
+    table();
+</script>

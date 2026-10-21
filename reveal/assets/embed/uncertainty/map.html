@@ -1,0 +1,64 @@
+<!doctype html>
+<link rel="stylesheet" href="../composition/lib/figure.css" />
+<div id="fig"></div>
+<script type="module">
+    // The SNAP-participation maps, redrawn: each state is a path from the us-atlas Albers geometry, filled with the
+    // color the original map gave it. States are stored as (data bin, error bin) in data/snap-map.json, read off the
+    // original image one state at a time: the estimate (percent of households using SNAP) has four bins, the
+    // margin of error four more, and the bivariate map looks up the pair in a 4×4 grid. `?view=data` is the
+    // estimate map, `?view=error` the margin-of-error map, `?view=bivariate` the combination.
+    // Hover a state to read its two bins.
+    import { d3, svgRoot, ink, muted, serif } from "../composition/lib/chart.js";
+    import * as topojson from "../interactivity/lib/topojson-client.js";
+
+    const view = new URLSearchParams(location.search).get("view") || "data";
+    const [us, spec] = await Promise.all([d3.json("data/states-albers-10m.json"), d3.json("data/snap-map.json")]);
+    const features = topojson.feature(us, us.objects.states).features;
+    const path = d3.geoPath();
+    const snapEdges = [4, 7, 10, 13, 16], errEdges = [0, 0.25, 0.5, 0.75, 1];
+    const binText = (edges, i) => `${edges[i]}–${edges[i + 1]}`;
+
+    const text = (g, s, x, y, o = {}) => g.append("text").attr("x", x).attr("y", y).attr("text-anchor", o.anchor ?? "start")
+        .attr("transform", o.rotate ? `rotate(${o.rotate},${x},${y})` : null)
+        .style("font-family", serif).style("font-size", `${o.size ?? 15}px`).style("fill", o.fill ?? ink).text(s);
+
+    function usMap(g, fillOf, tip) {
+        const states = g.append("g").selectAll("path").data(features).join("path").attr("d", path).attr("data-name", (d) => d.properties.name)
+            .style("fill", (d) => fillOf(spec.states[d.properties.name])).style("stroke", "#fff").style("stroke-width", 1.1).style("stroke-linejoin", "round");
+        states.append("title").text((d) => tip(d.properties.name, spec.states[d.properties.name]));
+        return states;
+    }
+    // A strip of four swatches with tick labels at the bin edges.
+    function legend(g, x, y, title, colors, edges) {
+        const w = 44, h = 26;
+        text(g, title, x, y - 22, { size: 16 });
+        colors.forEach((c, i) => g.append("rect").attr("x", x + i * w).attr("y", y).attr("width", w).attr("height", h).style("fill", c));
+        edges.forEach((e, i) => {
+            g.append("line").attr("x1", x + i * w).attr("x2", x + i * w).attr("y1", y - 4).attr("y2", y).style("stroke", ink);
+            text(g, e, x + i * w, y - 8, { anchor: "middle", size: 13 });
+        });
+        g.append("line").attr("x1", x).attr("x2", x + 4 * w).attr("y1", y).attr("y2", y).style("stroke", ink);
+    }
+
+    const svg = svgRoot(1130, 610);
+    const tipData = (n, [d]) => `${n}: ${binText(snapEdges, d)}% of households using SNAP`;
+    const tipErr = (n, [, e]) => `${n}: margin of error ${binText(errEdges, e)}`;
+    if (view === "data") {
+        usMap(svg.append("g"), ([d]) => spec.data[d], tipData);
+        legend(svg, 830, 450, "Households Using SNAP (%)", spec.data, snapEdges);
+    } else if (view === "error") {
+        usMap(svg.append("g"), ([, e]) => spec.error[e], tipErr);
+        legend(svg, 830, 450, "Margin of Error (%)", spec.error, errEdges);
+    } else {
+        usMap(svg.append("g"), ([d, e]) => spec.bivariate[e][d], (n, [d, e]) => `${n}: ${binText(snapEdges, d)}% SNAP, margin of error ${binText(errEdges, e)}`);
+        const g = svg.append("g"), x = 850, y = 400, c = 42;
+        text(g, "Households Using SNAP (%)", x, y - 28, { size: 16 });
+        spec.bivariate.forEach((row, i) => row.forEach((color, j) => g.append("rect").attr("x", x + j * c).attr("y", y + i * c).attr("width", c).attr("height", c).style("fill", color)));
+        snapEdges.forEach((v, j) => { g.append("line").attr("x1", x + j * c).attr("x2", x + j * c).attr("y1", y - 5).attr("y2", y).style("stroke", ink); text(g, v, x + j * c, y - 9, { anchor: "middle", size: 13 }); });
+        errEdges.forEach((v, i) => { g.append("line").attr("x1", x + 4 * c).attr("x2", x + 4 * c + 5).attr("y1", y + i * c).attr("y2", y + i * c).style("stroke", ink); text(g, v, x + 4 * c + 10, y + i * c + 5, { size: 13 }); });
+        g.append("line").attr("x1", x + 4 * c).attr("x2", x + 4 * c).attr("y1", y).attr("y2", y + 4 * c).style("stroke", ink);
+        g.append("line").attr("x1", x).attr("x2", x + 4 * c).attr("y1", y).attr("y2", y).style("stroke", ink);
+        text(g, "Margin of Error", x + 4 * c + 62, y + 2 * c, { anchor: "middle", size: 16, rotate: 90 });
+    }
+    fig.append(svg.node());
+</script>

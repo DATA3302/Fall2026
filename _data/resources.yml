@@ -41,6 +41,10 @@ slides:
     file: /slides/ethical/
     status: Interactive
 
+  - title: Uncertainty
+    file: /slides/uncertainty/
+    status: Interactive
+
 labs:
   - title: Intro to Observable
     url: https://observablehq.com/@calpoly-data3302-fall2026/intro-observable
