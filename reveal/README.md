@@ -73,12 +73,12 @@ The compiler applies these conventions:
 | `![figure scrollable](https://…)` | Scrollable embedded page |
 | `![background no-scroll](https://…)` | Non-scrolling background page |
 | `[Button](action:buttonId)` | Button with the specified DOM ID |
-| `[lead]`, `[muted]`, `[accent]`, `[small]`, `[big]` | Paragraph text treatments. `[big]` paragraphs and colorboxes are vertically centered in their column by default |
-| `[left]`, `[right]`, `[hcenter]` | Horizontal alignment override for a paragraph (`[center]` is the older spelling of `[hcenter]`). `[big]` defaults to centered and text in a colorbox to left; these override either |
+| `[lead]`, `[muted]`, `[accent]`, `[small]`, `[medium]`, `[big]` | Paragraph text treatments. `[big]` paragraphs and colorboxes are vertically centered in their column by default; `[medium]` is not |
+| `[left]`, `[right]`, `[hcenter]` | Horizontal alignment override for a paragraph (`[center]` is the older spelling of `[hcenter]`). `[medium]` and `[big]` default to centered and text in a colorbox to left; these override either |
 | `[vcenter]` | Vertically center a column holding other content (implied by `[big]` and colorboxes) |
 | `> [!green-box]`, `> [!gold-box]`, `> [!note]` | Tufte-style colorboxes |
 | Standard `![Caption](/images/my-talk/figure.png "Source")` | Static figure with caption (inlined and auto-animated if it's an `.svg`) |
-| A fenced `diagram` block | Node/edge diagram, rendered to SVG |
+| A fenced `diagram` block | Node/edge/path diagram, rendered to SVG |
 | A fenced code block, e.g. ` ```js ` | Syntax-highlighted code (via `highlight.js`) |
 | `> [!auto-animate]` | Auto-Animate this slide into the next matching one |
 | `> [!notes]` | Hidden presenter notes |
@@ -116,10 +116,27 @@ named by the color they render in, not by a semantic type:
 
 Anything after the marker on the same line becomes the box's title; with no
 title it falls back to the capitalized name, which is rarely what you want.
-Text inside a colorbox is always left-aligned.
+Text inside a colorbox defaults to left alignment; paragraph alignment markers override it.
 
 `[!notes]` (presenter notes) and `[!auto-animate]` are separate directives, not
 colorboxes.
+
+## Medium display text
+
+`[medium]` uses the same italic, horizontally centered display typography as
+`[big]`, but at `1.35em` rather than `2em` (ordinary paragraphs are `0.9em`).
+At the theme's 32px base these are 43.2px, 64px, and 28.8px respectively,
+before Reveal scales the slide. Like `[big]`, it accepts `[left]`, `[right]`,
+`[hcenter]`, and the older `[center]` alias, including inside colorboxes.
+Unlike `[big]`, **it does not vertically center its container**. Add
+`[vcenter]` intentionally when needed; a sibling `[big]` or colorbox still
+triggers the existing container-centering behavior.
+
+```markdown
+[medium left] A larger explanation, still in normal top-to-bottom flow.
+
+[medium hcenter vcenter] An intentionally centered display line.
+```
 
 ## Diagram nodes
 
@@ -135,9 +152,11 @@ everything else — that is how the nested plates in `user-research.md` are buil
 | `stroke=<c>` | border color (default: muted gray) |
 | `nostroke` | no border |
 | `fill=<c>` | explicit interior. `fill=none` is transparent — use it with `nostroke` for floating text, or alone for a plain outline |
-| `shape=rect\|circle\|triangle` | overrides the default, which is a rounded rect, or a bare dot for a node with no label and no size |
+| `shape=rect\|circle\|ellipse\|triangle` | overrides the default, which is a rounded rect, or a bare dot for a node with no label and no size. Ellipses use independent `w` and `h` dimensions and clip connected edges to their curved boundary |
 | `w=<n>` `h=<n>` | size in columns / rows. A circle takes `h` from `w` if `h` is omitted |
 | `label-pos=c\|n\|ne\|e\|se\|s\|sw\|w\|nw` | where the label sits. Defaults to `n` for an enclosure, `c` otherwise |
+| `font-size=<n>` | label size in SVG units (default: 40), independent of paragraph text treatments. Does not resize an explicitly sized node |
+| `dash="8 5"` | border dash/gap lengths in SVG units; comma-separated values also work. `dash=none` is solid |
 
 `<c>` is a palette name — `green`, `gold`, `blue`, `magenta`, `orange`,
 `muted`, `ink` — or any raw CSS color.
@@ -149,9 +168,99 @@ than that will draw their own border through the label text.
 
 ## Diagram edges
 
-    edge <from> <to> [via (x,y)]... [label="..."] [color=<c>] [arrow=<a>] [noarrow]
+    edge <from> <to> [via (x,y)]... [smooth] [label="..."] [color=<c>] [arrow=<a>] [noarrow] [font-size=<n>] [dash="8 5"]
 
-`arrow=` takes `->`, `<->`, `o`, `.`, `..`, `..>`, or `=>`.
+`arrow=` takes `none`, `->`, `<->`, `o`, `.`, `..`, `..>`, or `=>`.
+`noarrow` is shorthand for `arrow=none`. `smooth` makes a Catmull-Rom curve
+through the endpoints and all `via` points; otherwise corners are rounded.
+Edges still clip to their endpoint nodes, with a small gap for arrowheads.
+`font-size=` overrides the edge label's default 24.8 SVG units.
+`dash=` overrides the line pattern independently of the arrow style, including
+`dash=none` to make a dotted-arrow token solid. Invalid sizes/dashes fall back
+to their defaults, preserving existing diagrams.
+
+## Standalone diagram paths
+
+    path <id> (x,y) (x,y)... [smooth] [closed] [color=<c>] [fill=<c>] [dash="8 5"]
+
+A small geometry primitive for globe graticules, hidden arcs, surface outlines,
+and other lines that should not need invisible endpoint nodes:
+
+- At least two points, in the same 240px-column / 170px-row grid as nodes.
+  Positive y points down. Equal x/y grid lengths are **not** equal physical lengths.
+- Straight segments by default; `smooth` reuses the edge curve builder and passes
+  through every supplied point. These are schematic curves, not exact circular arcs.
+- `closed` adds a straight closing segment back to the first point. It does not
+  make a smooth periodic join; use `shape=ellipse` for an exact full oval.
+- `color=` is the stroke (default: muted), `fill=` the interior (default: none).
+  `dash=` has the same meaning as on nodes and edges. Stroke width stays 2.5 SVG units.
+- No clipping, arrowheads, endpoint gaps, or automatic parallel-edge offsets.
+  Paths paint in source order, after enclosures but before edges and normal nodes.
+  Use transparent nodes (`fill=none`) where geometry must show through.
+- Path geometry, including curve control-point bounds, contributes to the SVG
+  viewBox; a path-only diagram works. Node labels still need adequate `w`/`h`
+  and surrounding space, especially with large custom fonts.
+- Give each path a unique id within its diagram. Stable ids participate in
+  Auto-Animate; for curve morphing keep point count and `smooth`/`closed` flags
+  consistent across slides. Ellipse centers/radii also animate.
+
+Existing node/edge syntax, default sizes, dotted arrows, and layout are unchanged.
+No arbitrary SVG or new dependency is needed.
+
+### Coordinate globe example
+
+Paste this entire fence into a deck. The dashed equator half is behind the
+sphere; the full blue oval is a schematic latitude parallel. `P(λ, φ)` names a
+longitude/latitude pair, not a computed geographic location.
+
+```diagram
+diagram coordinate-globe
+node globe (0,0) shape=circle w=2 fill=none stroke=ink
+node latitude (0,-0.55) shape=ellipse w=1.84 h=0.6 fill=none stroke=blue dash="6 5"
+path equator-back (-1,0) (-0.7,-0.24) (0,-0.34) (0.7,-0.24) (1,0) smooth dash="8 6"
+path equator-front (-1,0) (-0.7,0.24) (0,0.34) (0.7,0.24) (1,0) smooth color=ink
+path prime-back (0,-1.412) (-0.28,-1) (-0.4,0) (-0.28,1) (0,1.412) smooth dash="8 6"
+path prime-front (0,-1.412) (0.28,-1) (0.4,0) (0.28,1) (0,1.412) smooth color=green
+path axis (0,-1.65) (0,1.65) dash="4 6"
+path radius (0,0) (0.8,-0.4) color=magenta
+node point (0.8,-0.4) shape=circle w=0.045 fill=magenta nostroke
+node north (0.18,-1.56) "N" w=0.3 h=0.3 fill=none nostroke font-size=28
+node south (0.18,1.56) "S" w=0.3 h=0.3 fill=none nostroke font-size=28
+node origin (-0.12,0.1) "O" w=0.3 h=0.3 fill=none nostroke font-size=26
+node point-label (1.12,-0.47) "P(λ, φ)" w=0.85 h=0.35 fill=none nostroke color=magenta font-size=28
+node equator-label (1.4,0.2) "Equator" w=0.9 h=0.35 fill=none nostroke font-size=28
+node prime-label (0.85,-1.25) "Prime meridian" w=1.5 h=0.35 fill=none nostroke color=green font-size=26
+node latitude-label (-1.4,-0.55) "Latitude φ" w=1.1 h=0.35 fill=none nostroke color=blue font-size=26
+```
+
+### Cylinder, cone, and plane example
+
+Three schematic projection surfaces beside one another (not calculated map
+projections). The cylinder uses an exact ellipse for its top rim and split
+solid/dashed curves for the lower rim; the cone uses an open outline rather
+than a triangle with an unwanted straight base; the plane is a closed polyline.
+
+```diagram
+diagram projection-surfaces
+# Cylinder
+node cylinder-globe (0,0) shape=circle w=1.2 fill=none stroke=ink
+node cylinder-top (0,-1.1) shape=ellipse w=1.2 h=0.5 fill=none stroke=blue
+path cylinder-left (-0.6,-1.1) (-0.6,1.1) color=blue
+path cylinder-right (0.6,-1.1) (0.6,1.1) color=blue
+path cylinder-back (-0.6,1.1) (-0.42,0.92) (0,0.85) (0.42,0.92) (0.6,1.1) smooth color=blue dash="8 6"
+path cylinder-front (-0.6,1.1) (-0.42,1.28) (0,1.35) (0.42,1.28) (0.6,1.1) smooth color=blue
+node cylinder-label (0,1.75) "Cylinder" w=1.4 h=0.4 fill=none nostroke font-size=32
+# Cone
+node cone-globe (3,0) shape=circle w=1.2 fill=none stroke=ink
+path cone-sides (2,1.1) (3,-2.1) (4,1.1) color=green
+path cone-back (2,1.1) (2.3,0.85) (3,0.75) (3.7,0.85) (4,1.1) smooth color=green dash="8 6"
+path cone-front (2,1.1) (2.3,1.35) (3,1.45) (3.7,1.35) (4,1.1) smooth color=green
+node cone-label (3,1.75) "Cone" w=1.4 h=0.4 fill=none nostroke font-size=32
+# Plane, in perspective; the sphere masks the overlapping portion
+path plane (4.95,-0.847) (5.5,-1.3) (7.05,-0.847) (6.5,-0.394) closed color=orange
+node plane-globe (6,0) shape=circle w=1.2 fill="var(--slide-background)" stroke=ink
+node plane-label (6,1.75) "Plane" w=1.4 h=0.4 fill=none nostroke font-size=32
+```
 
 ## Run locally
 

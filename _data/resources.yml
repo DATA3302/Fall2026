@@ -45,6 +45,10 @@ slides:
     file: /slides/uncertainty/
     status: Interactive
 
+  - title: Geospatial
+    file: /slides/geospatial/
+    status: Interactive
+
 labs:
   - title: Intro to Observable
     url: https://observablehq.com/@calpoly-data3302-fall2026/intro-observable

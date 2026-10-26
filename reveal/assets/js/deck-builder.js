@@ -1,5 +1,6 @@
 window.DeckBuilder = (() => {
-  const isBlank = (node) => node.nodeType === Node.TEXT_NODE && !node.textContent.trim();
+  const isBlank = (node) => node.nodeType === Node.COMMENT_NODE
+      || (node.nodeType === Node.TEXT_NODE && !node.textContent.trim());
   const isHeading = (node) => node.nodeType === Node.ELEMENT_NODE && /^H[1-6]$/.test(node.tagName);
   // Callouts are named by the color they render in, not by a semantic type: the box's whole job
   // is to be visually distinct, and a "note"/"warning"/"danger" vocabulary implied a meaning the
@@ -8,7 +9,7 @@ window.DeckBuilder = (() => {
   const calloutPattern = /^\[!(green|gold|blue|orange|magenta|ink|muted|margin)\](?:\s+(.*))?$/i;
   const presenterNotesPattern = /^\[!notes\]\s*/i;
   const autoAnimatePattern = /^\[!auto-animate\]\s*$/i;
-  const textKeyword = "lead|muted|accent|small|center|hcenter|left|right|big|vcenter";
+  const textKeyword = "lead|muted|accent|small|center|hcenter|left|right|medium|big|vcenter";
   const textPattern = new RegExp(`^\\[((?:${textKeyword})(?:\\s+(?:${textKeyword}))*)\\]\\s*`, "i");
   const themeVariables = {
     background: "--slide-background",
@@ -295,7 +296,7 @@ window.DeckBuilder = (() => {
   }
 
   // A small Fletcher-inspired diagram language: `node` places labeled boxes on a coordinate
-  // grid, `edge` connects two nodes by id with an optional routed path and arrowhead. See
+  // grid, `edge` connects two nodes by id, and `path` draws standalone grid geometry. See
   // README.md for the authoring syntax; this renders straight to SVG rather than HTML/CSS so
   // paths, corners, and arrowheads can be drawn precisely instead of approximated with flexbox.
   const diagramPalette = ["green", "gold", "blue", "magenta", "orange", "muted", "ink"];
@@ -318,7 +319,7 @@ window.DeckBuilder = (() => {
   // than "c") rather than dead-center, so the text clears the border instead of touching it.
   const DIAGRAM_LABEL_PAD = 22;
   const DIAGRAM_LABEL_POSITIONS = new Set(["c", "n", "ne", "e", "se", "s", "sw", "w", "nw"]);
-  const DIAGRAM_SHAPES = new Set(["rect", "circle", "triangle"]);
+  const DIAGRAM_SHAPES = new Set(["rect", "circle", "ellipse", "triangle"]);
   // Two parallel edges between the same node pair land this far apart. Has to comfortably
   // clear an arrowhead's own rendered width (see diagramArrowMarker) — at the source end a
   // bare offset line is visibly separated at almost any spacing, but at the target end two
@@ -391,6 +392,20 @@ window.DeckBuilder = (() => {
       options[match[1]] = value;
     }
     return options;
+  }
+
+  function diagramFontSize(value, fallback) {
+    const size = Number(value);
+    return Number.isFinite(size) && size > 0 ? size : fallback;
+  }
+
+  // Dash lengths are SVG units, not grid units. An explicit `none` overrides dotted arrows.
+  function diagramDash(value, fallback = null) {
+    if (value?.toLowerCase() === "none") return null;
+    if (!value) return fallback;
+    const lengths = value.trim().split(/[\s,]+/).map(Number);
+    return lengths.length && lengths.every((n) => Number.isFinite(n) && n >= 0) && lengths.some((n) => n > 0)
+      ? lengths.join(" ") : fallback;
   }
 
   // Each `arrow=` token maps to: which marker style (if any) sits at the start and/or end of
@@ -473,6 +488,7 @@ window.DeckBuilder = (() => {
   function parseDiagramSource(source) {
     const nodes = new Map();
     const edges = [];
+    const paths = [];
     let id = DIAGRAM_DEFAULT_ID;
     source.split(/\r?\n/).forEach((rawLine) => {
       const line = rawLine.trim();
@@ -481,6 +497,27 @@ window.DeckBuilder = (() => {
       const diagramMatch = line.match(/^diagram\s+(\S+)\s*$/i);
       if (diagramMatch) {
         id = diagramMatch[1];
+        return;
+      }
+
+      // Standalone geometry uses the same grid and curve builder as routed edges, but has no
+      // endpoint nodes, clipping, arrow gap, or automatic parallel-edge offset.
+      const pathMatch = line.match(/^path\s+(\S+)\s+((?:\(\s*-?[\d.]+\s*,\s*-?[\d.]+\s*\)\s*)+)(.*)$/i);
+      if (pathMatch) {
+        const [, key, coordinates, tail] = pathMatch;
+        const points = Array.from(coordinates.matchAll(/\(\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*\)/g),
+          ([, x, y]) => ({ x: Number(x) * DIAGRAM_COL, y: Number(y) * DIAGRAM_ROW }));
+        if (points.length < 2 || points.some((p) => !Number.isFinite(p.x) || !Number.isFinite(p.y))) return;
+        const options = parseInlineOptions(tail);
+        paths.push({
+          key: `path:${key}`,
+          points,
+          smooth: /\bsmooth\b/i.test(tail),
+          closed: /\bclosed\b/i.test(tail),
+          color: diagramColorValue(options.color) || "var(--slide-muted)",
+          fill: diagramColorValue(options.fill) || "none",
+          dash: diagramDash(options.dash)
+        });
         return;
       }
 
@@ -520,7 +557,7 @@ window.DeckBuilder = (() => {
           fill: options.fill
             ? (options.fill.toLowerCase() === "none" ? "none" : diagramColorValue(options.fill))
             : null,
-          // `shape=rect|circle|triangle`. Left null, the shape is inferred as before: a node with
+          // `shape=rect|circle|ellipse|triangle`. Left null, the shape is inferred as before: a node with
           // no label and no explicit size is a bare dot (circle), anything else is a rounded rect.
           shape: DIAGRAM_SHAPES.has((options.shape || "").toLowerCase())
             ? options.shape.toLowerCase()
@@ -528,6 +565,8 @@ window.DeckBuilder = (() => {
           noStroke: /\bnostroke\b/i.test(rest),
           width: options.w ? Number(options.w) * DIAGRAM_COL : null,
           height: options.h ? Number(options.h) * DIAGRAM_ROW : null,
+          fontSize: diagramFontSize(options["font-size"], DIAGRAM_FONT_SIZE),
+          dash: diagramDash(options.dash),
           // Defaults to "n" (top-center) for an enclosure, which is naming a region other
           // nodes may sit inside rather than labeling a single box, and "c" (dead-center)
           // for every other node; an explicit label-pos always overrides either default.
@@ -548,6 +587,8 @@ window.DeckBuilder = (() => {
           arrowStart: options.arrowStart,
           arrowEnd: options.arrowEnd,
           dashed: options.dashed,
+          dash: diagramDash(options.dash, options.dashed ? DIAGRAM_DASH_PATTERN : null),
+          fontSize: diagramFontSize(options["font-size"], DIAGRAM_FONT_SIZE * 0.62),
           pipe: options.pipe,
           color: diagramColorValue(options.color) || "var(--slide-muted)",
           label: options.label || null
@@ -555,7 +596,7 @@ window.DeckBuilder = (() => {
       }
     });
     finalizeDiagramEdges(edges);
-    return { nodes, edges, id };
+    return { nodes, edges, paths, id };
   }
 
   function layoutDiagramNodes(nodes) {
@@ -622,6 +663,11 @@ window.DeckBuilder = (() => {
   }
 
   function clipToNode(node, targetX, targetY) {
+    if (node.shape === "ellipse") {
+      const dx = targetX - node.cx, dy = targetY - node.cy;
+      const scale = 1 / (Math.hypot(dx / (node.w / 2), dy / (node.h / 2)) || 1);
+      return { x: node.cx + dx * scale, y: node.cy + dy * scale };
+    }
     return node.isCircle
       ? clipToCircle(node.cx, node.cy, node.w / 2, targetX, targetY)
       : clipToRect(node.cx, node.cy, node.w / 2, node.h / 2, targetX, targetY);
@@ -858,7 +904,7 @@ window.DeckBuilder = (() => {
   }
 
   function buildDiagramSvg(source) {
-    const { nodes, edges, id } = parseDiagramSource(source);
+    const { nodes, edges, paths, id } = parseDiagramSource(source);
     layoutDiagramNodes(nodes);
 
     const instanceId = diagramInstanceCount++;
@@ -869,6 +915,7 @@ window.DeckBuilder = (() => {
     // contains. Regular nodes stay in front of edges as before (their fill only ever needs to
     // cover an edge's clipped-short endpoint, never a whole edge crossing through it).
     const enclosureGroup = svgEl("g", { class: "diagram-enclosures" });
+    const pathGroup = svgEl("g", { class: "diagram-paths" });
     const edgeGroup = svgEl("g", { class: "diagram-edges" });
     const nodeGroup = svgEl("g", { class: "diagram-nodes" });
 
@@ -906,7 +953,7 @@ window.DeckBuilder = (() => {
         "data-diagram-edge": edge.key + keySuffix,
         "data-diagram-edge-route": linePoints.map((p) => `${p.x},${p.y}`).join(" ")
       });
-      if (edge.dashed) path.setAttribute("stroke-dasharray", DIAGRAM_DASH_PATTERN);
+      if (edge.dash) path.setAttribute("stroke-dasharray", edge.dash);
       if (withMarkers) {
         if (edge.arrowEnd) path.setAttribute("marker-end", `url(#${markerFor(edge.arrowEnd, edge.color)})`);
         if (edge.arrowStart) path.setAttribute("marker-start", `url(#${markerFor(edge.arrowStart, edge.color)})`);
@@ -937,6 +984,19 @@ window.DeckBuilder = (() => {
     }
 
     const edgePointSets = [];
+    paths.forEach((path) => {
+      const d = (path.smooth ? smoothPath(path.points) : polylinePathD(path.points)) + (path.closed ? " Z" : "");
+      const element = svgEl("path", {
+        d, fill: path.fill, stroke: path.color, "stroke-width": DIAGRAM_EDGE_STROKE,
+        "stroke-linecap": "round", "stroke-linejoin": "round",
+        "data-diagram-edge": path.key
+      });
+      if (path.dash) element.setAttribute("stroke-dasharray", path.dash);
+      pathGroup.append(element);
+      // The control-point hull bounds the entire curve, including any Catmull-Rom overshoot.
+      const values = pathNumbers(d);
+      edgePointSets.push(Array.from({ length: values.length / 2 }, (_, i) => ({ x: values[i * 2], y: values[i * 2 + 1] })));
+    });
     edges.forEach((edge) => {
       const points = diagramEdgePoints(edge, nodes);
       if (!points) return;
@@ -954,7 +1014,7 @@ window.DeckBuilder = (() => {
       if (edge.label) {
         const { x, y } = diagramLabelPosition(points);
         const text = svgEl("text", {
-          x, y, dy: DIAGRAM_TEXT_DY, fill: edge.color, "font-style": "italic", "font-size": DIAGRAM_FONT_SIZE * 0.62,
+          x, y, dy: DIAGRAM_TEXT_DY, fill: edge.color, "font-style": "italic", "font-size": edge.fontSize,
           "text-anchor": "middle", "dominant-baseline": "middle",
           "data-diagram-edge-label": edge.key
         });
@@ -989,6 +1049,11 @@ window.DeckBuilder = (() => {
           cx: node.cx, cy: node.cy, r: node.w / 2,
           fill, stroke, "stroke-width": DIAGRAM_EDGE_STROKE
         }));
+      } else if (node.shape === "ellipse") {
+        group.append(svgEl("ellipse", {
+          cx: node.cx, cy: node.cy, rx: node.w / 2, ry: node.h / 2,
+          fill, stroke, "stroke-width": DIAGRAM_EDGE_STROKE
+        }));
       } else if (node.isTriangle) {
         const hw = node.w / 2, hh = node.h / 2;
         group.append(svgEl("polygon", {
@@ -1005,6 +1070,7 @@ window.DeckBuilder = (() => {
           fill, stroke, "stroke-width": DIAGRAM_EDGE_STROKE
         }));
       }
+      if (node.dash) group.firstElementChild.setAttribute("stroke-dasharray", node.dash);
       // A plain node with no label at all (see layoutDiagramNodes) renders as a bare circle
       // with no text; every other node places its label per diagramLabelAnchor (label-pos).
       if (node.label) {
@@ -1023,7 +1089,7 @@ window.DeckBuilder = (() => {
             ? (isColorDark(paintedFill) ? "#fff" : "var(--slide-ink)")
             : (node.color && node.color !== "none" ? node.color : "var(--slide-ink)"),
           "font-style": "italic",
-          "font-size": DIAGRAM_FONT_SIZE,
+          "font-size": node.fontSize,
           "text-anchor": anchor.textAnchor,
           "dominant-baseline": anchor.dominantBaseline
         });
@@ -1047,7 +1113,8 @@ window.DeckBuilder = (() => {
       viewBox: `${minX} ${minY} ${width} ${height}`,
       preserveAspectRatio: "xMidYMid meet"
     });
-    svg.append(defs, enclosureGroup, edgeGroup, nodeGroup);
+    if (paths.length) svg.append(defs, enclosureGroup, pathGroup, edgeGroup, nodeGroup);
+    else svg.append(defs, enclosureGroup, edgeGroup, nodeGroup);
     return svg;
   }
 
@@ -1809,16 +1876,18 @@ window.DeckBuilder = (() => {
       // rect's fill reads via color-mix() — not an attribute on the rect itself — so it needs
       // its own flip or a node that changes color would just snap instead of fading.
       colorFlips.push(flipDiagramStyleProperty(to, "--box-color", from, "var(--slide-muted)"));
-      // A node's shape is a <rect>, a <circle>, or a triangle's <polygon> (see buildDiagramSvg).
+      // Node shapes are rects, circles, ellipses, or triangle polygons (see buildDiagramSvg).
       // The same shape on both sides morphs attribute-for-attribute; a shape that changes
       // between slides (a node gaining/losing its label, or an explicit `shape=`) can't, so it
       // swaps in place instead (boxTrack).
-      const fromShape = from.querySelector("rect, circle, polygon");
-      const toShape = to.querySelector("rect, circle, polygon");
+      const fromShape = from.querySelector("rect, circle, ellipse, polygon");
+      const toShape = to.querySelector("rect, circle, ellipse, polygon");
       if (fromShape && toShape) {
         const tag = toShape.tagName;
         if (tag === fromShape.tagName && tag === "circle") {
           attributeTrack(toShape, fromShape, { cx: "x", cy: "y", r: "size" });
+        } else if (tag === fromShape.tagName && tag === "ellipse") {
+          attributeTrack(toShape, fromShape, { cx: "x", cy: "y", rx: "size", ry: "size" });
         } else if (tag === fromShape.tagName && tag === "rect") {
           attributeTrack(toShape, fromShape, { x: "x", y: "y", width: "size", height: "size" });
         } else if (!(tag === fromShape.tagName && tag === "polygon"
@@ -1836,7 +1905,7 @@ window.DeckBuilder = (() => {
     });
     matchDiagramElements(fromSvg, toSvg, "[data-diagram-edge]").forEach(({ from, to }) => {
       pathTrack(to, from);
-      colorFlips.push(flipDiagramAttributes(to, ["stroke"], from));
+      colorFlips.push(flipDiagramAttributes(to, ["stroke", "fill"], from));
     });
     matchDiagramElements(fromSvg, toSvg, "[data-diagram-edge-label]").forEach(({ from, to }) => {
       textTrack(to, from);

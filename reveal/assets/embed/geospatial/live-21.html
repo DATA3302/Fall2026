@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>Datashader</title>
+        <link rel="stylesheet" href="lib/figure.css" />
+    </head>
+    <body
+        class="external"
+        data-mode="static"
+        data-live-src="https://datashader.org/"
+        data-live-title="Datashader — external website"
+    >
+        <main>
+            <img
+                class="external-static"
+                src="fallback/datashader.png"
+                alt="Static reference: original Datashader Manhattan density map and magnified raster detail, not the documentation homepage."
+            />
+        </main>
+        <div class="controls" aria-label="External page controls">
+            <button type="button" data-mode="static" aria-pressed="true">
+                Static</button
+            ><button type="button" data-mode="live" aria-pressed="false">
+                Live</button
+            
+            ><a
+                href="https://datashader.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Open Datashader ↗</a
+            >
+        </div>
+        <p class="sr-only" role="status" aria-live="polite"></p>
+        <script type="module" src="lib/external.js"></script>
+    </body>
+</html>

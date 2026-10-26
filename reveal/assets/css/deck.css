@@ -678,9 +678,15 @@ svg {
 .reveal .slide-content .text-accent,
 .reveal .slide-column .text-accent { color: var(--slide-accent); }
 
+.reveal .slide-content .text-medium,
+.reveal .slide-column .text-medium { font-size: 1.35em; }
+
 .reveal .slide-content .text-big,
-.reveal .slide-column .text-big {
-  font-size: 2em;
+.reveal .slide-column .text-big { font-size: 2em; }
+
+/* Medium shares big's display typography, but does not trigger vertical centering. */
+.reveal .slide-content :is(.text-medium, .text-big),
+.reveal .slide-column :is(.text-medium, .text-big) {
   font-style: italic;
   font-weight: 400;
   text-align: center;
@@ -778,7 +784,7 @@ svg {
    node/edge eases into its new color. Only color rides CSS here: a diagram's geometry is driven
    frame by frame alongside its pan/zoom (see animateDiagramTransition), and a CSS transition on
    the same attributes would lag every one of those per-frame updates by the full duration. */
-.simple-diagram.is-flipping :is(rect, circle, polygon, text, path) {
+.simple-diagram.is-flipping :is(rect, circle, ellipse, polygon, text, path) {
   transition: fill var(--diagram-flip-duration, 0.5s) var(--diagram-flip-easing, ease),
     stroke var(--diagram-flip-duration, 0.5s) var(--diagram-flip-easing, ease);
 }
