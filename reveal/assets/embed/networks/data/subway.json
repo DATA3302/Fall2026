@@ -1,0 +1,729 @@
+{
+  "_source": {
+    "description": "Prague Metro A/B/C station sequences and geographic coordinates from Wikipedia station articles, retrieved 2026-10-27. Schematic positions are an authored adaptation of the PDF p.55 straight-line drawing, NOT official map coordinates or a recovered original animation. No planned line D. Straight segments connect station centers, not measured track alignments.",
+    "url": "https://en.wikipedia.org/wiki/List_of_Prague_Metro_stations",
+    "license": "Wikipedia text/data attribution: CC BY-SA 4.0; https://creativecommons.org/licenses/by-sa/4.0/",
+    "originalAnimation": "Not identified; slide has no PDF link annotations."
+  },
+  "stations": [
+    {
+      "id": "Nemocnice Motol",
+      "name": "Nemocnice Motol",
+      "latitude": 50.0753,
+      "longitude": 14.341,
+      "source": "https://en.wikipedia.org/wiki/Nemocnice_Motol_%28Prague_Metro%29",
+      "schematic": [
+        100,
+        240
+      ]
+    },
+    {
+      "id": "Petřiny",
+      "name": "Petřiny",
+      "latitude": 50.08638888888889,
+      "longitude": 14.345277777777778,
+      "source": "https://en.wikipedia.org/wiki/Pet%C5%99iny_%28Prague_Metro%29",
+      "schematic": [
+        128,
+        240
+      ]
+    },
+    {
+      "id": "Nádraží Veleslavín",
+      "name": "Nádraží Veleslavín",
+      "latitude": 50.0959,
+      "longitude": 14.3474,
+      "source": "https://en.wikipedia.org/wiki/N%C3%A1dra%C5%BE%C3%AD_Veleslav%C3%ADn_%28Prague_Metro%29",
+      "schematic": [
+        156,
+        240
+      ]
+    },
+    {
+      "id": "Bořislavka",
+      "name": "Bořislavka",
+      "latitude": 50.09856111111112,
+      "longitude": 14.363208333333333,
+      "source": "https://en.wikipedia.org/wiki/Bo%C5%99islavka_%28Prague_Metro%29",
+      "schematic": [
+        184,
+        240
+      ]
+    },
+    {
+      "id": "Dejvická",
+      "name": "Dejvická",
+      "latitude": 50.10059444444445,
+      "longitude": 14.392013888888888,
+      "source": "https://en.wikipedia.org/wiki/Dejvick%C3%A1_%28Prague_Metro%29",
+      "schematic": [
+        212,
+        240
+      ]
+    },
+    {
+      "id": "Hradčanská",
+      "name": "Hradčanská",
+      "latitude": 50.09721388888889,
+      "longitude": 14.404569444444444,
+      "source": "https://en.wikipedia.org/wiki/Hrad%C4%8Dansk%C3%A1_%28Prague_Metro%29",
+      "schematic": [
+        240,
+        240
+      ]
+    },
+    {
+      "id": "Malostranská",
+      "name": "Malostranská",
+      "latitude": 50.091236111111115,
+      "longitude": 14.409491666666668,
+      "source": "https://en.wikipedia.org/wiki/Malostransk%C3%A1_%28Prague_Metro%29",
+      "schematic": [
+        268,
+        240
+      ]
+    },
+    {
+      "id": "Staroměstská",
+      "name": "Staroměstská",
+      "latitude": 50.088185,
+      "longitude": 14.417633333333333,
+      "source": "https://en.wikipedia.org/wiki/Starom%C4%9Bstsk%C3%A1_%28Prague_Metro%29",
+      "schematic": [
+        296,
+        240
+      ]
+    },
+    {
+      "id": "Můstek",
+      "name": "Můstek",
+      "latitude": 50.0842,
+      "longitude": 14.4233,
+      "source": "https://en.wikipedia.org/wiki/M%C5%AFstek_%28Prague_Metro%29",
+      "schematic": [
+        324,
+        240
+      ]
+    },
+    {
+      "id": "Muzeum",
+      "name": "Muzeum",
+      "latitude": 50.0798,
+      "longitude": 14.4306,
+      "source": "https://en.wikipedia.org/wiki/Muzeum_%28Prague_Metro%29",
+      "schematic": [
+        352,
+        240
+      ]
+    },
+    {
+      "id": "Náměstí Míru",
+      "name": "Náměstí Míru",
+      "latitude": 50.0753325,
+      "longitude": 14.43769,
+      "source": "https://en.wikipedia.org/wiki/N%C3%A1m%C4%9Bst%C3%AD_M%C3%ADru_%28Prague_Metro%29",
+      "schematic": [
+        380,
+        240
+      ]
+    },
+    {
+      "id": "Jiřího z Poděbrad",
+      "name": "Jiřího z Poděbrad",
+      "latitude": 50.07783027777778,
+      "longitude": 14.450294999999999,
+      "source": "https://en.wikipedia.org/wiki/Ji%C5%99%C3%ADho_z_Pod%C4%9Bbrad_%28Prague_Metro%29",
+      "schematic": [
+        408,
+        240
+      ]
+    },
+    {
+      "id": "Flora",
+      "name": "Flora",
+      "latitude": 50.07763055555556,
+      "longitude": 14.461236111111111,
+      "source": "https://en.wikipedia.org/wiki/Flora_%28Prague_Metro%29",
+      "schematic": [
+        436,
+        240
+      ]
+    },
+    {
+      "id": "Želivského",
+      "name": "Želivského",
+      "latitude": 50.0784,
+      "longitude": 14.4741,
+      "source": "https://en.wikipedia.org/wiki/%C5%BDelivsk%C3%A9ho_%28Prague_Metro%29",
+      "schematic": [
+        464,
+        240
+      ]
+    },
+    {
+      "id": "Strašnická",
+      "name": "Strašnická",
+      "latitude": 50.07277777777778,
+      "longitude": 14.49111111111111,
+      "source": "https://en.wikipedia.org/wiki/Stra%C5%A1nick%C3%A1_%28Prague_Metro%29",
+      "schematic": [
+        492,
+        240
+      ]
+    },
+    {
+      "id": "Skalka",
+      "name": "Skalka",
+      "latitude": 50.06805555555556,
+      "longitude": 14.5075,
+      "source": "https://en.wikipedia.org/wiki/Skalka_%28Prague_Metro%29",
+      "schematic": [
+        520,
+        240
+      ]
+    },
+    {
+      "id": "Depo Hostivař",
+      "name": "Depo Hostivař",
+      "latitude": 50.075833333333335,
+      "longitude": 14.515555555555556,
+      "source": "https://en.wikipedia.org/wiki/Depo_Hostiva%C5%99_%28Prague_Metro%29",
+      "schematic": [
+        548,
+        240
+      ]
+    },
+    {
+      "id": "Zličín",
+      "name": "Zličín",
+      "latitude": 50.05361111111111,
+      "longitude": 14.290555555555555,
+      "source": "https://en.wikipedia.org/wiki/Zli%C4%8D%C3%ADn_%28Prague_Metro%29",
+      "schematic": [
+        30,
+        296
+      ]
+    },
+    {
+      "id": "Stodůlky",
+      "name": "Stodůlky",
+      "latitude": 50.04694444444444,
+      "longitude": 14.306944444444445,
+      "source": "https://en.wikipedia.org/wiki/Stod%C5%AFlky_%28Prague_Metro%29",
+      "schematic": [
+        58,
+        296
+      ]
+    },
+    {
+      "id": "Luka",
+      "name": "Luka",
+      "latitude": 50.04555555555555,
+      "longitude": 14.322222222222223,
+      "source": "https://en.wikipedia.org/wiki/Luka_%28Prague_Metro%29",
+      "schematic": [
+        86,
+        296
+      ]
+    },
+    {
+      "id": "Lužiny",
+      "name": "Lužiny",
+      "latitude": 50.045,
+      "longitude": 14.33,
+      "source": "https://en.wikipedia.org/wiki/Lu%C5%BEiny_%28Prague_Metro%29",
+      "schematic": [
+        114,
+        296
+      ]
+    },
+    {
+      "id": "Hůrka",
+      "name": "Hůrka",
+      "latitude": 50.05,
+      "longitude": 14.343,
+      "source": "https://en.wikipedia.org/wiki/H%C5%AFrka_%28Prague_Metro%29",
+      "schematic": [
+        142,
+        296
+      ]
+    },
+    {
+      "id": "Nové Butovice",
+      "name": "Nové Butovice",
+      "latitude": 50.051,
+      "longitude": 14.352,
+      "source": "https://en.wikipedia.org/wiki/Nov%C3%A9_Butovice_%28Prague_Metro%29",
+      "schematic": [
+        170,
+        296
+      ]
+    },
+    {
+      "id": "Jinonice",
+      "name": "Jinonice",
+      "latitude": 50.05444444444444,
+      "longitude": 14.371111111111112,
+      "source": "https://en.wikipedia.org/wiki/Jinonice_%28Prague_Metro%29",
+      "schematic": [
+        198,
+        296
+      ]
+    },
+    {
+      "id": "Radlická",
+      "name": "Radlická",
+      "latitude": 50.058,
+      "longitude": 14.389,
+      "source": "https://en.wikipedia.org/wiki/Radlick%C3%A1_%28Prague_Metro%29",
+      "schematic": [
+        226,
+        296
+      ]
+    },
+    {
+      "id": "Smíchovské nádraží",
+      "name": "Smíchovské nádraží",
+      "latitude": 50.065,
+      "longitude": 14.408,
+      "source": "https://en.wikipedia.org/wiki/Sm%C3%ADchovsk%C3%A9_n%C3%A1dra%C5%BE%C3%AD_%28Prague_Metro%29",
+      "schematic": [
+        254,
+        296
+      ]
+    },
+    {
+      "id": "Anděl",
+      "name": "Anděl",
+      "latitude": 50.074,
+      "longitude": 14.405,
+      "source": "https://en.wikipedia.org/wiki/And%C4%9Bl_%28Prague_Metro%29",
+      "schematic": [
+        282,
+        296
+      ]
+    },
+    {
+      "id": "Karlovo náměstí",
+      "name": "Karlovo náměstí",
+      "latitude": 50.076,
+      "longitude": 14.418,
+      "source": "https://en.wikipedia.org/wiki/Karlovo_n%C3%A1m%C4%9Bst%C3%AD_%28Prague_Metro%29",
+      "schematic": [
+        310,
+        296
+      ]
+    },
+    {
+      "id": "Národní třída",
+      "name": "Národní třída",
+      "latitude": 50.08,
+      "longitude": 14.42,
+      "source": "https://en.wikipedia.org/wiki/N%C3%A1rodn%C3%AD_t%C5%99%C3%ADda_%28Prague_Metro%29",
+      "schematic": [
+        338,
+        296
+      ]
+    },
+    {
+      "id": "Náměstí Republiky",
+      "name": "Náměstí Republiky",
+      "latitude": 50.0883,
+      "longitude": 14.4318,
+      "source": "https://en.wikipedia.org/wiki/N%C3%A1m%C4%9Bst%C3%AD_Republiky_%28Prague_Metro%29",
+      "schematic": [
+        344,
+        212
+      ]
+    },
+    {
+      "id": "Florenc",
+      "name": "Florenc",
+      "latitude": 50.091,
+      "longitude": 14.439,
+      "source": "https://en.wikipedia.org/wiki/Florenc_%28Prague_Metro%29",
+      "schematic": [
+        378,
+        184
+      ]
+    },
+    {
+      "id": "Křižíkova",
+      "name": "Křižíkova",
+      "latitude": 50.0925,
+      "longitude": 14.451388888888888,
+      "source": "https://en.wikipedia.org/wiki/K%C5%99i%C5%BE%C3%ADkova_%28Prague_Metro%29",
+      "schematic": [
+        406,
+        184
+      ]
+    },
+    {
+      "id": "Invalidovna",
+      "name": "Invalidovna",
+      "latitude": 50.09666666666667,
+      "longitude": 14.463055555555554,
+      "source": "https://en.wikipedia.org/wiki/Invalidovna_%28Prague_Metro%29",
+      "schematic": [
+        434,
+        184
+      ]
+    },
+    {
+      "id": "Palmovka",
+      "name": "Palmovka",
+      "latitude": 50.10388888888889,
+      "longitude": 14.475,
+      "source": "https://en.wikipedia.org/wiki/Palmovka_%28Prague_Metro%29",
+      "schematic": [
+        462,
+        184
+      ]
+    },
+    {
+      "id": "Českomoravská",
+      "name": "Českomoravská",
+      "latitude": 50.10611111111111,
+      "longitude": 14.491944444444444,
+      "source": "https://en.wikipedia.org/wiki/%C4%8Ceskomoravsk%C3%A1_%28Prague_Metro%29",
+      "schematic": [
+        490,
+        184
+      ]
+    },
+    {
+      "id": "Vysočanská",
+      "name": "Vysočanská",
+      "latitude": 50.11138888888889,
+      "longitude": 14.501944444444444,
+      "source": "https://en.wikipedia.org/wiki/Vyso%C4%8Dansk%C3%A1_%28Prague_Metro%29",
+      "schematic": [
+        518,
+        184
+      ]
+    },
+    {
+      "id": "Kolbenova",
+      "name": "Kolbenova",
+      "latitude": 50.1104,
+      "longitude": 14.5166,
+      "source": "https://en.wikipedia.org/wiki/Kolbenova_%28Prague_Metro%29",
+      "schematic": [
+        546,
+        184
+      ]
+    },
+    {
+      "id": "Hloubětín",
+      "name": "Hloubětín",
+      "latitude": 50.10611111111111,
+      "longitude": 14.538055555555555,
+      "source": "https://en.wikipedia.org/wiki/Hloub%C4%9Bt%C3%ADn_%28Prague_Metro%29",
+      "schematic": [
+        574,
+        184
+      ]
+    },
+    {
+      "id": "Rajská zahrada",
+      "name": "Rajská zahrada",
+      "latitude": 50.10666666666667,
+      "longitude": 14.560555555555556,
+      "source": "https://en.wikipedia.org/wiki/Rajsk%C3%A1_zahrada_%28Prague_Metro%29",
+      "schematic": [
+        602,
+        184
+      ]
+    },
+    {
+      "id": "Černý Most",
+      "name": "Černý Most",
+      "latitude": 50.10916666666667,
+      "longitude": 14.5775,
+      "source": "https://en.wikipedia.org/wiki/%C4%8Cern%C3%BD_Most_%28Prague_Metro%29",
+      "schematic": [
+        630,
+        184
+      ]
+    },
+    {
+      "id": "Letňany",
+      "name": "Letňany",
+      "latitude": 50.125,
+      "longitude": 14.514,
+      "source": "https://en.wikipedia.org/wiki/Let%C5%88any_%28Prague_Metro%29",
+      "schematic": [
+        154,
+        128
+      ]
+    },
+    {
+      "id": "Prosek",
+      "name": "Prosek",
+      "latitude": 50.119,
+      "longitude": 14.499,
+      "source": "https://en.wikipedia.org/wiki/Prosek_%28Prague_Metro%29",
+      "schematic": [
+        186,
+        128
+      ]
+    },
+    {
+      "id": "Střížkov",
+      "name": "Střížkov",
+      "latitude": 50.126,
+      "longitude": 14.489,
+      "source": "https://en.wikipedia.org/wiki/St%C5%99%C3%AD%C5%BEkov_%28Prague_Metro%29",
+      "schematic": [
+        218,
+        128
+      ]
+    },
+    {
+      "id": "Ládví",
+      "name": "Ládví",
+      "latitude": 50.127,
+      "longitude": 14.469,
+      "source": "https://en.wikipedia.org/wiki/L%C3%A1dv%C3%AD_%28Prague_Metro%29",
+      "schematic": [
+        250,
+        128
+      ]
+    },
+    {
+      "id": "Kobylisy",
+      "name": "Kobylisy",
+      "latitude": 50.123,
+      "longitude": 14.452,
+      "source": "https://en.wikipedia.org/wiki/Kobylisy_%28Prague_Metro%29",
+      "schematic": [
+        282,
+        128
+      ]
+    },
+    {
+      "id": "Nádraží Holešovice",
+      "name": "Nádraží Holešovice",
+      "latitude": 50.11,
+      "longitude": 14.44,
+      "source": "https://en.wikipedia.org/wiki/N%C3%A1dra%C5%BE%C3%AD_Hole%C5%A1ovice_%28Prague_Metro%29",
+      "schematic": [
+        314,
+        128
+      ]
+    },
+    {
+      "id": "Vltavská",
+      "name": "Vltavská",
+      "latitude": 50.099,
+      "longitude": 14.438,
+      "source": "https://en.wikipedia.org/wiki/Vltavsk%C3%A1_%28Prague_Metro%29",
+      "schematic": [
+        346,
+        128
+      ]
+    },
+    {
+      "id": "Hlavní nádraží",
+      "name": "Hlavní nádraží",
+      "latitude": 50.083,
+      "longitude": 14.436,
+      "source": "https://en.wikipedia.org/wiki/Hlavn%C3%AD_n%C3%A1dra%C5%BE%C3%AD_%28Prague_Metro%29",
+      "schematic": [
+        372,
+        212
+      ]
+    },
+    {
+      "id": "I. P. Pavlova",
+      "name": "I. P. Pavlova",
+      "latitude": 50.0743,
+      "longitude": 14.4303,
+      "source": "https://en.wikipedia.org/wiki/I._P._Pavlova_%28Prague_Metro%29",
+      "schematic": [
+        402,
+        296
+      ]
+    },
+    {
+      "id": "Vyšehrad",
+      "name": "Vyšehrad",
+      "latitude": 50.063,
+      "longitude": 14.431,
+      "source": "https://en.wikipedia.org/wiki/Vy%C5%A1ehrad_%28Prague_Metro%29",
+      "schematic": [
+        430,
+        296
+      ]
+    },
+    {
+      "id": "Pražského povstání",
+      "name": "Pražského povstání",
+      "latitude": 50.056,
+      "longitude": 14.434,
+      "source": "https://en.wikipedia.org/wiki/Pra%C5%BEsk%C3%A9ho_povst%C3%A1n%C3%AD_%28Prague_Metro%29",
+      "schematic": [
+        458,
+        296
+      ]
+    },
+    {
+      "id": "Pankrác",
+      "name": "Pankrác",
+      "latitude": 50.051,
+      "longitude": 14.439,
+      "source": "https://en.wikipedia.org/wiki/Pankr%C3%A1c_%28Prague_Metro%29",
+      "schematic": [
+        486,
+        296
+      ]
+    },
+    {
+      "id": "Budějovická",
+      "name": "Budějovická",
+      "latitude": 50.044,
+      "longitude": 14.449,
+      "source": "https://en.wikipedia.org/wiki/Bud%C4%9Bjovick%C3%A1_%28Prague_Metro%29",
+      "schematic": [
+        514,
+        296
+      ]
+    },
+    {
+      "id": "Kačerov",
+      "name": "Kačerov",
+      "latitude": 50.042,
+      "longitude": 14.46,
+      "source": "https://en.wikipedia.org/wiki/Ka%C4%8Derov_%28Prague_Metro%29",
+      "schematic": [
+        542,
+        296
+      ]
+    },
+    {
+      "id": "Roztyly",
+      "name": "Roztyly",
+      "latitude": 50.037,
+      "longitude": 14.478,
+      "source": "https://en.wikipedia.org/wiki/Roztyly_%28Prague_Metro%29",
+      "schematic": [
+        570,
+        296
+      ]
+    },
+    {
+      "id": "Chodov",
+      "name": "Chodov",
+      "latitude": 50.031,
+      "longitude": 14.491,
+      "source": "https://en.wikipedia.org/wiki/Chodov_%28Prague_Metro%29",
+      "schematic": [
+        598,
+        296
+      ]
+    },
+    {
+      "id": "Opatov",
+      "name": "Opatov",
+      "latitude": 50.028,
+      "longitude": 14.508,
+      "source": "https://en.wikipedia.org/wiki/Opatov_%28Prague_Metro%29",
+      "schematic": [
+        626,
+        296
+      ]
+    },
+    {
+      "id": "Háje",
+      "name": "Háje",
+      "latitude": 50.031,
+      "longitude": 14.527,
+      "source": "https://en.wikipedia.org/wiki/H%C3%A1je_%28Prague_Metro%29",
+      "schematic": [
+        654,
+        296
+      ]
+    }
+  ],
+  "lines": [
+    {
+      "id": "A",
+      "color": "#239c59",
+      "stations": [
+        "Nemocnice Motol",
+        "Petřiny",
+        "Nádraží Veleslavín",
+        "Bořislavka",
+        "Dejvická",
+        "Hradčanská",
+        "Malostranská",
+        "Staroměstská",
+        "Můstek",
+        "Muzeum",
+        "Náměstí Míru",
+        "Jiřího z Poděbrad",
+        "Flora",
+        "Želivského",
+        "Strašnická",
+        "Skalka",
+        "Depo Hostivař"
+      ]
+    },
+    {
+      "id": "B",
+      "color": "#e6ac21",
+      "stations": [
+        "Zličín",
+        "Stodůlky",
+        "Luka",
+        "Lužiny",
+        "Hůrka",
+        "Nové Butovice",
+        "Jinonice",
+        "Radlická",
+        "Smíchovské nádraží",
+        "Anděl",
+        "Karlovo náměstí",
+        "Národní třída",
+        "Můstek",
+        "Náměstí Republiky",
+        "Florenc",
+        "Křižíkova",
+        "Invalidovna",
+        "Palmovka",
+        "Českomoravská",
+        "Vysočanská",
+        "Kolbenova",
+        "Hloubětín",
+        "Rajská zahrada",
+        "Černý Most"
+      ]
+    },
+    {
+      "id": "C",
+      "color": "#e65357",
+      "stations": [
+        "Letňany",
+        "Prosek",
+        "Střížkov",
+        "Ládví",
+        "Kobylisy",
+        "Nádraží Holešovice",
+        "Vltavská",
+        "Florenc",
+        "Hlavní nádraží",
+        "Muzeum",
+        "I. P. Pavlova",
+        "Vyšehrad",
+        "Pražského povstání",
+        "Pankrác",
+        "Budějovická",
+        "Kačerov",
+        "Roztyly",
+        "Chodov",
+        "Opatov",
+        "Háje"
+      ]
+    }
+  ]
+}

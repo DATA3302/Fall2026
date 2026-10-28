@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Local D3 force recreation — synthetic graph</title>
+    <link rel="stylesheet" href="lib/figure.css">
+    <link rel="stylesheet" href="lib/demos.css">
+</head>
+<body class="has-caption">
+    <main><svg viewBox="0 0 900 620" role="img" aria-labelledby="title description"><title id="title">Force-directed layout</title><desc id="description">A synthetic 28-node network in four groups. Drag nodes to explore attraction and repulsion.</desc></svg></main>
+    <p class="caption">Local recreation · Synthetic graph, not the original network. Drag nodes.</p>
+    <div class="controls">
+        <label>Repulsion <input id="charge" type="range" min="30" max="550" value="180"><output for="charge">180</output></label>
+        <button id="pause" type="button" aria-pressed="false">Pause</button>
+        <button id="reset" type="button">Reset</button>
+    </div>
+    <script src="../geospatial/lib/d3.min.js"></script>
+    <script type="module" src="lib/force.js"></script>
+</body>
+</html>

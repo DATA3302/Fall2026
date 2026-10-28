@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>PivotGraph Aggregation</title>
+        <link rel="stylesheet" href="lib/figure.css" />
+        <link rel="stylesheet" href="lib/food-pivot.css" />
+    </head>
+    <body class="pivotgraph">
+        <main>
+            <svg
+                viewBox="0 0 1100 785"
+                role="img"
+                aria-labelledby="title description"
+            >
+                <title id="title">PivotGraph Aggregation</title>
+                <desc id="description">
+                    The original ten-node, twelve-link graph. Advance the
+                    presentation to group nodes by color and shape, size
+                    category nodes by membership, and weight category edges by
+                    original link count. Navigate backward to reverse each
+                    stage.
+                </desc>
+            </svg>
+        </main>
+        <p id="status" class="sr-only" role="status" aria-live="polite"></p>
+        <script src="../geospatial/lib/d3.min.js"></script>
+        <script type="module" src="lib/pivotgraph.js"></script>
+    </body>
+</html>

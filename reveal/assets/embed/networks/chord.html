@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>Bilateral merchandise exports, 2019</title>
+        <link rel="stylesheet" href="lib/figure.css" />
+        <link rel="stylesheet" href="lib/airports-chord.css" />
+    </head>
+    <body class="ac-figure chord">
+        <div class="ac-controls">
+            <label
+                >Country
+                <select id="country">
+                    <option value="">All countries</option>
+                </select></label
+            >
+            <button id="reset" type="button">Reset</button>
+        </div>
+        <main>
+            <svg viewBox="0 0 960 740" aria-labelledby="title description">
+                <title id="title">Bilateral merchandise exports, 2019</title>
+                <desc id="description">
+                    UN Comtrade exporter-reported merchandise exports, FOB, via
+                    CEPII Gravity version 202211. Each ribbon pairs two directed
+                    export flows, whose unequal values determine its two end
+                    widths. Country arcs total exports to the other nine
+                    countries, not worldwide exports. Values are nominal US
+                    dollars for 2019. Select a country or inspect a ribbon for
+                    both export values.
+                </desc>
+            </svg>
+        </main>
+        <p id="status" class="sr-only" role="status" aria-live="polite"></p>
+        <div id="tooltip" class="ac-tooltip" role="tooltip" hidden></div>
+        <script src="../geospatial/lib/d3.min.js"></script>
+        <script type="module" src="lib/chord.js"></script>
+    </body>
+</html>

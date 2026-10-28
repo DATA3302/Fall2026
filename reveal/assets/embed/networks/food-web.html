@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>Food web — attribute-driven layout</title>
+        <link rel="stylesheet" href="lib/figure.css" />
+        <link rel="stylesheet" href="lib/demos.css" />
+        <link rel="stylesheet" href="lib/food-pivot.css" />
+    </head>
+    <body class="food-pivot food-web">
+        <header>
+            <h1>How many herbivores have no predators?</h1>
+            <p class="legend">
+                <span class="carnivore">■ Carnivores</span
+                ><span class="herbivore">■ Herbivores</span
+                ><span class="plant">■ Plants</span>
+            </p>
+        </header>
+        <main>
+            <svg
+                viewBox="0 0 1780 660"
+                role="img"
+                aria-labelledby="title description"
+            >
+                <title id="title">Food web</title>
+            </svg>
+        </main>
+        <p class="status" id="status" role="status" aria-live="polite">
+            Loading food web…
+        </p>
+        <div class="controls" aria-label="Food web controls">
+            <button id="sort" type="button" aria-pressed="false" disabled>
+                Sort layout
+            </button>
+            <button id="highlight" type="button" aria-pressed="false" disabled>
+                Highlight answer
+            </button>
+            <button id="reset" type="button" disabled>Reset</button>
+        </div>
+        <script src="../geospatial/lib/d3.min.js"></script>
+        <script type="module" src="lib/food-web.js"></script>
+    </body>
+</html>

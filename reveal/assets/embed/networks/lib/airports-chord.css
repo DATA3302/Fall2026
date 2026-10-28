@@ -1,0 +1,43 @@
+.ac-figure { display: flex; flex-direction: column; height: 100%; padding: 12px 18px 8px; gap: 8px; overflow: hidden; background: #fff; color: #243340; font: 13px/1.35 system-ui, sans-serif; }
+.ac-figure header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.ac-figure h1 { font-size: clamp(16px, 2.1vw, 23px); font-weight: 650; letter-spacing: -.025em; margin: 0; }
+.ac-figure header p { margin: 3px 0 0; color: #62717c; font-size: 12px; }
+.ac-figure button, .ac-figure select { border-color: #b9c6ce; color: #243340; }
+.ac-figure main { position: relative; inset: auto; flex: 1; min-height: 100px; }
+.ac-figure svg { width: 100%; height: 100%; }
+.ac-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 18px; }
+.ac-controls label { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 600; }
+.ac-controls select { max-width: min(31vw, 330px); font-weight: 400; }
+.ac-legend { display: flex; flex-wrap: wrap; gap: 4px 17px; font-size: 11px; color: #52636e; }
+.ac-legend > span { display: inline-flex; align-items: center; gap: 4px; }
+.key { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #5c8eab; }
+.key.origin { background: #c05a23; }
+.key.destination { background: #6d43a5; border-radius: 1px; }
+.key.inactive { background: #c7d1d5; }
+.ac-status { margin: 0; min-height: 2.7em; font-size: 12px; padding: 7px 10px; border-left: 3px solid #5c8eab; background: #f3f6f8; overflow-wrap: anywhere; }
+.ac-status[data-state="no-route"], .ac-status[data-state="error"] { border-color: #c05a23; background: #fff6ee; }
+.ac-figure footer { color: #71808b; text-align: center; font-size: 10px; }
+.ac-figure a { color: #46697e; }
+.ac-tooltip { position: fixed; z-index: 10; max-width: 330px; padding: 9px 12px; color: white; background: #213543f5; box-shadow: 0 2px 8px #0002; border-radius: 4px; font-size: 12px; pointer-events: none; white-space: pre-line; }
+.ac-figure [hidden] { display: none !important; }
+.map-land { fill: #edf0ef; stroke: #c8d1d4; stroke-width: .6; }
+.map-boundary { fill: none; stroke: white; stroke-width: .8; }
+.map-note { fill: #6e7c85; font: 10px system-ui, sans-serif; }
+.route { fill: none; stroke: #49758e; stroke-width: .65; opacity: .09; }
+.route.active { stroke: #bd5828; stroke-width: 1.25; opacity: .66; }
+.route.path-route { stroke: #6d43a5; stroke-width: 2.7; opacity: .92; }
+.airport-dot { stroke: white; stroke-width: .55; fill: #5c8eab; cursor: pointer; }
+.airport-dot.inactive { fill: #bdcbd2; stroke: none; opacity: .45; }
+.airport-dot.is-origin { fill: #c05a23; stroke: white; stroke-width: 1.7; }
+.airport-dot.is-destination { fill: #6d43a5; stroke: white; stroke-width: 1.7; }
+.airport-label { fill: #243340; paint-order: stroke; stroke: white; stroke-width: 4px; stroke-linejoin: round; font: 600 12px system-ui, sans-serif; pointer-events: none; }
+.airport-halo { fill: none; stroke: #c05a23; stroke-width: 1.4; pointer-events: none; }
+.chord-ribbon { stroke: white; stroke-width: .6; fill-opacity: .7; cursor: pointer; }
+.chord-group { cursor: pointer; stroke: white; stroke-width: 1; }
+.chord-label { fill: #243340; font: 13px system-ui, sans-serif; }
+.chord-tick { fill: #71808b; font: 9px system-ui, sans-serif; }
+.chord-center { fill: #71808b; font: 12px system-ui, sans-serif; pointer-events: none; }
+.chord-group:focus-visible, .chord-ribbon:focus-visible { outline: none; stroke: #243340; stroke-width: 3px; }
+@media (max-width: 650px) { .ac-figure { padding: 8px; gap: 5px; } .ac-controls { gap: 5px 10px; } .ac-controls select { max-width: 55vw; } .ac-legend { font-size: 10px; gap: 3px 10px; } .ac-figure header p { font-size: 11px; } .ac-status { font-size: 11px; } }
+@media (prefers-reduced-motion: reduce) { .ac-figure * { transition: none !important; } }
+@media print { .ac-figure { height: 100vh; } .ac-controls, .ac-figure header button { display: none; } }

@@ -3,6 +3,7 @@ title: Network Visualization
 order: 9
 description: Network analysis tasks, graph layouts, tree visualization, and alternative network representations.
 course: DATA 3302 Fall 2026
+
 ---
 
 # Network Visualization
@@ -11,74 +12,89 @@ _Cal Poly DATA 3302: Data Visualization._
 
 _Professor: Austin P. Wright._
 
-> Adapted from Cal Poly CSC 477: Scientific and Information Visualization ("Network Visualization").
-
-<!-- Separate visible quotation from presenter notes. -->
-
-> [!notes]
-> Source: 17-Networks.pdf, page 1. 
-
 ---
 
 ### Graphs and Trees
 
-[big] Graphs
+[medium left vcenter] **Graphs**
 
-General structure for modeling relational data with Nodes and Edges
+[medium left] General structure for modeling relational data with Nodes and Edges
 
-[big] Trees
+[medium left] **Trees**
 
-Graphs with hierarchical structure. Nodes have Parents and Children
+[medium left] Graphs with hierarchical structure. Nodes have Parents and Children
 
-::: 70/30
+::: 58/42
 
-![](/images/networks/p02-figure.png)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 2. Corrected source spelling only.
+```diagram
+diagram graphs-and-trees
+node a (0,0) shape=circle w=0.22 fill=orange nostroke
+node b (1.5,0.2) shape=circle w=0.22 fill=orange nostroke
+node c (0.65,0.8) shape=circle w=0.22 fill=orange nostroke
+node d (2.25,0.8) shape=circle w=0.22 fill=orange nostroke
+node e (1.5,1.55) shape=circle w=0.22 fill=orange nostroke
+edge a b via (0.6,-0.18) smooth arrow=none color=orange
+edge a b via (0.65,0.48) smooth arrow=none color=orange
+edge a c via (0.1,0.65) smooth arrow=none color=orange
+edge b d via (2.05,0.25) smooth arrow=none color=orange
+edge b e via (1.7,0.85) smooth arrow=none color=orange
+edge c d via (1.4,1.0) smooth arrow=none color=orange
+node root (1.1,2.7) shape=circle w=0.22 fill=orange nostroke
+node left (0.65,3.2) shape=circle w=0.22 fill=orange nostroke
+node right (1.55,3.2) shape=circle w=0.22 fill=orange nostroke
+node l (1.15,3.9) shape=circle w=0.22 fill=orange nostroke
+node r (1.95,3.9) shape=circle w=0.22 fill=orange nostroke
+edge root left arrow=none color=orange
+edge root right arrow=none color=orange
+edge right l arrow=none color=orange
+edge right r arrow=none color=orange
+```
 
 ---
 
 ### Applications
 
-- Tournaments
-- Organization Charts
-- Genealogy
-- Diagramming
-- Biological Interactions
-- Computer Networks
-- Social Networks
-- Simulation and Modeling
-- Integrated Circuit Design
-- …
+[medium left vcenter] Tournaments
 
-> [!notes]
-> Source: 17-Networks.pdf, page 3. 
+[medium left] Organization Charts
+
+[medium left] Genealogy
+
+[medium left] Diagramming
+
+[medium left] Biological Interactions
+
+::: 50/50
+
+[medium left vcenter] Computer Networks
+
+[medium left] Social Networks
+
+[medium left] Simulation and Modeling
+
+[medium left] Integrated Circuit Design
+
+[medium left] …
 
 ---
 
 ### Network Analysis Tasks
 
-Structure-based: Relationships and Connectivity
+[medium left vcenter] Structure-based: Relationships and Connectivity
 
-Attribute-based: Specific Node/Edge Attributes
+[medium left] Attribute-based: Specific Node/Edge Attributes
 
-Browsing-based: Understand/Trace paths
+[medium left] Browsing-based: Understand/Trace paths
 
-Estimation-based: Summarization and changes
+[medium left] Estimation-based: Summarization and changes
 
 > Pretorius, Purchase & Stasko (2014), [Tasks for multivariate network analysis](https://eprints.whiterose.ac.uk/id/eprint/80919/1/chapter3-tasks-v7.0.pdf).
 
-<!-- Separate visible quotation from presenter notes. -->
-
-> [!notes]
-> Source: 17-Networks.pdf, page 4. Progressive task-category emphasis retained.
-
 ---
 
 ### Network Analysis Tasks
 
-**Structure-based: Relationships and Connectivity**
+[medium left vcenter] **Structure-based: Relationships and Connectivity**
 
 - Find all of the friends of friends for Taylor.
 
@@ -86,117 +102,91 @@ Estimation-based: Summarization and changes
 
 - Six degrees of separation: shortest path between two individuals.
 
-Attribute-based: Specific Node/Edge Attributes
+[medium left] Attribute-based: Specific Node/Edge Attributes
 
-Browsing-based: Understand/Trace paths
+[medium left] Browsing-based: Understand/Trace paths
 
-Estimation-based: Summarization and changes
+[medium left] Estimation-based: Summarization and changes
 
 > Pretorius, Purchase & Stasko (2014), [Tasks for multivariate network analysis](https://eprints.whiterose.ac.uk/id/eprint/80919/1/chapter3-tasks-v7.0.pdf).
-
-<!-- Separate visible quotation from presenter notes. -->
-
-> [!notes]
-> Source: 17-Networks.pdf, page 5. Progressive task-category emphasis retained.
 
 ---
 
 ### Network Analysis Tasks
 
-Structure-based: Relationships and Connectivity
+[medium left vcenter] Structure-based: Relationships and Connectivity
 
-**Attribute-based: Specific Node/Edge Attributes**
+[medium left] **Attribute-based: Specific Node/Edge Attributes**
 
 - Find all "students" attending a course.
 
 - Find all the "friends" and "family" of Alex.
 
-Browsing-based: Understand/Trace paths
+[medium left] Browsing-based: Understand/Trace paths
 
-Estimation-based: Summarization and changes
+[medium left] Estimation-based: Summarization and changes
 
 > Pretorius, Purchase & Stasko (2014), [Tasks for multivariate network analysis](https://eprints.whiterose.ac.uk/id/eprint/80919/1/chapter3-tasks-v7.0.pdf).
-
-<!-- Separate visible quotation from presenter notes. -->
-
-> [!notes]
-> Source: 17-Networks.pdf, page 6. Progressive task-category emphasis retained. Old course code generalized.
 
 ---
 
 ### Network Analysis Tasks
 
-Structure-based: Relationships and Connectivity
+[medium left vcenter] Structure-based: Relationships and Connectivity
 
-Attribute-based: Specific Node/Edge Attributes
+[medium left] Attribute-based: Specific Node/Edge Attributes
 
-**Browsing-based: Understand/Trace paths**
+[medium left] **Browsing-based: Understand/Trace paths**
 
 - Find Alex’s friend Taylor, and then Taylor’s friend Jordan.
 
-Estimation-based: Summarization and changes
+[medium left] Estimation-based: Summarization and changes
 
 > Pretorius, Purchase & Stasko (2014), [Tasks for multivariate network analysis](https://eprints.whiterose.ac.uk/id/eprint/80919/1/chapter3-tasks-v7.0.pdf).
-
-<!-- Separate visible quotation from presenter notes. -->
-
-> [!notes]
-> Source: 17-Networks.pdf, page 7. Progressive task-category emphasis retained.
 
 ---
 
 ### Network Analysis Tasks
 
-Structure-based: Relationships and Connectivity
+[medium left vcenter] Structure-based: Relationships and Connectivity
 
-Attribute-based: Specific Node/Edge Attributes
+[medium left] Attribute-based: Specific Node/Edge Attributes
 
-Browsing-based: Understand/Trace paths
+[medium left] Browsing-based: Understand/Trace paths
 
-**Estimation-based: Summarization and changes**
+[medium left] **Estimation-based: Summarization and changes**
 
 - How does Jordan’s friend group change over the course of the year?
 
 > Pretorius, Purchase & Stasko (2014), [Tasks for multivariate network analysis](https://eprints.whiterose.ac.uk/id/eprint/80919/1/chapter3-tasks-v7.0.pdf).
 
-<!-- Separate visible quotation from presenter notes. -->
-
-> [!notes]
-> Source: 17-Networks.pdf, page 8. Progressive task-category emphasis retained.
-
 ---
 
-## Graph Layout
+[big left vcenter] Graph Layout
 
-[big] Tree Visualization
+[big left] Tree Visualization
 
-[big] Alternative Techniques
-
-> [!notes]
-> Source: 17-Networks.pdf, page 9. 
+[big left] Alternative Techniques
 
 ---
 
 ### Direct Graph Representation
 
-Display nodes as visual elements and edges as visual elements directly
+[medium left vcenter] Display nodes as visual elements and edges as visual elements directly
 
-**Layout Problem:** Position is underspecified
+[medium left] **Layout Problem:** Position is underspecified
 
-Considerations:
+[medium left] Considerations:
 - Connectivity, path-following
 - Topological distance
 - Clustering / grouping
 - Ordering (e.g., hierarchy level)
 
-> [!notes]
-> Source: 17-Networks.pdf, page 10. 
-
 ---
 
 ### Node-Link Layout
 
-Nodes connected by lines / curves
+[medium left vcenter] Nodes connected by lines / curves
 
 - Sugiyama-Style Layout - arranged by depth
 - Force-Directed Layout - physical simulation
@@ -204,27 +194,21 @@ Nodes connected by lines / curves
 - Constraint-Based Layout - optimization
 - Arc Diagrams - aligned layout
 
-> [!notes]
-> Source: 17-Networks.pdf, page 11. 
-
 ---
 
 ### Sugiyama-Style Layout
 
-For Directed Acyclic Graphs ([d3-DAG](https://erikbrinkman.github.io/d3-dag/))
+[medium left vcenter] For Directed Acyclic Graphs ([d3-DAG](https://erikbrinkman.github.io/d3-dag/))
 
-Assigning each node a layer
+[medium left] Assigning each node a layer
 
-Shuffling the layers to minimize edge crossings
+[medium left] Shuffling the layers to minimize edge crossings
 
-Aligning nodes within a layer to produce a pleasing layout.
+[medium left] Aligning nodes within a layer to produce a pleasing layout.
 
-::: 60/40
+::: 55/45
 
-![](/images/networks/p12-figure.png)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 12. 
+![](/images/networks/native/page-12-native.svg)
 
 ---
 
@@ -232,108 +216,59 @@ Aligning nodes within a layer to produce a pleasing layout.
 
 [d3-force](https://d3js.org/d3-force)
 
-Layout-by-simulation
+[medium left vcenter] Layout-by-simulation
 
-Attractive and Repulsive Forces
+[medium left] Attractive and Repulsive Forces
 
 ::: 35/65
 
-![](/images/networks/p13-figure.png)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 13. 
+![figure clip](/embed/networks/force.html)
 
 ---
 
 ### Attribute-driven Layout
 
-How many herbivores have no predators?
-
-![](/images/networks/p14-figure.png)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 14. Keep the question unanswered until the next original layout is shown.
+![figure clip](/embed/networks/food-web.html)
 
 ---
 
 ### Attribute-driven Layout
 
-How many herbivores have no predators?
+[medium left vcenter] Encode marks based on data attributes, then layer network properties
 
-![](/images/networks/p15-figure.png)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 15. Keep the question unanswered until the next original layout is shown.
+[medium left] Attributes may be associated with nodes or edges or may be statistical properties of the graph.
 
 ---
 
 ### Attribute-driven Layout
 
-How encode marks based on data attributes, then layer network properties
+![figure clip](/embed/networks/airports.html?mode=all)
 
-Attributes may be associated with nodes or edges or may be statistical properties of the graph.
-
-> [!notes]
-> Source: 17-Networks.pdf, page 16. 
 
 ---
 
 ### Attribute-driven Layout
 
-![](/images/networks/p17-figure.png)
+![figure clip](/embed/networks/airports.html?mode=selected)
 
-> [!notes]
-> Source: 17-Networks.pdf, page 17. 
 
 ---
 
 ### Attribute-driven Layout
 
-![](/images/networks/p18-figure.png)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 18. 
-
----
-
-### Attribute-driven Layout
-
-![](/images/networks/p19-figure.png)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 19. 
+![figure clip](/embed/networks/airports.html?mode=paths)
 
 ---
 
 ### PivotGraph Aggregation
 
-![](/images/networks/p20-figure.png)
-
-> Martin Wattenberg (2006). Visual exploration of multivariate graphs. CHI ’06, 811–819. [doi:10.1145/1124772.1124891](https://doi.org/10.1145/1124772.1124891)
-
-<!-- Separate visible quotation from presenter notes. -->
-
-> [!notes]
-> Source: 17-Networks.pdf, page 20. 
-
----
-
-### PivotGraph Aggregation
-
-![](/images/networks/p21-figure.png)
-
-> Martin Wattenberg (2006). Visual exploration of multivariate graphs. CHI ’06, 811–819. [doi:10.1145/1124772.1124891](https://doi.org/10.1145/1124772.1124891)
-
-<!-- Separate visible quotation from presenter notes. -->
-
-> [!notes]
-> Source: 17-Networks.pdf, page 21. 
+![figure clip](/embed/networks/pivotgraph.html)
 
 ---
 
 ### Constraint-Based Layout
 
-Treat layout as an optimization problem (often NP-Hard)
+[medium left vcenter] Treat layout as an optimization problem (often NP-Hard)
 
 - Minimize edge crossings
 - Minimize area
@@ -342,212 +277,189 @@ Treat layout as an optimization problem (often NP-Hard)
 - Maximize smallest angle between edges
 - Maximize symmetry
 
-::: 60/40
+::: 48/52
 
-![](/images/networks/p22-figure.png)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 22. 
-
----
-
-### Arc Diagrams
-
-![](/images/networks/p23-figure.png)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 23. Original visual build retained, including repeated source pages.
-
----
-
-### Arc Diagrams
-
-![](/images/networks/p24-figure.png)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 24. Original visual build retained, including repeated source pages.
-
----
-
-### Arc Diagrams
-
-![](/images/networks/p25-figure.png)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 25. Original visual build retained, including repeated source pages.
+```diagram
+diagram constraint-layouts
+node a (0,0) shape=circle w=0.09 fill=blue nostroke
+node b (1.5,0) shape=circle w=0.09 fill=blue nostroke
+node c (0.75,0.65) shape=circle w=0.09 fill=blue nostroke
+node d (0.75,1.75) shape=circle w=0.09 fill=blue nostroke
+edge a b arrow=none color=orange
+edge a c arrow=none color=orange
+edge a d arrow=none color=orange
+edge b c arrow=none color=orange
+edge b d arrow=none color=orange
+edge c d arrow=none color=orange
+node label1 (0.75,2.3) "min # crossings" w=2 h=0.4 fill=none nostroke font-size=28
+node e (2.7,0) shape=circle w=0.09 fill=blue nostroke
+node f (4.2,0) shape=circle w=0.09 fill=blue nostroke
+node g (2.7,1.75) shape=circle w=0.09 fill=blue nostroke
+node h (4.2,1.75) shape=circle w=0.09 fill=blue nostroke
+edge e f arrow=none color=orange
+edge e g arrow=none color=orange
+edge e h arrow=none color=orange
+edge f g arrow=none color=orange
+edge f h arrow=none color=orange
+edge g h arrow=none color=orange
+node label2 (3.45,2.3) "max symmetries" w=2 h=0.4 fill=none nostroke font-size=28
+```
 
 ---
 
 ### Arc Diagrams
 
-![](/images/networks/p26-figure.png)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 26. Original visual build retained, including repeated source pages.
+![](/images/networks/native/page-23-image-1.png)
 
 ---
 
 ### Arc Diagrams
 
-![](/images/networks/p27-figure.png)
+![](/images/networks/native/page-24-image-1.png)
+
+---
+
+### Arc Diagrams
+
+![](/images/networks/native/page-25-image-1.png)
+
+---
+
+### Arc Diagrams
+
+![](/images/networks/native/page-26-image-1.png)
+
+---
+
+### Arc Diagrams
+
+![](/images/networks/native/page-27-native.svg)
 
 > [Martin Wattenberg, The Shape of Song](https://www.bewitched.com/song.html)
 
-<!-- Separate visible quotation from presenter notes. -->
-
-> [!notes]
-> Source: 17-Networks.pdf, page 27. Original visual build retained, including repeated source pages.
-
 ---
 
 ### Arc Diagrams
 
-![](/images/networks/p28-figure.png)
+![figure clip](/embed/networks/live-p28.html)
 
 > [Martin Wattenberg, The Shape of Song](https://www.bewitched.com/song.html)
-
-<!-- Separate visible quotation from presenter notes. -->
-
-> [!notes]
-> Source: 17-Networks.pdf, page 28. Original visual build retained, including repeated source pages.
 
 ---
 
 ### Chord Diagrams
 
-![](/images/networks/p29-figure.png)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 29. 
+![figure clip](/embed/networks/chord.html)
 
 ---
 
 ### Chord Diagrams
 
-[big] Hierarchical Edge Bundling
+[medium left vcenter] Hierarchical Edge Bundling
 
-Bundle edges with varying amounts of tension. Low-level vs. high-level information
+[medium left] Bundle edges with varying amounts of tension. Low-level vs. high-level information
 
 ::: 38/62
 
-![](/images/networks/p30-figure.png)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 30. 
+![](/images/networks/native/page-30-image-1.png)
 
 ---
 
 ### Node-Link Layout
 
 > [!green] Discussion
+>
 > When to use which?
 
-- Sugiyama-Style Layout - arranged by depth
-- Force-Directed Layout - physical simulation
-- Attribute-Driven Layout - arranged by value
-- Constraint-Based Layout - optimization
-- Arc Diagrams - aligned layout
+::: 35/65
 
-> [!notes]
-> Source: 17-Networks.pdf, page 31. 
+[medium left vcenter] Sugiyama-Style Layout - arranged by depth
+
+[medium left] Force-Directed Layout - physical simulation
+
+[medium left] Attribute-Driven Layout - arranged by value
+
+[medium left] Constraint-Based Layout - optimization
+
+[medium left] Arc Diagrams - aligned layout
 
 ---
 
 ### Node-Link Layout
 
-Edge Crossing, Occlusion, Big Ball of Spaghetti
+[medium left vcenter] Edge Crossing, Occlusion, Big Ball of Spaghetti
 
 ::: 38/62
 
-![](/images/networks/p32-figure.png)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 32. 
+![](/images/networks/native/page-32-image-1.png)
 
 ---
 
 ### Matrix Diagram
 
-Visualize the Adjacency Matrix
+[medium left vcenter] Visualize the Adjacency Matrix
 
-Exposes Structure
+[medium left] Exposes Structure
 
-Harder to Trace
+[medium left] Harder to Trace
 
-Order Dependent
+[medium left] Order Dependent
 
 ::: 42/58
 
-![](/images/networks/p33-figure.png)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 33. 
+![](/images/networks/native/page-33-native.svg)
 
 ---
 
 ### Matrix Diagram
 
-![](/images/networks/p34-figure.png)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 34. 
+![](/images/networks/native/page-34-native.svg)
 
 ---
 
 ### Matrix Diagram
 
-![](/images/networks/p35-figure.png)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 35. 
+![](/images/networks/native/page-35-native.svg)
 
 ---
 
 ### Interaction
 
-![](/images/networks/p36-figure.png)
+![figure clip](/embed/networks/live-p36.html)
 
 > [Zoonotic Web](https://vis.csh.ac.at/zoonotic-web/)
-
-<!-- Separate visible quotation from presenter notes. -->
-
-> [!notes]
-> Source: 17-Networks.pdf, page 36. 
 
 ---
 
 ### Tree Visualization
 
-- Node-Link Layout
-- Indentation
-- Enclosure
-- Layering
+[medium left vcenter] Node-Link Layout
+
+[medium left] Indentation
+
+[medium left] Enclosure
+
+[medium left] Layering
 
 ::: 55/45
 
-![](/images/networks/p37-figure.png)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 37. 
+![](/images/networks/native/page-37-image-1.png)
 
 ---
 
 ### Node-Link Layout
 
-A tree is just a special kind of graph
+[medium left vcenter] A tree is just a special kind of graph
 
 ::: 48/52
 
-![](/images/networks/p38-figure.png)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 38. 
+![](/images/networks/native/page-38-image-1.png)
 
 ---
 
 ### Node-Link Layout
 
-[big] Reingold-Tilford Layout
+[medium left vcenter] Reingold-Tilford Layout
 
 - Clearly encode depth
 - No edge crossings
@@ -557,264 +469,137 @@ A tree is just a special kind of graph
 
 [D3 tree layout](https://d3js.org/d3-hierarchy/tree)
 
-::: 65/35
+::: 48/52
 
-![](/images/networks/p39-figure.png)
+![](/images/networks/native/page-39-image-1.png)
 
-> [!notes]
-> Source: 17-Networks.pdf, page 39. 
 
 ---
 
-### Cluster Dendograms
+### Cluster Dendrograms
 
-Depicts cluster trees produced by hierarchical clustering algorithms.
+[medium left vcenter] Depicts cluster trees produced by hierarchical clustering algorithms.
 
-Leaf nodes arranged in a line, internal node depth indicates order/value at which clusters merge.
+[medium left] Leaf nodes arranged in a line, internal node depth indicates order/value at which clusters merge.
 
-Naïve recursive layout with orthogonal two-segment edges
+[medium left] Naïve recursive layout with orthogonal two-segment edges
 
 ::: 52/48
 
-![](/images/networks/p40-figure.png)
+![](/images/networks/native/page-40-image-1.png)
 
-> [!notes]
-> Source: 17-Networks.pdf, page 40. 
+---
+
+
+### Composability
+
+[medium left vcenter] Layer Dendrogram for Tree Structure of cluster ordering in Matrix Representation
+
+::: 50/50
+
+![](/images/networks/native/page-48-image-1.png)
 
 ---
 
 ### Radial Tree Layout
 
-Any Node-Link layout in polar coordinates
+[medium left vcenter] Any Node-Link layout in polar coordinates
 
 ::: 45/55
 
-![](/images/networks/p41-figure.png)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 41. 
+![](/images/networks/native/page-41-native.svg)
 
 ---
 
 ### Indentation
 
-Places items along vertically spaced rows
+[medium left vcenter] Places items along vertically spaced rows
 
-Show Parent-Child link
+[medium left] Show Parent-Child link
 
-Common interface component
+[medium left] Common interface component
 
-Can get very long
+[medium left] Can get very long
 
 ::: 48/52
 
-![](/images/networks/p42-figure.png)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 42. 
+![](/images/networks/native/page-42-native.svg)
 
 ---
 
 ### Enclosure
 
-Encode structure using spatial enclosure
+[medium left vcenter] Encode structure using spatial enclosure
 
-Sometimes called Treemaps
+[medium left] Sometimes called Treemaps
 
 ::: 42/58
 
-![](/images/networks/p43-figure.png)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 43. 
+![](/images/networks/native/page-43-image-1.png)
 
 ---
 
 ### Enclosure
 
-Encode structure using spatial enclosure
+[medium left vcenter] Encode structure using spatial enclosure
 
-Sometimes called Treemaps
+[medium left] Sometimes called Treemaps
 
 ::: 42/58
 
-![](/images/networks/p44-figure.png)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 44. 
+![](/images/networks/native/page-44-image-1.png)
 
 ---
 
 ### Enclosure
 
-Encode structure using spatial enclosure
+[medium left vcenter] Encode structure using spatial enclosure
 
-Sometimes called Treemaps
+[medium left] Sometimes called Treemaps
 
 ::: 42/58
 
-![](/images/networks/p45-figure.png)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 45. 
+![](/images/networks/native/page-45-native.svg)
 
 ---
 
 ### Layering
 
-Signify tree structure using adjacency and alignment
-
-Icicle
-
-::: 45/55
-
-![](/images/networks/p46-figure.png)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 46. 
-
----
-
-### Layering
-
-Signify tree structure using adjacency and alignment
-
-Sunburst
-
-::: 45/55
-
-![](/images/networks/p47-figure.png)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 47. 
-
----
-
-### Composibility
-
-Layer Dendogram for Tree Structure of cluster ordering in Matrix Representation
-
-::: 50/50
-
-![](/images/networks/p48-figure.png)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 48. 
-
+![figure clip](/embed/networks/partition.html)
+ 
 ---
 
 ### Interaction
 
-Expansion and Contraction
-
-::: 35/65
-
-![](/images/networks/p49-figure.png)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 49. 
+![figure clip](/embed/networks/sunburst.html)
 
 ---
 
-### Interaction
+![figure clip](/embed/networks/family-tree.html)
 
-Expansion and Contraction
-
-::: 35/65
-
-![](/images/networks/p50-figure.png)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 50. 
 
 ---
 
 ## Misc Network Examples
 
-> [!notes]
-> Source: 17-Networks.pdf, page 51. 
-
 ---
 
 ### Sankey Diagram
 
-![](/images/networks/p52-figure.png)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 52. 
+![](/images/networks/native/page-52-image-1.png)
 
 ---
 
 ### Tangled Tree
 
-![](/images/networks/p53-figure.png)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 53. 
+![](/images/networks/native/page-53-image-1.png)
 
 ---
 
-![](/images/networks/p54-figure.png)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 54. TODO: Identify the map’s original source and transcribe its small labels if a higher-resolution original becomes available. Full-page reference visual retained; no data or provenance inferred.
+![](/images/networks/native/page-54-image-1.png)
 
 ---
 
 ### Network vs Geographic Structure
 
-[big] Prague
-
-![](/images/networks/p55-figure.png)
-
-::: 42/58
-
-![](/images/networks/p55-figure.png)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 55. Page 56 omitted: Lab contains only previous-course project/assignment feedback and “Trick or Treat”; no substantive activity remains to adapt.
-
----
-
-### Live companion: d3-DAG
-
-![figure height-800](/embed/networks/live-p12.html)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 12. Optional companion, not an additional source slide. Static original is default; explicit click contacts the original external site. Embedding may be blocked by the destination; use Open original. Documentation pages are not claimed to reproduce the source simulation.
-
----
-
-### Live companion: d3-force
-
-![figure height-800](/embed/networks/live-p13.html)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 13. Optional companion, not an additional source slide. Static original is default; explicit click contacts the original external site. Embedding may be blocked by the destination; use Open original. Documentation pages are not claimed to reproduce the source simulation.
-
----
-
-### Live companion: The Shape of Song
-
-![figure height-800](/embed/networks/live-p28.html)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 28. Optional companion, not an additional source slide. Static original is default; explicit click contacts the original external site. Embedding may be blocked by the destination; use Open original. Documentation pages are not claimed to reproduce the source simulation.
-
----
-
-### Live companion: Zoonotic Web
-
-![figure height-800](/embed/networks/live-p36.html)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 36. Optional companion, not an additional source slide. Static original is default; explicit click contacts the original external site. Embedding may be blocked by the destination; use Open original. Documentation pages are not claimed to reproduce the source simulation.
-
----
-
-### Live companion: D3 tree layout
-
-![figure height-800](/embed/networks/live-p39.html)
-
-> [!notes]
-> Source: 17-Networks.pdf, page 39. Optional companion, not an additional source slide. Static original is default; explicit click contacts the original external site. Embedding may be blocked by the destination; use Open original. Documentation pages are not claimed to reproduce the source simulation.
+![figure clip](/embed/networks/subway.html)

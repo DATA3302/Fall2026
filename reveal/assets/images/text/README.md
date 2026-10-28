@@ -1,0 +1,7 @@
+# Text deck figure provenance
+
+All reference figures are recovered from the supplied `tmp/477-Slides/18-Text.pdf` (Cal Poly CSC 477). `sources.json` records page numbers, native image resolutions, and vector extraction bounds. Native images are full-resolution PDF resources (including their original alpha masks where present), not low-resolution slide crops. SVGs preserve native paths, outlined glyphs, and embedded original image resources; glyph outlines deliberately retain the typography demonstrations without requiring the original fonts. These are source illustrations, not newly measured data. Original figure authors retain their rights; extraction does not grant a new license.
+
+The bar/position/network text-mark demonstrations, embedding, CBOW, skip-gram, analogy, diachronic context, frequency fraction, and classification schematics are authored in the deck’s shared diagram DSL. The source spelling “tounge” is retained in the two neural-model diagrams. The source Austen table, including its reported Emma TF-IDF value, is transcribed without recomputation. Historical dates and the semantic-query study figure are unchanged.
+
+The Zipf companion uses the existing local D3 distribution via a relative link (its license remains beside that shared library). It visualizes an explicitly illustrative power-law model, not recovered book counts. External pages and video are opt-in through Static/Live controls; no automatic fallback timer runs. Original reference figures remain available offline and for printing.

@@ -1,0 +1,116 @@
+{
+  "retrieved": "2026-10-27",
+  "repository": "https://github.com/vega/vega-datasets",
+  "revision": "5448e25297c8f705be78e879d5423d55d04dc6f1",
+  "resources": [
+    {
+      "name": "airports",
+      "type": "table",
+      "title": "Airport locations and identifiers",
+      "description": "Airports in the United States and its territories, including major commercial, regional, \nand municipal airports. Contains information about each airport's location (latitude/longitude \ncoordinates), identification codes, name, city, state, and country. While the exact generation \nsource of this file is unknown, this data is consistent with files provided on a monthly \nfrequency by the FAA's [National Airspace System Resource](https://www.faa.gov/air_traffic/flight_info/aeronav/aero_data/NASR_Subscription/).",
+      "licenses": [
+        {
+          "name": "other-open",
+          "title": "https://www.usa.gov/government-works"
+        }
+      ],
+      "sources": [
+        {
+          "title": "Federal Aviation Administration",
+          "path": "https://www.faa.gov/air_traffic/flight_info/aeronav/aero_data/NASR_Subscription/"
+        }
+      ],
+      "path": "airports.csv",
+      "scheme": "file",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8",
+      "hash": "sha1:114c202bcc6784c8358b54f9ef152c54ec6c5fba",
+      "bytes": 210363,
+      "schema": {
+        "fields": [
+          {
+            "name": "iata",
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "city",
+            "type": "string"
+          },
+          {
+            "name": "state",
+            "type": "string"
+          },
+          {
+            "name": "country",
+            "type": "string"
+          },
+          {
+            "name": "latitude",
+            "type": "number"
+          },
+          {
+            "name": "longitude",
+            "type": "number"
+          }
+        ]
+      }
+    },
+    {
+      "name": "flights_airport",
+      "type": "table",
+      "title": "U.S. flight counts by airport route",
+      "description": "Flight information for the year 2008. Each record consists of an origin airport (identified by IATA id),\na destination airport, and the count of flights along this route.",
+      "licenses": [
+        {
+          "name": "other-pd",
+          "title": "U.S. Government Dataset",
+          "path": "https://www.usa.gov/government-works"
+        }
+      ],
+      "sources": [
+        {
+          "title": "U.S. Bureau of Transportation Statistics",
+          "path": "https://www.transtats.bts.gov/DL_SelectFields.asp?gnoyr_VQ=FGJ&QO_fu146_anzr=b0-gvzr"
+        }
+      ],
+      "path": "flights-airport.csv",
+      "scheme": "file",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8",
+      "hash": "sha1:0ba03114891e97cfc3f83d9e3569259e7f07af7b",
+      "bytes": 65572,
+      "schema": {
+        "fields": [
+          {
+            "name": "origin",
+            "type": "string"
+          },
+          {
+            "name": "destination",
+            "type": "string"
+          },
+          {
+            "name": "count",
+            "type": "integer"
+          }
+        ]
+      }
+    }
+  ],
+  "checksums": {
+    "airports.csv": {
+      "sha256": "caeb10d97cf2946792f7f2b4e28b692c655bb6c5f0a8e048ea3625b538266dd3",
+      "matches_pinned_upstream": true
+    },
+    "flights-airport.csv": {
+      "sha256": "f9f66bc27adebf459e39fbdb6d71402c4355584f27ea1062606219d771ea4bcf",
+      "matches_pinned_upstream": true
+    }
+  }
+}

@@ -1,0 +1,62 @@
+NEW IMPLEMENTATION
+
+MIT License
+
+Copyright (c) 2026 DATA3302 contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+Scope: airports.html, chord.html, lib/airports.js, lib/chord.js,
+lib/airports-chord.css, and newly authored provenance text
+and browser-validation screenshots. This notice does not relicense third-party
+CSV files, existing course PDF artwork, reused geometry, or shared dependencies.
+
+THIRD-PARTY DATA AND MATERIALS
+
+The current data/chord.json and data/chord-trade-2019.csv are derived from
+UN Comtrade via CEPII Gravity version 202211, not the former synthetic matrix.
+They are excluded from the MIT implementation license above. See
+chord-trade-PROVENANCE.md for attribution and chord-trade-LICENSE.txt for
+CEPII's Etalab Open Licence 2.0.
+
+The airport CSV files were retrieved unmodified from vega/vega-datasets.
+The upstream catalog records:
+
+- airports.csv: other-open; https://www.usa.gov/government-works
+  Source: Federal Aviation Administration. Exact original generation source
+  unknown; upstream notes consistency with FAA NASR data.
+- flights-airport.csv: other-pd; U.S. Government Dataset;
+  https://www.usa.gov/government-works
+  Source: U.S. Bureau of Transportation Statistics, 2008 flights.
+
+These source/license descriptions are provided as upstream metadata, not a
+warranty of provenance or legal status. Vega's package-code BSD-3-Clause license
+is NOT asserted to be the license of these datasets. See the pinned upstream
+metadata and checksums in airports-chord-data-provenance.json and the detailed
+source links in airports-chord-PROVENANCE.md.
+
+The PDF p29 reference raster (airports-chord-original-p29.png) reproduces existing
+course material for provenance only. No new license or ownership claim is made
+for the underlying artwork; consult the course source's original permissions
+before redistributing it independently.
+
+Existing reused files remain subject to their existing notices:
+../geospatial/lib/d3-LICENSE
+../geospatial/lib/topojson-LICENSE
+../geospatial/data/us-atlas-LICENSE

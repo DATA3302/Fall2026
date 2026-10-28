@@ -1,0 +1,589 @@
+{
+  "source": {
+    "pages": [
+      20,
+      21
+    ],
+    "viewBox": [
+      0,
+      0,
+      1100,
+      785
+    ],
+    "note": "Page-20 original fills, white outlines, edge paths and coordinates preserved verbatim. Categories are color \u00d7 shape. Page 21 repeats node paths. Its green-square/yellow-circle diagonal is 60 wide (6 units), but page 20 has four such links plus one within-green-square link, whose resulting self-loop is omitted on page 21. Live widths derive from all 12 original links, yielding six aggregate connections including the self-loop. Category centers from page 21 translated (+140,-5) to page-20 viewBox."
+  },
+  "nodes": [
+    {
+      "id": "n1",
+      "category": "green-square",
+      "shape": "square",
+      "color": "#017100",
+      "x": 424.22218000000004,
+      "y": 426.04939,
+      "vector": {
+        "transform": "matrix(1,0,0,-1,-480,885)",
+        "d": "M845.4136 400.1421H963.03079V517.7593H845.4136Z",
+        "fill": "#017100"
+      },
+      "border": {
+        "transform": "matrix(1,0,0,1,365.41358,367.24079)",
+        "stroke-width": "10",
+        "stroke-linecap": "butt",
+        "stroke-miterlimit": "4",
+        "stroke-linejoin": "miter",
+        "fill": "none",
+        "stroke": "#ffffff",
+        "d": "M0 0H117.6172V117.6172H0Z"
+      }
+    },
+    {
+      "id": "n2",
+      "category": "green-square",
+      "shape": "square",
+      "color": "#017100",
+      "x": 621.6116,
+      "y": 195.63569,
+      "vector": {
+        "transform": "matrix(1,0,0,-1,-480,885)",
+        "d": "M1042.803 630.5557H1160.4202V748.1729H1042.803Z",
+        "fill": "#017100"
+      },
+      "border": {
+        "transform": "matrix(1,0,0,1,562.803,136.82709)",
+        "stroke-width": "10",
+        "stroke-linecap": "butt",
+        "stroke-miterlimit": "4",
+        "stroke-linejoin": "miter",
+        "fill": "none",
+        "stroke": "#ffffff",
+        "d": "M0 0H117.6172V117.6172H0Z"
+      }
+    },
+    {
+      "id": "n3",
+      "category": "green-square",
+      "shape": "square",
+      "color": "#017100",
+      "x": 75.61121299999999,
+      "y": 605.6356999999999,
+      "vector": {
+        "transform": "matrix(1,0,0,-1,-480,885)",
+        "d": "M496.8026 220.5557H614.4198V338.1729H496.8026Z",
+        "fill": "#017100"
+      },
+      "border": {
+        "transform": "matrix(1,0,0,1,16.802613,546.8271)",
+        "stroke-width": "10",
+        "stroke-linecap": "butt",
+        "stroke-miterlimit": "4",
+        "stroke-linejoin": "miter",
+        "fill": "none",
+        "stroke": "#ffffff",
+        "d": "M0 0H117.6172V117.6172H0Z"
+      }
+    },
+    {
+      "id": "n4",
+      "category": "green-circle",
+      "shape": "circle",
+      "color": "#017100",
+      "x": 763.6116,
+      "y": 409.6357,
+      "vector": {
+        "transform": "matrix(1,0,0,-1,-480,885)",
+        "d": "M1285.195 516.9482C1308.161 493.982 1308.161 456.7465 1285.195 433.7803 1262.229 410.8141 1224.993 410.8141 1202.027 433.7803 1179.061 456.7465 1179.061 493.982 1202.027 516.9482 1224.993 539.9144 1262.229 539.9144 1285.195 516.9482ZM1285.195 516.9482",
+        "fill": "#017100"
+      },
+      "border": {
+        "transform": "matrix(1,0,0,1,704.803,350.8271)",
+        "stroke-width": "10",
+        "stroke-linecap": "butt",
+        "stroke-miterlimit": "4",
+        "stroke-linejoin": "miter",
+        "fill": "none",
+        "stroke": "#ffffff",
+        "d": "M100.3926 17.22464C123.3587 40.19082 123.3587 77.42637 100.3926 100.3926 77.42637 123.3587 40.19082 123.3587 17.22464 100.3926-5.741546 77.42637-5.741546 40.19082 17.22464 17.22464 40.19082-5.741546 77.42637-5.741546 100.3926 17.22464ZM100.3926 17.22464"
+      }
+    },
+    {
+      "id": "n5",
+      "category": "yellow-circle",
+      "shape": "circle",
+      "color": "#feae00",
+      "x": 221.61120999999997,
+      "y": 175.63569,
+      "vector": {
+        "transform": "matrix(1,0,0,-1,-480,885)",
+        "d": "M743.1951 750.9482C766.1613 727.982 766.1613 690.7465 743.1951 667.7803 720.229 644.8141 682.9934 644.8141 660.0272 667.7803 637.061 690.7465 637.061 727.982 660.0272 750.9482 682.9934 773.9144 720.229 773.9144 743.1951 750.9482ZM743.1951 750.9482",
+        "fill": "#feae00"
+      },
+      "border": {
+        "transform": "matrix(1,0,0,1,162.80261,116.82709)",
+        "stroke-width": "10",
+        "stroke-linecap": "butt",
+        "stroke-miterlimit": "4",
+        "stroke-linejoin": "miter",
+        "fill": "none",
+        "stroke": "#ffffff",
+        "d": "M100.3926 17.22464C123.3587 40.19082 123.3587 77.42637 100.3926 100.3926 77.42637 123.3587 40.19082 123.3587 17.22464 100.3926-5.741546 77.42637-5.741546 40.19082 17.22464 17.22464 40.19082-5.741546 77.42637-5.741546 100.3926 17.22464ZM100.3926 17.22464"
+      }
+    },
+    {
+      "id": "n6",
+      "category": "yellow-circle",
+      "shape": "circle",
+      "color": "#feae00",
+      "x": 859.6116,
+      "y": 81.635688,
+      "vector": {
+        "transform": "matrix(1,0,0,-1,-480,885)",
+        "d": "M1381.195 844.9482C1404.161 821.982 1404.161 784.7465 1381.195 761.7803 1358.229 738.8141 1320.993 738.8141 1298.027 761.7803 1275.061 784.7465 1275.061 821.982 1298.027 844.9482 1320.993 867.9144 1358.229 867.9144 1381.195 844.9482ZM1381.195 844.9482",
+        "fill": "#feae00"
+      },
+      "border": {
+        "transform": "matrix(1,0,0,1,800.803,22.827088)",
+        "stroke-width": "10",
+        "stroke-linecap": "butt",
+        "stroke-miterlimit": "4",
+        "stroke-linejoin": "miter",
+        "fill": "none",
+        "stroke": "#ffffff",
+        "d": "M100.3926 17.22464C123.3587 40.19082 123.3587 77.42637 100.3926 100.3926 77.42637 123.3587 40.19082 123.3587 17.22464 100.3926-5.741546 77.42637-5.741546 40.19082 17.22464 17.22464 40.19082-5.741546 77.42637-5.741546 100.3926 17.22464ZM100.3926 17.22464"
+      }
+    },
+    {
+      "id": "n7",
+      "category": "yellow-circle",
+      "shape": "circle",
+      "color": "#feae00",
+      "x": 1017.6116,
+      "y": 319.6357,
+      "vector": {
+        "transform": "matrix(1,0,0,-1,-480,885)",
+        "d": "M1539.195 606.9482C1562.161 583.982 1562.161 546.7465 1539.195 523.7803 1516.229 500.8141 1478.993 500.8141 1456.027 523.7803 1433.061 546.7465 1433.061 583.982 1456.027 606.9482 1478.993 629.9144 1516.229 629.9144 1539.195 606.9482ZM1539.195 606.9482",
+        "fill": "#feae00"
+      },
+      "border": {
+        "transform": "matrix(1,0,0,1,958.803,260.8271)",
+        "stroke-width": "10",
+        "stroke-linecap": "butt",
+        "stroke-miterlimit": "4",
+        "stroke-linejoin": "miter",
+        "fill": "none",
+        "stroke": "#ffffff",
+        "d": "M100.3926 17.22464C123.3587 40.19082 123.3587 77.42637 100.3926 100.3926 77.42637 123.3587 40.19082 123.3587 17.22464 100.3926-5.741546 77.42637-5.741546 40.19082 17.22464 17.22464 40.19082-5.741546 77.42637-5.741546 100.3926 17.22464ZM100.3926 17.22464"
+      }
+    },
+    {
+      "id": "n8",
+      "category": "yellow-circle",
+      "shape": "circle",
+      "color": "#feae00",
+      "x": 291.61120999999997,
+      "y": 661.6356999999999,
+      "vector": {
+        "transform": "matrix(1,0,0,-1,-480,885)",
+        "d": "M813.1951 264.9482C836.1613 241.982 836.1613 204.7465 813.1951 181.7803 790.229 158.8141 752.9934 158.8141 730.0272 181.7803 707.061 204.7465 707.061 241.982 730.0272 264.9482 752.9934 287.9144 790.229 287.9144 813.1951 264.9482ZM813.1951 264.9482",
+        "fill": "#feae00"
+      },
+      "border": {
+        "transform": "matrix(1,0,0,1,232.80261,602.8271)",
+        "stroke-width": "10",
+        "stroke-linecap": "butt",
+        "stroke-miterlimit": "4",
+        "stroke-linejoin": "miter",
+        "fill": "none",
+        "stroke": "#ffffff",
+        "d": "M100.3926 17.22464C123.3587 40.19082 123.3587 77.42637 100.3926 100.3926 77.42637 123.3587 40.19082 123.3587 17.22464 100.3926-5.741546 77.42637-5.741546 40.19082 17.22464 17.22464 40.19082-5.741546 77.42637-5.741546 100.3926 17.22464ZM100.3926 17.22464"
+      }
+    },
+    {
+      "id": "n9",
+      "category": "yellow-square",
+      "shape": "square",
+      "color": "#feae00",
+      "x": 577.6111999999999,
+      "y": 707.6356999999999,
+      "vector": {
+        "transform": "matrix(1,0,0,-1,-480,885)",
+        "d": "M998.8026 118.5557H1116.4198V236.17292H998.8026Z",
+        "fill": "#feae00"
+      },
+      "border": {
+        "transform": "matrix(1,0,0,1,518.8026,648.8271)",
+        "stroke-width": "10",
+        "stroke-linecap": "butt",
+        "stroke-miterlimit": "4",
+        "stroke-linejoin": "miter",
+        "fill": "none",
+        "stroke": "#ffffff",
+        "d": "M0 0H117.6172V117.6172H0Z"
+      }
+    },
+    {
+      "id": "n10",
+      "category": "yellow-square",
+      "shape": "square",
+      "color": "#feae00",
+      "x": 795.6116,
+      "y": 627.6356999999999,
+      "vector": {
+        "transform": "matrix(1,0,0,-1,-480,885)",
+        "d": "M1216.803 198.5557H1334.4202V316.1729H1216.803Z",
+        "fill": "#feae00"
+      },
+      "border": {
+        "transform": "matrix(1,0,0,1,736.803,568.8271)",
+        "stroke-width": "10",
+        "stroke-linecap": "butt",
+        "stroke-miterlimit": "4",
+        "stroke-linejoin": "miter",
+        "fill": "none",
+        "stroke": "#ffffff",
+        "d": "M0 0H117.6172V117.6172H0Z"
+      }
+    }
+  ],
+  "links": [
+    {
+      "source": "n4",
+      "target": "n6",
+      "start": [
+        781.532,
+        348.405
+      ],
+      "end": [
+        841.68775,
+        142.8728
+      ],
+      "vector": {
+        "transform": "matrix(1,0,0,1,781.532,142.8728)",
+        "stroke-width": "7",
+        "stroke-linecap": "butt",
+        "stroke-miterlimit": "4",
+        "stroke-linejoin": "miter",
+        "fill": "none",
+        "stroke": "#929292",
+        "d": "M0 205.5322 60.15575 0"
+      }
+    },
+    {
+      "source": "n4",
+      "target": "n7",
+      "start": [
+        823.75906,
+        388.32353
+      ],
+      "end": [
+        957.46786,
+        340.9464
+      ],
+      "vector": {
+        "transform": "matrix(1,0,0,1,823.75906,340.9464)",
+        "stroke-width": "7",
+        "stroke-linecap": "butt",
+        "stroke-miterlimit": "4",
+        "stroke-linejoin": "miter",
+        "fill": "none",
+        "stroke": "#929292",
+        "d": "M0 47.37713 133.7088 0"
+      }
+    },
+    {
+      "source": "n4",
+      "target": "n10",
+      "start": [
+        772.876,
+        472.7528
+      ],
+      "end": [
+        786.2447,
+        563.82709
+      ],
+      "vector": {
+        "transform": "matrix(1,0,0,1,772.876,472.7528)",
+        "stroke-width": "7",
+        "stroke-linecap": "butt",
+        "stroke-miterlimit": "4",
+        "stroke-linejoin": "miter",
+        "fill": "none",
+        "stroke": "#929292",
+        "d": "M0 0 13.3687 91.07429"
+      }
+    },
+    {
+      "source": "n4",
+      "target": "n1",
+      "start": [
+        699.90588,
+        412.7167
+      ],
+      "end": [
+        488.03858,
+        422.96309
+      ],
+      "vector": {
+        "transform": "matrix(1,0,0,1,488.03858,412.7167)",
+        "stroke-width": "7",
+        "stroke-linecap": "butt",
+        "stroke-miterlimit": "4",
+        "stroke-linejoin": "miter",
+        "fill": "none",
+        "stroke": "#929292",
+        "d": "M211.8673 0 0 10.24639"
+      }
+    },
+    {
+      "source": "n4",
+      "target": "n2",
+      "start": [
+        728.3270799999999,
+        356.46043999999995
+      ],
+      "end": [
+        663.95706,
+        259.4521
+      ],
+      "vector": {
+        "transform": "matrix(1,0,0,1,663.95706,259.4521)",
+        "stroke-width": "7",
+        "stroke-linecap": "butt",
+        "stroke-miterlimit": "4",
+        "stroke-linejoin": "miter",
+        "fill": "none",
+        "stroke": "#929292",
+        "d": "M64.37002 97.00834 0 0"
+      }
+    },
+    {
+      "source": "n2",
+      "target": "n6",
+      "start": [
+        685.428,
+        165.068218
+      ],
+      "end": [
+        802.0562,
+        109.204288
+      ],
+      "vector": {
+        "transform": "matrix(1,0,0,1,685.428,109.204288)",
+        "stroke-width": "7",
+        "stroke-linecap": "butt",
+        "stroke-miterlimit": "4",
+        "stroke-linejoin": "miter",
+        "fill": "none",
+        "stroke": "#929292",
+        "d": "M0 55.86393 116.6282 0"
+      }
+    },
+    {
+      "source": "n1",
+      "target": "n5",
+      "start": [
+        372.59433,
+        362.24082999999996
+      ],
+      "end": [
+        261.75733,
+        225.25373
+      ],
+      "vector": {
+        "transform": "matrix(1,0,0,1,261.75733,225.25373)",
+        "stroke-width": "7",
+        "stroke-linecap": "butt",
+        "stroke-miterlimit": "4",
+        "stroke-linejoin": "miter",
+        "fill": "none",
+        "stroke": "#929292",
+        "d": "M110.837 136.9871 0 0"
+      }
+    },
+    {
+      "source": "n1",
+      "target": "n8",
+      "start": [
+        388.30008999999995,
+        489.8658
+      ],
+      "end": [
+        322.9165,
+        606.0210999999999
+      ],
+      "vector": {
+        "transform": "matrix(1,0,0,1,322.9165,489.8658)",
+        "stroke-width": "7",
+        "stroke-linecap": "butt",
+        "stroke-miterlimit": "4",
+        "stroke-linejoin": "miter",
+        "fill": "none",
+        "stroke": "#929292",
+        "d": "M65.38359 0 0 116.1553"
+      }
+    },
+    {
+      "source": "n3",
+      "target": "n8",
+      "start": [
+        139.42761,
+        622.18069
+      ],
+      "end": [
+        229.85769,
+        645.62552
+      ],
+      "vector": {
+        "transform": "matrix(1,0,0,1,139.42761,622.18069)",
+        "stroke-width": "7",
+        "stroke-linecap": "butt",
+        "stroke-miterlimit": "4",
+        "stroke-linejoin": "miter",
+        "fill": "none",
+        "stroke": "#929292",
+        "d": "M0 0 90.43008 23.44483"
+      }
+    },
+    {
+      "source": "n1",
+      "target": "n9",
+      "start": [
+        458.985,
+        489.8658
+      ],
+      "end": [
+        542.8526,
+        643.8272
+      ],
+      "vector": {
+        "transform": "matrix(1,0,0,1,458.985,489.8658)",
+        "stroke-width": "7",
+        "stroke-linecap": "butt",
+        "stroke-miterlimit": "4",
+        "stroke-linejoin": "miter",
+        "fill": "none",
+        "stroke": "#929292",
+        "d": "M0 0 83.8676 153.9614"
+      }
+    },
+    {
+      "source": "n2",
+      "target": "n1",
+      "start": [
+        566.94146,
+        259.4521
+      ],
+      "end": [
+        478.8853,
+        362.24069999999995
+      ],
+      "vector": {
+        "transform": "matrix(1,0,0,1,478.8853,259.4521)",
+        "stroke-width": "7",
+        "stroke-linecap": "butt",
+        "stroke-miterlimit": "4",
+        "stroke-linejoin": "miter",
+        "fill": "none",
+        "stroke": "#929292",
+        "d": "M88.05616 0 0 102.7886"
+      }
+    },
+    {
+      "source": "n10",
+      "target": "n1",
+      "start": [
+        731.80258,
+        593.001
+      ],
+      "end": [
+        488.03858,
+        460.6883
+      ],
+      "vector": {
+        "transform": "matrix(1,0,0,1,488.03858,460.6883)",
+        "stroke-width": "7",
+        "stroke-linecap": "butt",
+        "stroke-miterlimit": "4",
+        "stroke-linejoin": "miter",
+        "fill": "none",
+        "stroke": "#929292",
+        "d": "M243.764 132.3127 0 0"
+      }
+    }
+  ],
+  "categories": [
+    {
+      "id": "green-square",
+      "members": [
+        "n1",
+        "n2",
+        "n3"
+      ],
+      "count": 3,
+      "x": 265.8853,
+      "y": 122.7229
+    },
+    {
+      "id": "green-circle",
+      "members": [
+        "n4"
+      ],
+      "count": 1,
+      "x": 811.8851,
+      "y": 122.7229
+    },
+    {
+      "id": "yellow-circle",
+      "members": [
+        "n5",
+        "n6",
+        "n7",
+        "n8"
+      ],
+      "count": 4,
+      "x": 811.8851,
+      "y": 661.7971
+    },
+    {
+      "id": "yellow-square",
+      "members": [
+        "n9",
+        "n10"
+      ],
+      "count": 2,
+      "x": 265.8853,
+      "y": 661.7971
+    }
+  ],
+  "aggregateLinks": [
+    {
+      "source": "green-circle",
+      "target": "yellow-circle",
+      "count": 2
+    },
+    {
+      "source": "green-circle",
+      "target": "yellow-square",
+      "count": 1
+    },
+    {
+      "source": "green-circle",
+      "target": "green-square",
+      "count": 2
+    },
+    {
+      "source": "green-square",
+      "target": "yellow-circle",
+      "count": 4
+    },
+    {
+      "source": "green-square",
+      "target": "yellow-square",
+      "count": 2
+    },
+    {
+      "source": "green-square",
+      "target": "green-square",
+      "count": 1
+    }
+  ]
+}

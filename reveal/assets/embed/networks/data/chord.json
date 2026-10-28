@@ -1,0 +1,196 @@
+{
+  "year": 2019,
+  "units": "thousand current US dollars (not inflation-adjusted)",
+  "field": "tradeflow_comtrade_o",
+  "rows": "export origin",
+  "columns": "import destination",
+  "country_order": [
+    {
+      "name": "France",
+      "iso3": "FRA"
+    },
+    {
+      "name": "United Kingdom",
+      "iso3": "GBR"
+    },
+    {
+      "name": "Greece",
+      "iso3": "GRC"
+    },
+    {
+      "name": "Italy",
+      "iso3": "ITA"
+    },
+    {
+      "name": "Portugal",
+      "iso3": "PRT"
+    },
+    {
+      "name": "United States",
+      "iso3": "USA"
+    },
+    {
+      "name": "Germany",
+      "iso3": "DEU"
+    },
+    {
+      "name": "Ireland",
+      "iso3": "IRL"
+    },
+    {
+      "name": "Japan",
+      "iso3": "JPN"
+    },
+    {
+      "name": "Spain",
+      "iso3": "ESP"
+    }
+  ],
+  "diagonal": "structural zero: domestic trade excluded, not an observed value",
+  "missing_off_diagonal": 0,
+  "matrix": [
+    [
+      0,
+      38465482.982,
+      2743300.145,
+      41615990.141,
+      7988545.674,
+      47101892.567,
+      78080226.745,
+      3766852.638,
+      8639688.549,
+      41202750.712
+    ],
+    [
+      31319079.718,
+      0,
+      1305276.852,
+      12663248.513,
+      2007389.091,
+      71233628.586,
+      45620724.199,
+      27794456.734,
+      8337902.423,
+      13214380.793
+    ],
+    [
+      1324787.57,
+      1370953.028,
+      0,
+      4085216.908,
+      229719.38,
+      1461451.452,
+      2518291.546,
+      165379.299,
+      212990.613,
+      1235490.603
+    ],
+    [
+      56094459.072,
+      27972751.774,
+      5238496.454,
+      0,
+      4928153.613,
+      50987721.105,
+      65465084.661,
+      2043990.264,
+      8632631.655,
+      27287743.612
+    ],
+    [
+      8664322.282,
+      4062654.302,
+      257887.942,
+      2919215.698,
+      0,
+      3399182.323,
+      8000537.896,
+      463432.026,
+      169327.654,
+      16526536.073
+    ],
+    [
+      38746019.721,
+      58301884.965,
+      1443527.827,
+      23178811.756,
+      1722238.782,
+      0,
+      59392333.674,
+      9023750.06,
+      74637138.881,
+      15100295.903
+    ],
+    [
+      118828072.429,
+      86907265.854,
+      6789451.669,
+      75762473.594,
+      11918878.175,
+      133472760.157,
+      0,
+      8908415.243,
+      23240497.053,
+      49480638.866
+    ],
+    [
+      6094622.234,
+      17654944.313,
+      941662.678,
+      4349518.469,
+      470149.98,
+      52530984.884,
+      15214265.391,
+      0,
+      3161327.902,
+      2638469.048
+    ],
+    [
+      6843159.019,
+      12149749.788,
+      571479.702,
+      4598090.226,
+      469707.559,
+      140431338.705,
+      20223707.475,
+      908643.361,
+      0,
+      3403238.75
+    ],
+    [
+      48821150.391,
+      21426502.84,
+      2774876.713,
+      25640114.292,
+      24523011.854,
+      15383236.645,
+      34766322.226,
+      1856095.585,
+      3050372.947,
+      0
+    ]
+  ],
+  "title": "Bilateral merchandise exports, 2019",
+  "labels": [
+    "France",
+    "United Kingdom",
+    "Greece",
+    "Italy",
+    "Portugal",
+    "United States",
+    "Germany",
+    "Ireland",
+    "Japan",
+    "Spain"
+  ],
+  "source": {
+    "provider": "UN Comtrade via CEPII Gravity",
+    "release": "202211 (November 2022)",
+    "url": "https://www.cepii.fr/CEPII/en/bdd_modele/bdd_modele_item.asp?id=8",
+    "download": "https://www.cepii.fr/DATA_DOWNLOAD/gravity/data/Gravity_csv_V202211.zip",
+    "citation": "Conte, Cotterlaz and Mayer (2022), The CEPII Gravity database, CEPII Working Paper 2022-05",
+    "valuation": "Exporter-reported merchandise exports, FOB",
+    "license": "Etalab Open Licence 2.0",
+    "scope": "International trade within these ten countries, not worldwide totals. United Kingdom includes Northern Ireland. All 90 off-diagonal values are observed; only domestic diagonal cells are structural zeros."
+  }
+}

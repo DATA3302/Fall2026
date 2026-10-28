@@ -1,0 +1,354 @@
+{
+  "source": "Cal Poly CSC 477, 18-Text.pdf (65 pages), supplied course PDF",
+  "assets": [
+    {
+      "file": "native/page-07-native.svg",
+      "page": 7,
+      "kind": "PDF native vector layout; glyph outlines; original embedded images",
+      "clip": [
+        0.0,
+        0.0,
+        1920.0,
+        1080.0
+      ]
+    },
+    {
+      "file": "native/page-10-native.svg",
+      "page": 10,
+      "kind": "PDF native vector layout; glyph outlines; original embedded images",
+      "clip": [
+        0.0,
+        0.0,
+        1920.0,
+        1080.0
+      ]
+    },
+    {
+      "file": "native/page-11-native.svg",
+      "page": 11,
+      "kind": "PDF native vector layout; glyph outlines; original embedded images",
+      "clip": [
+        0.0,
+        0.0,
+        1920.0,
+        1080.0
+      ]
+    },
+    {
+      "file": "native/page-12-native.svg",
+      "page": 12,
+      "kind": "PDF native vector layout; glyph outlines; original embedded images",
+      "clip": [
+        0.0,
+        0.0,
+        1920.0,
+        1080.0
+      ]
+    },
+    {
+      "file": "native/page-13-native.svg",
+      "page": 13,
+      "kind": "PDF native vector layout; glyph outlines; original embedded images",
+      "clip": [
+        0.0,
+        0.0,
+        1920.0,
+        1080.0
+      ]
+    },
+    {
+      "file": "native/page-14-native.svg",
+      "page": 14,
+      "kind": "PDF native vector layout; glyph outlines; original embedded images",
+      "clip": [
+        0.0,
+        0.0,
+        1920.0,
+        1080.0
+      ]
+    },
+    {
+      "file": "native/page-15-native.svg",
+      "page": 15,
+      "kind": "PDF native vector layout; glyph outlines; original embedded images",
+      "clip": [
+        0.0,
+        0.0,
+        1920.0,
+        1080.0
+      ]
+    },
+    {
+      "file": "native/page-16-native.svg",
+      "page": 16,
+      "kind": "PDF native vector layout; glyph outlines; original embedded images",
+      "clip": [
+        0.0,
+        0.0,
+        1920.0,
+        1080.0
+      ]
+    },
+    {
+      "file": "native/page-17-native.svg",
+      "page": 17,
+      "kind": "PDF native vector layout; glyph outlines; original embedded images",
+      "clip": [
+        0.0,
+        0.0,
+        1920.0,
+        1080.0
+      ]
+    },
+    {
+      "file": "native/page-19-native.svg",
+      "page": 19,
+      "kind": "PDF native vector layout; glyph outlines; original embedded images",
+      "clip": [
+        0.0,
+        0.0,
+        1920.0,
+        1080.0
+      ]
+    },
+    {
+      "file": "native/page-21-native.svg",
+      "page": 21,
+      "kind": "PDF native vector layout; glyph outlines; original embedded images",
+      "clip": [
+        0.0,
+        0.0,
+        1920.0,
+        1080.0
+      ]
+    },
+    {
+      "file": "native/page-22-native.svg",
+      "page": 22,
+      "kind": "PDF native vector layout; glyph outlines; original embedded images",
+      "clip": [
+        0.0,
+        0.0,
+        1920.0,
+        1080.0
+      ]
+    },
+    {
+      "file": "native/page-25-native.svg",
+      "page": 25,
+      "kind": "PDF native vector layout; glyph outlines; original embedded images",
+      "clip": [
+        0.0,
+        0.0,
+        1920.0,
+        1080.0
+      ]
+    },
+    {
+      "file": "native/page-02-native.svg",
+      "page": 2,
+      "kind": "PDF native vector layout; glyph outlines; original embedded images",
+      "clip": [
+        770.0,
+        35.0,
+        1890.0,
+        1080.0
+      ]
+    },
+    {
+      "file": "native/page-03-native.svg",
+      "page": 3,
+      "kind": "PDF native vector layout; glyph outlines; original embedded images",
+      "clip": [
+        770.0,
+        35.0,
+        1890.0,
+        1080.0
+      ]
+    },
+    {
+      "file": "native/page-27-native.svg",
+      "page": 27,
+      "kind": "PDF native vector layout; glyph outlines; original embedded images",
+      "clip": [
+        0.0,
+        0.0,
+        1920.0,
+        1080.0
+      ]
+    },
+    {
+      "file": "native/page-28-native.svg",
+      "page": 28,
+      "kind": "PDF native vector layout; glyph outlines; original embedded images",
+      "clip": [
+        0.0,
+        130.0,
+        1920.0,
+        950.0
+      ]
+    },
+    {
+      "file": "native/page-38-native.svg",
+      "page": 38,
+      "kind": "PDF native vector layout; glyph outlines; original embedded images",
+      "clip": [
+        960.0,
+        100.0,
+        1860.0,
+        740.0
+      ]
+    },
+    {
+      "file": "native/page-40-native.svg",
+      "page": 40,
+      "kind": "PDF native vector layout; glyph outlines; original embedded images",
+      "clip": [
+        100.0,
+        50.0,
+        1860.0,
+        1050.0
+      ]
+    },
+    {
+      "file": "native/page-43-native.svg",
+      "page": 43,
+      "kind": "PDF native vector layout; glyph outlines; original embedded images",
+      "clip": [
+        220.0,
+        320.0,
+        1820.0,
+        970.0
+      ]
+    },
+    {
+      "file": "native/page-44-native.svg",
+      "page": 44,
+      "kind": "PDF native vector layout; glyph outlines; original embedded images",
+      "clip": [
+        400.0,
+        360.0,
+        1570.0,
+        950.0
+      ]
+    },
+    {
+      "file": "native/page-61-native.svg",
+      "page": 61,
+      "kind": "PDF native vector layout; glyph outlines; original embedded images",
+      "clip": [
+        140,
+        464,
+        1820,
+        1010
+      ]
+    },
+    {
+      "file": "native/page-06-xobject-34.png",
+      "page": 6,
+      "kind": "unmodified native PDF image",
+      "width": 1328,
+      "height": 674,
+      "xref": 34
+    },
+    {
+      "file": "native/page-24-xobject-119.png",
+      "page": 24,
+      "kind": "Native PDF image composed with its native alpha mask (no resampling)",
+      "width": 3840,
+      "height": 3707,
+      "xref": 119
+    },
+    {
+      "file": "native/page-26-xobject-131.jpeg",
+      "page": 26,
+      "kind": "unmodified native PDF image",
+      "width": 1280,
+      "height": 720,
+      "xref": 131
+    },
+    {
+      "file": "native/page-31-xobject-165.png",
+      "page": 31,
+      "kind": "unmodified native PDF image",
+      "width": 1190,
+      "height": 1804,
+      "xref": 165
+    },
+    {
+      "file": "native/page-35-xobject-184.png",
+      "page": 35,
+      "kind": "unmodified native PDF image",
+      "width": 1336,
+      "height": 1346,
+      "xref": 184
+    },
+    {
+      "file": "native/page-36-xobject-189.png",
+      "page": 36,
+      "kind": "unmodified native PDF image",
+      "width": 960,
+      "height": 864,
+      "xref": 189
+    },
+    {
+      "file": "native/page-37-xobject-194.png",
+      "page": 37,
+      "kind": "unmodified native PDF image",
+      "width": 844,
+      "height": 836,
+      "xref": 194
+    },
+    {
+      "file": "native/page-41-xobject-220.png",
+      "page": 41,
+      "kind": "unmodified native PDF image",
+      "width": 1152,
+      "height": 1152,
+      "xref": 220
+    },
+    {
+      "file": "native/page-52-xobject-277.png",
+      "page": 52,
+      "kind": "unmodified native PDF image",
+      "width": 2710,
+      "height": 1874,
+      "xref": 277
+    },
+    {
+      "file": "native/page-54-xobject-288.png",
+      "page": 54,
+      "kind": "unmodified native PDF image",
+      "width": 1524,
+      "height": 486,
+      "xref": 288
+    },
+    {
+      "file": "native/page-56-xobject-307.png",
+      "page": 56,
+      "kind": "unmodified native PDF image",
+      "width": 2000,
+      "height": 2000,
+      "xref": 307
+    },
+    {
+      "file": "native/page-62-xobject-338.png",
+      "page": 62,
+      "kind": "unmodified native PDF image",
+      "width": 3840,
+      "height": 2200,
+      "xref": 338
+    },
+    {
+      "file": "native/tfidf-product.svg",
+      "page": 38,
+      "kind": "PDF native vector layout; glyph outlines; original embedded images",
+      "clip": [
+        90.0,
+        790.0,
+        1840.0,
+        1020.0
+      ]
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>U.S. airport routes · 2008</title>
+        <link rel="stylesheet" href="lib/figure.css" />
+        <link rel="stylesheet" href="lib/demos.css" />
+        <link rel="stylesheet" href="lib/airports-chord.css" />
+    </head>
+    <body class="ac-figure airports">
+        <header>
+            <div>
+                <h1 id="heading">U.S. airport routes · 2008</h1>
+                <p id="instructions">
+                    Loading local Vega airport and route tables…
+                </p>
+            </div>
+            <button id="reset" type="button">Reset</button>
+        </header>
+        <div class="ac-controls" aria-label="Airport selections">
+            <label
+                >Origin
+                <select id="origin" aria-label="Origin airport"></select
+            ></label>
+            <label id="destination-control"
+                >Destination
+                <select
+                    id="destination"
+                    aria-label="Destination airport"
+                ></select
+            ></label>
+            <label id="click-control"
+                >Map clicks set
+                <select id="click-target">
+                    <option value="origin">Origin</option>
+                    <option value="destination">Destination</option>
+                </select></label
+            >
+        </div>
+        <div class="ac-legend" aria-label="Selection legend">
+            <span
+                ><i class="key origin"></i>
+                <span id="origin-legend">Origin</span></span
+            ><span id="destination-key"
+                ><i class="key destination"></i>
+                <span id="destination-legend">Destination</span></span
+            ><span
+                ><i class="key airport"></i> Route airport · size: departing
+                flights</span
+            ><span><i class="key inactive"></i> No recorded routes</span
+            ><span id="route-key">Arrows follow recorded direction</span>
+        </div>
+        <main>
+            <svg viewBox="0 0 1000 610" aria-labelledby="title description">
+                <title id="title">Geographic airport route network</title>
+                <desc id="description">
+                    Select airports with the keyboard-accessible menus or click
+                    map nodes. Routes follow recorded origin-to-destination
+                    direction.
+                </desc>
+            </svg>
+        </main>
+        <p id="status" class="sr-only" role="status" aria-live="polite">
+            Loading…
+        </p>
+        <footer>
+            Vega datasets · FAA airport locations / BTS 2008 flights ·
+            <a href="airports-chord-PROVENANCE.md">Data &amp; methods</a>
+        </footer>
+        <div id="tooltip" class="ac-tooltip" role="tooltip" hidden></div>
+        <script src="../geospatial/lib/d3.min.js"></script>
+
+        <script type="module" src="lib/airports.js"></script>
+    </body>
+</html>

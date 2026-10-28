@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>Prague Metro — schematic to geographic</title>
+        <link rel="stylesheet" href="lib/figure.css" />
+        <link rel="stylesheet" href="lib/hierarchy-motion.css" />
+    </head>
+    <body class="motion subway">
+        <main>
+            <svg
+                role="group"
+                aria-label="Prague Metro A, B and C. Advance the presentation to animate from schematic to geographic positions; navigate backward to reverse. Both layouts preserve the same stations and connections."
+            ></svg>
+        </main>
+        <p id="status" class="sr-only" role="status" aria-live="polite"></p>
+        <script src="../geospatial/lib/d3.min.js"></script>
+        <script type="module" src="lib/subway.js"></script>
+    </body>
+</html>

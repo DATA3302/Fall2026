@@ -49,6 +49,18 @@ slides:
     file: /slides/geospatial/
     status: Interactive
 
+  - title: Temporal
+    file: /slides/temporal/
+    status: Interactive
+
+  - title: Networks
+    file: /slides/networks/
+    status: Interactive
+
+  - title: Text
+    file: /slides/text/
+    status: Interactive
+
 labs:
   - title: Intro to Observable
     url: https://observablehq.com/@calpoly-data3302-fall2026/intro-observable

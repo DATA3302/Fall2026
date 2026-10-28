@@ -1,0 +1,203 @@
+[
+  {
+    "file": "native/page-02-xobject-13.png",
+    "pdf_page": 2,
+    "xref": 13,
+    "width": 1114,
+    "height": 1692
+  },
+  {
+    "file": "native/page-03-xobject-23.png",
+    "pdf_page": 3,
+    "xref": 23,
+    "width": 1054,
+    "height": 1362
+  },
+  {
+    "file": "native/page-03-xobject-24.png",
+    "pdf_page": 3,
+    "xref": 24,
+    "width": 1088,
+    "height": 724
+  },
+  {
+    "file": "native/page-04-xobject-29.png",
+    "pdf_page": 4,
+    "xref": 29,
+    "width": 912,
+    "height": 732
+  },
+  {
+    "file": "native/page-05-xobject-34.png",
+    "pdf_page": 5,
+    "xref": 34,
+    "width": 894,
+    "height": 496
+  },
+  {
+    "file": "native/page-06-xobject-39.png",
+    "pdf_page": 6,
+    "xref": 39,
+    "width": 1112,
+    "height": 1136
+  },
+  {
+    "file": "native/page-07-xobject-44.png",
+    "pdf_page": 7,
+    "xref": 44,
+    "width": 1060,
+    "height": 570
+  },
+  {
+    "file": "native/page-07-xobject-45.png",
+    "pdf_page": 7,
+    "xref": 45,
+    "width": 980,
+    "height": 364
+  },
+  {
+    "file": "native/page-08-xobject-50.png",
+    "pdf_page": 8,
+    "xref": 50,
+    "width": 1156,
+    "height": 326
+  },
+  {
+    "file": "native/page-10-xobject-92.png",
+    "pdf_page": 10,
+    "xref": 92,
+    "width": 1116,
+    "height": 502
+  },
+  {
+    "file": "native/page-13-xobject-107.png",
+    "pdf_page": 13,
+    "xref": 107,
+    "width": 946,
+    "height": 1360
+  },
+  {
+    "file": "native/page-13-xobject-109.png",
+    "pdf_page": 13,
+    "xref": 109,
+    "width": 736,
+    "height": 1115
+  },
+  {
+    "file": "native/page-31-xobject-200.png",
+    "pdf_page": 31,
+    "xref": 200,
+    "width": 1588,
+    "height": 2382
+  },
+  {
+    "file": "native/page-32-xobject-212.png",
+    "pdf_page": 32,
+    "xref": 212,
+    "width": 2708,
+    "height": 1612
+  },
+  {
+    "file": "native/page-37-xobject-243.png",
+    "pdf_page": 37,
+    "xref": 243,
+    "width": 628,
+    "height": 756
+  },
+  {
+    "file": "native/page-38-xobject-248.png",
+    "pdf_page": 38,
+    "xref": 248,
+    "width": 2248,
+    "height": 1268
+  },
+  {
+    "file": "native/page-38-xobject-249.png",
+    "pdf_page": 38,
+    "xref": 249,
+    "width": 1114,
+    "height": 614
+  },
+  {
+    "file": "native/page-39-xobject-254.png",
+    "pdf_page": 39,
+    "xref": 254,
+    "width": 836,
+    "height": 398
+  },
+  {
+    "file": "native/page-40-xobject-260.png",
+    "pdf_page": 40,
+    "xref": 260,
+    "width": 976,
+    "height": 1092
+  },
+  {
+    "file": "native/page-40-xobject-259.png",
+    "pdf_page": 40,
+    "xref": 259,
+    "width": 968,
+    "height": 1076
+  },
+  {
+    "file": "native/page-40-xobject-261.png",
+    "pdf_page": 40,
+    "xref": 261,
+    "width": 966,
+    "height": 1086
+  },
+  {
+    "file": "native/page-41-xobject-267.png",
+    "pdf_page": 41,
+    "xref": 267,
+    "width": 2266,
+    "height": 1180
+  },
+  {
+    "file": "page-09-collage.svg",
+    "pdf_page": 9,
+    "method": "native page SVG and source-resolution images, losslessly WebP-compressed; IDs namespaced",
+    "viewBox": [
+      0,
+      0,
+      1920,
+      1080
+    ]
+  },
+  {
+    "file": "page-33-annotation.svg",
+    "pdf_page": 33,
+    "method": "native vector SVG, slide heading removed; chart unchanged"
+  },
+  {
+    "file": "page-34-annotation.svg",
+    "pdf_page": 34,
+    "method": "native vector SVG, slide heading removed; chart unchanged"
+  },
+  {
+    "file": "page-43-design-space.svg",
+    "pdf_page": 43,
+    "method": "native vector SVG; source URL removed; IDs namespaced",
+    "viewBox": [
+      1000,
+      25,
+      905,
+      1035
+    ]
+  },
+  {
+    "file": "page-42-waveform-spectrogram.svg",
+    "pdf_page": 42,
+    "method": "native SVG layout, original text and embedded source-resolution resources; IDs namespaced",
+    "xrefs": [
+      272,
+      273
+    ],
+    "viewBox": [
+      20,
+      120,
+      1890,
+      800
+    ]
+  }
+]

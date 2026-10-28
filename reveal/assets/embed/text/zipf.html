@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Zipf’s law — illustrative model</title>
+  <link rel="stylesheet" href="../geospatial/lib/figure.css">
+  <style>
+    main { inset: 12px 16px 96px; }
+    .model { position: absolute; inset: 0; }
+    .external-static { object-fit: contain; }
+    .controls { left: 10px; right: 10px; bottom: 8px; font-size: 13px; }
+    .caption { bottom: 57px; font-size: 12px; }
+    [hidden] { display: none !important; }
+    .axis text { fill: var(--ink); font-size: 16px; }
+    .axis path, .axis line { stroke: var(--muted); }
+    @media print { .model, .controls, .caption { display: none !important; } .external-static { display: block !important; } main { inset: 0; } }
+  </style>
+</head>
+<body data-mode="static">
+  <main>
+    <img class="external-static" src="../../images/text/native/page-36-xobject-189.png" alt="Original log-log plot of term frequency against rank for six books.">
+    <svg class="model" hidden viewBox="0 0 900 540" role="img" aria-label="Illustrative normalized Zipf distribution, not original book observations"></svg>
+  </main>
+  <p class="caption" hidden>Illustrative power-law model · not the original book counts</p>
+  <div class="controls" aria-label="Figure controls">
+    <button type="button" data-mode="static" aria-pressed="true">Static</button>
+    <button type="button" data-mode="live" aria-pressed="false">Live</button>
+    <label hidden>Exponent s <input type="range" min="0.5" max="1.8" step="0.05" value="1" aria-label="Zipf exponent"><output>1.00</output></label>
+    <label hidden>Axes <select aria-label="Axis scales"><option value="log">Log–log</option><option value="linear">Linear</option></select></label>
+  </div>
+  <p class="sr-only" role="status" aria-live="polite"></p>
+  <script src="../geospatial/lib/d3.min.js"></script>
+  <script src="zipf.js"></script>
+</body>
+</html>

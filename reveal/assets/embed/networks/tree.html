@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Local D3 tree recreation — synthetic hierarchy</title>
+    <link rel="stylesheet" href="lib/figure.css">
+    <link rel="stylesheet" href="lib/demos.css">
+</head>
+<body class="has-caption">
+    <main><svg viewBox="0 0 900 620" role="group" aria-labelledby="title description"><title id="title">Tree layout</title><desc id="description">A synthetic hierarchy. Select a branch with a click, Enter, or Space to collapse or expand it.</desc><g id="tree"></g></svg></main>
+    <p class="caption">Local recreation · Synthetic hierarchy, not source data. Select a branch to expand/collapse.</p>
+    <div class="controls">
+        <label>Layout <select id="layout"><option value="tree">Tidy tree</option><option value="cluster">Cluster</option><option value="radial">Radial tree</option></select></label>
+        <button id="expand" type="button">Expand all</button>
+        <button id="reset" type="button">Reset</button>
+    </div>
+    <script src="../geospatial/lib/d3.min.js"></script>
+    <script type="module" src="lib/tree.js"></script>
+</body>
+</html>

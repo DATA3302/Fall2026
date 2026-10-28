@@ -1,0 +1,9 @@
+.link { fill: none; stroke: var(--muted); stroke-opacity: .65; stroke-width: 1.5; }
+.node { stroke: white; stroke-width: 1.5; }
+.force-node { cursor: grab; touch-action: none; }
+.force-node:active { cursor: grabbing; }
+.tree-node { fill: white; stroke: var(--accent); stroke-width: 2; }
+.tree-node.branch { cursor: pointer; }
+.tree-node.collapsed { fill: var(--accent); }
+.tree-label { fill: var(--ink); font: 17px system-ui, sans-serif; pointer-events: none; }
+@media print { .controls { display: none; } main { bottom: 30px; } }
