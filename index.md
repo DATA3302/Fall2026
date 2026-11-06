@@ -50,4 +50,4 @@ permalink: /
 - [Assignments]({{ '/assignments/' | relative_url }})
 - [Gradescope]({{ site.data.course.links.gradescope }})
 - [EdStem]({{ site.data.course.links.edstem }})
-- [Book an appointment]({{ site.data.course.links.appointment }})
+- [Schedule an assignment or paper interview]({{ site.data.course.links.interview }})

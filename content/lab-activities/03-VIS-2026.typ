@@ -60,7 +60,7 @@ Write the summaries in your own words. Remember that your final project revision
 
 = Oral interview
 
-In order to receive participation credit you must pass a short oral interview about one of your submitted papers, chosen at random. Interviews will take place during the remaining lab time or during office hours. I will ask you to explain what the paper did, why, and what it found, and to discuss how you would apply it. You will not be considered to have completed the activity until you have done this, so do not leave it until the last week.
+In order to receive participation credit you must pass a short oral interview about one of your submitted papers, chosen at random. Interviews will take place during the remaining lab time or during office hours. You can also book a time at any point over the next two weeks using #link("https://calendly.com/awrigh20-calpoly/assignment-interview")[this form], which can also be used to schedule interviews for other assignments. I will ask you to explain what the paper did, why, and what it found, and to discuss how you would apply it. You will not be considered to have completed the activity until you have done this, so do not leave it until the last week.
 
 = Grading
 
